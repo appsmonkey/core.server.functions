@@ -8,25 +8,23 @@ import (
 	es "github.com/appsmonkey/core.server.functions/errorStatuses"
 )
 
-// RegisterRequest sent from the client
-type RegisterRequest struct {
-	FullName string `json:"full_name"`
-	Email    string `json:"email"`
-	Password string `json:"password"`
+// SignupRequest sent from the client
+type SignupRequest struct {
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+	Gender    string `json:"gender"`
+	Email     string `json:"email"`
+	Password  string `json:"password"`
 }
 
-// RegisterResponse to the client
-type RegisterResponse struct {
+// SignupResponse to the client
+type SignupResponse struct {
 	BaseResponse
 }
 
-// RegisterData holding request/response specific data to be returned to the client
-type RegisterData struct {
-}
-
 // Validate the request sent from client
-func (r *RegisterRequest) Validate(body string) *RegisterResponse {
-	response := new(RegisterResponse)
+func (r *SignupRequest) Validate(body string) *SignupResponse {
+	response := new(SignupResponse)
 	response.Code = 0
 	response.RequestID = strconv.FormatInt(time.Now().Unix(), 10)
 
@@ -50,16 +48,26 @@ func (r *RegisterRequest) Validate(body string) *RegisterResponse {
 		response.Code = es.StatusRegistrationError
 	}
 
-	// if len(r.FullName) == 0 {
-	// 	response.Errors = append(response.Errors, es.ErrRegistrationMissingName)
-	// 	response.Code = es.StatusRegistrationError
-	// }
+	if !validateGender(r.Gender) {
+		response.Errors = append(response.Errors, es.ErrRegistrationInvalidGender)
+		response.Code = es.StatusRegistrationError
+	}
+
+	if len(r.FirstName) == 0 {
+		response.Errors = append(response.Errors, es.ErrRegistrationMissingFirstName)
+		response.Code = es.StatusRegistrationError
+	}
+
+	if len(r.LastName) == 0 {
+		response.Errors = append(response.Errors, es.ErrRegistrationMissingLastName)
+		response.Code = es.StatusRegistrationError
+	}
 
 	return response
 }
 
 // Marshal the response object
-func (r *RegisterResponse) Marshal() string {
+func (r *SignupResponse) Marshal() string {
 	res, _ := json.Marshal(r)
 
 	return string(res)

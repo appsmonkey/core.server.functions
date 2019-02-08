@@ -8,25 +8,20 @@ import (
 	es "github.com/appsmonkey/core.server.functions/errorStatuses"
 )
 
-// RegisterRequest sent from the client
-type RegisterRequest struct {
-	FullName string `json:"full_name"`
+// SigninRequest sent from the client
+type SigninRequest struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
 }
 
-// RegisterResponse to the client
-type RegisterResponse struct {
+// SigninResponse to the client
+type SigninResponse struct {
 	BaseResponse
 }
 
-// RegisterData holding request/response specific data to be returned to the client
-type RegisterData struct {
-}
-
 // Validate the request sent from client
-func (r *RegisterRequest) Validate(body string) *RegisterResponse {
-	response := new(RegisterResponse)
+func (r *SigninRequest) Validate(body string) *SigninResponse {
+	response := new(SigninResponse)
 	response.Code = 0
 	response.RequestID = strconv.FormatInt(time.Now().Unix(), 10)
 
@@ -36,30 +31,25 @@ func (r *RegisterRequest) Validate(body string) *RegisterResponse {
 		errData.Data = err.Error()
 		response.Errors = append(response.Errors, errData)
 
-		response.Code = es.StatusRegistrationError
+		response.Code = es.StatusSignInError
 		return response
 	}
 
 	if !validateEmail(r.Email) {
 		response.Errors = append(response.Errors, es.ErrRegistrationMissingEmail)
-		response.Code = es.StatusRegistrationError
+		response.Code = es.StatusSignInError
 	}
 
 	if !validatePassword(r.Password) {
 		response.Errors = append(response.Errors, es.ErrRegistrationMissingPass)
-		response.Code = es.StatusRegistrationError
+		response.Code = es.StatusSignInError
 	}
-
-	// if len(r.FullName) == 0 {
-	// 	response.Errors = append(response.Errors, es.ErrRegistrationMissingName)
-	// 	response.Code = es.StatusRegistrationError
-	// }
 
 	return response
 }
 
 // Marshal the response object
-func (r *RegisterResponse) Marshal() string {
+func (r *SigninResponse) Marshal() string {
 	res, _ := json.Marshal(r)
 
 	return string(res)

@@ -1,0 +1,6 @@
+vendor
+bin
+.DS_Store
+scripts
+.vscode
+.env

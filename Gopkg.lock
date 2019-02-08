@@ -49,6 +49,7 @@
     "private/protocol/query/queryutil",
     "private/protocol/rest",
     "private/protocol/xml/xmlutil",
+    "service/cognitoidentityprovider",
     "service/dynamodb",
     "service/dynamodb/dynamodbattribute",
     "service/dynamodb/expression",
@@ -59,11 +60,63 @@
   version = "v1.16.23"
 
 [[projects]]
+  digest = "1:0deddd908b6b4b768cfc272c16ee61e7088a60f7fe2f06c547bd3d8e1f8b8e77"
+  name = "github.com/davecgh/go-spew"
+  packages = ["spew"]
+  pruneopts = ""
+  revision = "8991bc29aa16c548c550c7ff78260e27b9ab7c73"
+  version = "v1.1.1"
+
+[[projects]]
+  digest = "1:6098222470fe0172157ce9bbef5d2200df4edde17ee649c5d6e48330e4afa4c6"
+  name = "github.com/dgrijalva/jwt-go"
+  packages = ["."]
+  pruneopts = ""
+  revision = "06ea1031745cb8b3dab3f6a236daf2b0aa468b7e"
+  version = "v3.2.0"
+
+[[projects]]
   digest = "1:13fe471d0ed891e8544eddfeeb0471fd3c9f2015609a1c000aefdedf52a19d40"
   name = "github.com/jmespath/go-jmespath"
   packages = ["."]
   pruneopts = ""
   revision = "c2b33e84"
+
+[[projects]]
+  digest = "1:7df5a9695a743c3e1626b28bb8741602c8c15527e1efaeaec48ab2ff9a23f74c"
+  name = "github.com/joho/godotenv"
+  packages = ["."]
+  pruneopts = ""
+  revision = "23d116af351c84513e1946b527c88823e476be13"
+  version = "v1.3.0"
+
+[[projects]]
+  branch = "master"
+  digest = "1:2a88d2073772431834978b2a6bfde3c59708f60a7364b40c194f748edc010a01"
+  name = "github.com/lestrrat/go-jwx"
+  packages = [
+    "internal/base64",
+    "jwa",
+    "jwk",
+  ]
+  pruneopts = ""
+  revision = "b7d4802280aef47b8786da314e8675d41d980b04"
+
+[[projects]]
+  branch = "master"
+  digest = "1:1d8746ee7de3d928b5893a48b6dd871f76c479d9c1d4d8a4876475e16ea9c9c3"
+  name = "github.com/lestrrat/go-pdebug"
+  packages = ["."]
+  pruneopts = ""
+  revision = "569c97477ae8837e053e5a50bc739e15172b8ebe"
+
+[[projects]]
+  digest = "1:1d7e1867c49a6dd9856598ef7c3123604ea3daabf5b83f303ff457bcbc410b1d"
+  name = "github.com/pkg/errors"
+  packages = ["."]
+  pruneopts = ""
+  revision = "ba968bfe8b2f7e042a574c888954fccecfa385b4"
+  version = "v0.8.1"
 
 [solve-meta]
   analyzer-name = "dep"
@@ -72,10 +125,15 @@
     "github.com/aws/aws-lambda-go/events",
     "github.com/aws/aws-lambda-go/lambda",
     "github.com/aws/aws-sdk-go/aws",
+    "github.com/aws/aws-sdk-go/aws/credentials",
     "github.com/aws/aws-sdk-go/aws/session",
+    "github.com/aws/aws-sdk-go/service/cognitoidentityprovider",
     "github.com/aws/aws-sdk-go/service/dynamodb",
     "github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute",
     "github.com/aws/aws-sdk-go/service/dynamodb/expression",
+    "github.com/dgrijalva/jwt-go",
+    "github.com/joho/godotenv",
+    "github.com/lestrrat/go-jwx/jwk",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1
