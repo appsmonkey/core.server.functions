@@ -37,3 +37,51 @@ general:
 	mkdir -p bin
 	build-lambda-zip -o bin/general.zip general
 	rm general
+
+deviceList:
+	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o devicelist functions/deviceList/main.go
+	mkdir -p bin
+	build-lambda-zip -o bin/devicelist.zip devicelist
+	rm devicelist
+
+deviceUpdate:
+	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o deviceUpdate functions/deviceUpdate/main.go
+	mkdir -p bin
+	build-lambda-zip -o bin/deviceUpdate.zip deviceUpdate
+	rm deviceUpdate
+
+cognitoRegister:
+	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o cognitoRegister functions/cognitoRegister/main.go
+	mkdir -p bin
+	build-lambda-zip -o bin/cognitoRegister.zip cognitoRegister
+	rm cognitoRegister
+
+cognitoProfileList:
+	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o cognitoProfileList functions/cognitoProfileList/main.go
+	mkdir -p bin
+	build-lambda-zip -o bin/cognitoProfileList.zip cognitoProfileList
+	rm cognitoProfileList
+
+cognitoProfileUpdate:
+	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o cognitoProfileUpdate functions/cognitoProfileUpdate/main.go
+	mkdir -p bin
+	build-lambda-zip -o bin/cognitoProfileUpdate.zip cognitoProfileUpdate
+	rm cognitoProfileUpdate
+
+deviceAdd:
+	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o deviceAdd functions/deviceAdd/main.go
+	mkdir -p bin
+	build-lambda-zip -o bin/deviceAdd.zip deviceAdd
+	rm deviceAdd
+
+deviceGet:
+	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o deviceGet functions/deviceGet/main.go
+	mkdir -p bin
+	build-lambda-zip -o bin/deviceGet.zip deviceGet
+	rm deviceGet
+
+map:
+	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o map functions/map/main.go
+	mkdir -p bin
+	build-lambda-zip -o bin/map.zip map
+	rm map

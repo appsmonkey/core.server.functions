@@ -1,0 +1,73 @@
+package viewmodels
+
+import (
+	"encoding/json"
+	"strconv"
+	"time"
+
+	es "github.com/appsmonkey/core.server.functions/errorStatuses"
+	m "github.com/appsmonkey/core.server.functions/models"
+	"github.com/aws/aws-lambda-go/events"
+	bg "github.com/kjk/betterguid"
+)
+
+// CognitoRegisterRequest sent from cognito
+type CognitoRegisterRequest struct {
+	m.User
+}
+
+// Validate the request sent from client
+func (r *CognitoRegisterRequest) Validate(body *events.CognitoEventUserPoolsPostConfirmation) *CognitoRegisterResponse {
+	response := new(CognitoRegisterResponse)
+	response.Code = 0
+	response.RequestID = strconv.FormatInt(time.Now().Unix(), 10)
+
+	r.Attributes = make(map[string]string, 0)
+	r.Profile = m.UserProfile{}
+	r.Token = bg.New()
+
+	for uak, uav := range body.Request.UserAttributes {
+		switch uak {
+		case "email":
+			r.Email = uav
+			r.Attributes[uak] = uav
+		case "sub": // Unique Cognito User ID
+			r.CognitoID = uav
+			r.Attributes[uak] = uav
+		default:
+			r.Attributes[uak] = uav
+		}
+	}
+
+	if len(r.CognitoID) == 0 {
+		response.Errors = append(response.Errors, es.ErrMissingCognitoID)
+		response.Code = es.StatusRegistrationError
+	}
+
+	if len(r.Email) == 0 {
+		response.Errors = append(response.Errors, es.ErrRegistrationMissingEmail)
+		response.Code = es.StatusRegistrationError
+	}
+
+	return response
+}
+
+// CognitoRegisterResponse to the client
+// `Returns a list of all devices assigned to the requestee. Data defained in the *DeviceAddData* struct`
+type CognitoRegisterResponse struct {
+	BaseResponse
+}
+
+// Marshal the response object
+func (r *CognitoRegisterResponse) Marshal() string {
+	res, _ := json.Marshal(r)
+
+	return string(res)
+}
+
+// Marshal the response object
+func (r *CognitoRegisterRequest) Marshal() string {
+	res, _ := json.Marshal(r)
+
+	return string(res)
+}

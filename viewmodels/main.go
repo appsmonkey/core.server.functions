@@ -38,3 +38,13 @@ func validatePassword(password string) bool {
 func validateGender(gender string) bool {
 	return gender == "male" || gender == "female"
 }
+
+// Headers for cors
+func (r *BaseResponse) Headers() map[string]string {
+	hdr := make(map[string]string, 0)
+	hdr["Access-Control-Allow-Origin"] = "*"
+	hdr["Access-Control-Allow-Methods"] = "GET, OPTIONS"
+	hdr["Access-Control-Allow-Headers"] = "Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token"
+
+	return hdr
+}

@@ -14,26 +14,26 @@ import (
 	"github.com/aws/aws-sdk-go/service/dynamodb/expression"
 )
 
-// ItemInfo has more data for our movie item
-type ItemInfo struct {
+// itemInfo has more data for our movie item
+type itemInfo struct {
 	Plot   string  `json:"plot"`
 	Rating float64 `json:"rating"`
 }
 
-// Item has fields for the DynamoDB keys (Year and Title) and an ItemInfo for more data
-type Item struct {
+// item has fields for the DynamoDB keys (Year and Title) and an ItemInfo for more data
+type item struct {
 	Year  int      `json:"year"`
 	Title string   `json:"title"`
-	Info  ItemInfo `json:"info"`
+	Info  itemInfo `json:"info"`
 }
 
-// GetByYearTitle wraps up the DynamoDB calls to fetch a specific Item
+// getByYearTitle wraps up the DynamoDB calls to fetch a specific Item
 // Based on https://github.com/awsdocs/aws-doc-sdk-examples/blob/master/go/example_code/dynamodb/read_item.go
-func GetByYearTitle(year, title string) (Item, error) {
+func getByYearTitle(year, title string) (item, error) {
 	// Build the Dynamo client object
 	sess := session.Must(session.NewSession())
 	svc := dynamodb.New(sess)
-	item := Item{}
+	item := item{}
 
 	// Perform the query
 	fmt.Println("Trying to read from table: ", os.Getenv("TABLE_NAME"))
@@ -63,13 +63,13 @@ func GetByYearTitle(year, title string) (Item, error) {
 	return item, nil
 }
 
-// ListByYear wraps up the DynamoDB calls to list all items of a particular year
+// listByYear wraps up the DynamoDB calls to list all items of a particular year
 // Based on https://github.com/awsdocs/aws-doc-sdk-examples/blob/master/go/example_code/dynamodb/scan_items.go
-func ListByYear(year string) ([]Item, error) {
+func listByYear(year string) ([]item, error) {
 	// Build the Dynamo client object
 	sess := session.Must(session.NewSession())
 	svc := dynamodb.New(sess)
-	items := []Item{}
+	items := []item{}
 
 	// Create the Expression to fill the input struct with.
 	yearAsInt, err := strconv.Atoi(year)
@@ -107,7 +107,7 @@ func ListByYear(year string) ([]Item, error) {
 
 	numItems := 0
 	for _, i := range result.Items {
-		item := Item{}
+		item := item{}
 
 		err = dynamodbattribute.UnmarshalMap(i, &item)
 
@@ -131,15 +131,15 @@ func ListByYear(year string) ([]Item, error) {
 	return items, nil
 }
 
-// Post extracts the Item JSON and writes it to DynamoDB
+// post extracts the Item JSON and writes it to DynamoDB
 // Based on https://github.com/awsdocs/aws-doc-sdk-examples/blob/master/go/example_code/dynamodb/create_item.go
-func Post(body string) (Item, error) {
+func post(body string) (item, error) {
 	// Create the dynamo client object
 	sess := session.Must(session.NewSession())
 	svc := dynamodb.New(sess)
 
 	// Marshall the requrest body
-	var thisItem Item
+	var thisItem item
 	json.Unmarshal([]byte(body), &thisItem)
 
 	// Take out non-alphanumberic except space characters from the title for easier slug building on reads
@@ -165,9 +165,9 @@ func Post(body string) (Item, error) {
 
 }
 
-// Delete wraps up the DynamoDB calls to delete a specific Item
+// delete wraps up the DynamoDB calls to delete a specific Item
 // Based on https://github.com/awsdocs/aws-doc-sdk-examples/blob/master/go/example_code/dynamodb/delete_item.go
-func Delete(year, title string) error {
+func delete(year, title string) error {
 	// Build the Dynamo client object
 	sess := session.Must(session.NewSession())
 	svc := dynamodb.New(sess)
@@ -193,15 +193,15 @@ func Delete(year, title string) error {
 	return nil
 }
 
-// Put extracts the Item JSON and updates it in DynamoDB
+// put extracts the Item JSON and updates it in DynamoDB
 // Based on https://github.com/awsdocs/aws-doc-sdk-examples/blob/master/go/example_code/dynamodb/update_item.go
-func Put(body string) (Item, error) {
+func put(body string) (item, error) {
 	// Create the dynamo client object
 	sess := session.Must(session.NewSession())
 	svc := dynamodb.New(sess)
 
 	// Marshall the requrest body
-	var thisItem Item
+	var thisItem item
 	json.Unmarshal([]byte(body), &thisItem)
 
 	// Take out non-alphanumberic except space characters from the title for easier slug building on reads

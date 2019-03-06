@@ -7,6 +7,9 @@ type Error struct {
 	Data    string `json:"error-data"`
 }
 
+// ErrNo [There is no error]
+var ErrNo = Error{Code: 1000, Message: "no error"}
+
 // ErrUnknown [could not determine the error]
 var ErrUnknown = Error{Code: 1001, Message: "unknown error"}
 
@@ -36,3 +39,42 @@ var ErrRegistrationSignInError = Error{Code: 1009, Message: "signin error [canno
 
 // ErrProfileMissingEmail [cannot get user's profile. Missing email]
 var ErrProfileMissingEmail = Error{Code: 1005, Message: "profile error [missing email]"}
+
+// ErrMissingCognitoID [cannot save user. Missing cognito user ID]
+var ErrMissingCognitoID = Error{Code: 1010, Message: "profile error [missing cognito ID]"}
+
+// ErrMissingThingModel [cannot add device. Missing model]
+var ErrMissingThingModel = Error{Code: 1011, Message: "cannot add device. Missing model"}
+
+// ErrMissingThingName [cannot add device. Missing name]
+var ErrMissingThingName = Error{Code: 1012, Message: "cannot add device. Missing name"}
+
+// ErrMissingThingLocation [cannot add device. Missing location]
+var ErrMissingThingLocation = Error{Code: 1013, Message: "cannot add device. Missing location"}
+
+// ErrMissingThingToken [cannot get device details. Missing token]
+var ErrMissingThingToken = Error{Code: 1014, Message: "cannot get device details. Missing token"}
+
+// ErrMissingSensorType [cannot get map details. Missing sensor]
+var ErrMissingSensorType = Error{Code: 1015, Message: "cannot get map details. Missing sensor"}
+
+// ErrMissingBio [cannot updateProfile details. Missing bio]
+var ErrMissingBio = Error{Code: 1016, Message: "cannot update profile details. Missing bio"}
+
+// ErrMissingFirstname [cannot updateProfile details. Missing first name]
+var ErrMissingFirstname = Error{Code: 1017, Message: "cannot update profile details. Missing first name"}
+
+// ErrMissingLastname [cannot updateProfile details. Missing last name]
+var ErrMissingLastname = Error{Code: 1018, Message: "cannot update profile details. Missing last name"}
+
+// ErrMissingMantra [cannot updateProfile details. Missing mantra]
+var ErrMissingMantra = Error{Code: 1019, Message: "cannot update profile details. Missing mantra"}
+
+// ErrMissingCity [cannot updateProfile details. Missing city]
+var ErrMissingCity = Error{Code: 1020, Message: "cannot update profile details. Missing City"}
+
+// ErrMissingWebsite [cannot updateProfile details. Missing website]
+var ErrMissingWebsite = Error{Code: 1021, Message: "cannot update profile details. Missing website"}
+
+// ErrMissingBirthday [cannot updateProfile details. Missing birthday]
+var ErrMissingBirthday = Error{Code: 1022, Message: "cannot update profile details. Missing birthday"}
