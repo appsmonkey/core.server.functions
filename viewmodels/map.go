@@ -6,6 +6,7 @@ import (
 	"time"
 
 	es "github.com/appsmonkey/core.server.functions/errorStatuses"
+	m "github.com/appsmonkey/core.server.functions/models"
 )
 
 // MapRequest is the request from the client
@@ -64,4 +65,10 @@ func (r *MapResponse) Marshal() string {
 // AddError to the response object
 func (r *MapResponse) AddError(err *es.Error) {
 	r.Errors = append(r.Errors, *err)
+}
+
+// MapResponseData to be returned
+type MapResponseData struct {
+	Zones   []m.Zone    `json:"zones"`
+	Devices []m.MapMeta `json:"devices"`
 }

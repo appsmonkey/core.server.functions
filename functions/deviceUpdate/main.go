@@ -4,17 +4,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"os"
 
 	"github.com/appsmonkey/core.server.functions/dal"
 	m "github.com/appsmonkey/core.server.functions/models"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
-)
-
-var (
-	envType = os.Getenv("ENV_TYPE")
+	"github.com/aws/aws-sdk-go/aws/session"
+	sl "github.com/aws/aws-sdk-go/service/lambda"
 )
 
 // Handler will handle our request comming from the API gateway
@@ -54,19 +50,26 @@ func Handler(ctx context.Context, req interface{}) error {
 		Measurements: desired["measurements"].([]interface{}),
 	}
 
-	dbRes, err := dal.List("devices", dal.Name("token").Equal(dal.Value(deviceData.Token)), dal.Projection(dal.Name("token"), dal.Name("device_id"), dal.Name("meta"), dal.Name("map_meta"), dal.Name("active"), dal.Name("measurements"), dal.Name("cognito_id")))
-	dbData := make([]m.Device, 0)
-	err = dbRes.Unmarshal(&dbData)
+	dbRes, err := dal.Get("devices", map[string]*dal.AttributeValue{
+		"token": {
+			S: aws.String(deviceData.Token),
+		},
+	})
 	if err != nil {
 		fmt.Println(err)
 		return err
 	}
-	if len(dbData) == 0 {
+
+	device := m.Device{}
+	err = dbRes.Unmarshal(&device)
+
+	if err != nil {
+		fmt.Println(err)
 		return err
 	}
 
-	device := dbData[0]
 	device.Active = true
+	device.Token = deviceData.Token
 	device.DeviceID = deviceData.DeviceID
 	if len(device.MapMeta) == 0 {
 		device.MapMeta = make(map[string]m.MapMeta, 0)
@@ -104,40 +107,33 @@ func Handler(ctx context.Context, req interface{}) error {
 		device.Measurements[mk] = mv
 	}
 
-	mapData, err := dynamodbattribute.MarshalMap(device.MapMeta)
-	if err != nil {
-		fmt.Println(err)
-		return err
+	// Since zone_id is an index, we need to have some value in it
+	if len(device.ZoneID) == 0 {
+		device.ZoneID = "none"
 	}
 
-	measureData, err := dynamodbattribute.MarshalMap(device.Measurements)
-	if err != nil {
-		fmt.Println(err)
-		return err
+	// Since cognito_id is an index, we need to have some value in it
+	if len(device.CognitoID) == 0 {
+		device.CognitoID = "none"
 	}
 
-	dal.Update("devices", "set active = :a, device_id = :d, map_meta = :mm, measurements = :m",
-		map[string]*dal.AttributeValue{
-			"token": {
-				S: aws.String(deviceData.Token),
-			},
-			"cognito_id": {
-				S: aws.String(device.CognitoID),
-			},
-		}, map[string]*dal.AttributeValue{
-			":a": {
-				BOOL: aws.Bool(device.Active),
-			},
-			":d": {
-				S: aws.String(deviceData.DeviceID),
-			},
-			":mm": {
-				M: mapData,
-			},
-			":m": {
-				M: measureData,
-			},
-		})
+	err = dal.Insert("devices", device)
+
+	fmt.Println("Err", err)
+	fmt.Println("ZoneID", device.ZoneID)
+	if err == nil && len(device.ZoneID) > 0 && device.ZoneID != "none" {
+		// Create Lambda service client
+		sess := session.Must(session.NewSessionWithOptions(session.Options{
+			SharedConfigState: session.SharedConfigEnable,
+		}))
+
+		payload := fmt.Sprintf(`{ "zone_id": "%v" }`, device.ZoneID)
+
+		client := sl.New(sess, &aws.Config{Region: aws.String("eu-west-1")})
+		invOut, err := client.Invoke(&sl.InvokeInput{FunctionName: aws.String("CityOSZoneUpdate"), Payload: []byte(payload)})
+		fmt.Println("invOut", invOut)
+		fmt.Println("err", err)
+	}
 
 	return nil
 }
@@ -145,3 +141,45 @@ func Handler(ctx context.Context, req interface{}) error {
 func main() {
 	lambda.Start(Handler)
 }
+
+// dbRes, err := dal.List("devices", dal.Name("token").Equal(dal.Value(deviceData.Token)), dal.Projection(dal.Name("token"), dal.Name("device_id"), dal.Name("meta"), dal.Name("map_meta"), dal.Name("active"), dal.Name("measurements"), dal.Name("cognito_id"), dal.Name("zone_id")))
+// dbData := make([]m.Device, 0)
+// err = dbRes.Unmarshal(&dbData)
+
+// if len(dbData) == 0 {
+// 	return err
+// }
+
+// device := dbData[0]
+
+// mapData, err := dynamodbattribute.MarshalMap(device.MapMeta)
+// if err != nil {
+// 	fmt.Println(err)
+// 	return err
+// }
+
+// measureData, err := dynamodbattribute.MarshalMap(device.Measurements)
+// if err != nil {
+// 	fmt.Println(err)
+// 	return err
+// }
+
+// err = dal.Update("devices", "set active = :a, device_id = :d, map_meta = :mm, measurements = :m",
+// 	map[string]*dal.AttributeValue{
+// 		"token": {
+// 			S: aws.String(deviceData.Token),
+// 		},
+// 	}, map[string]*dal.AttributeValue{
+// 		":a": {
+// 			BOOL: aws.Bool(device.Active),
+// 		},
+// 		":d": {
+// 			S: aws.String(deviceData.DeviceID),
+// 		},
+// 		":mm": {
+// 			M: mapData,
+// 		},
+// 		":m": {
+// 			M: measureData,
+// 		},
+// 	})

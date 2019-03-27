@@ -6,6 +6,7 @@ import (
 	"time"
 
 	es "github.com/appsmonkey/core.server.functions/errorStatuses"
+	c "github.com/appsmonkey/core.server.functions/integration/cognito"
 	m "github.com/appsmonkey/core.server.functions/models"
 	"github.com/aws/aws-lambda-go/events"
 	bg "github.com/kjk/betterguid"
@@ -36,6 +37,41 @@ func (r *CognitoRegisterRequest) Validate(body *events.CognitoEventUserPoolsPost
 			r.Attributes[uak] = uav
 		default:
 			r.Attributes[uak] = uav
+		}
+	}
+
+	if len(r.CognitoID) == 0 {
+		response.Errors = append(response.Errors, es.ErrMissingCognitoID)
+		response.Code = es.StatusRegistrationError
+	}
+
+	if len(r.Email) == 0 {
+		response.Errors = append(response.Errors, es.ErrRegistrationMissingEmail)
+		response.Code = es.StatusRegistrationError
+	}
+
+	return response
+}
+
+// ValidateCognito the request sent from client
+func (r *CognitoRegisterRequest) ValidateCognito(body *c.CognitoData) *CognitoRegisterResponse {
+	response := new(CognitoRegisterResponse)
+	response.Code = 0
+	response.RequestID = strconv.FormatInt(time.Now().Unix(), 10)
+
+	r.Attributes = make(map[string]string, 0)
+	r.Profile = m.UserProfile{}
+	r.Token = bg.New()
+
+	for _, uav := range body.UserData.User.Attributes {
+		if *uav.Name == "email" {
+			r.Email = *uav.Value
+			r.Attributes["email"] = r.Email
+		} else if *uav.Name == "sub" {
+			r.CognitoID = *uav.Value
+			r.Attributes["sub"] = r.CognitoID
+		} else {
+			r.Attributes[*uav.Name] = *uav.Value
 		}
 	}
 

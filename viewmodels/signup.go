@@ -53,15 +53,15 @@ func (r *SignupRequest) Validate(body string) *SignupResponse {
 		response.Code = es.StatusRegistrationError
 	}
 
-	if len(r.FirstName) == 0 {
-		response.Errors = append(response.Errors, es.ErrRegistrationMissingFirstName)
-		response.Code = es.StatusRegistrationError
-	}
+	// if len(r.FirstName) == 0 {
+	// 	response.Errors = append(response.Errors, es.ErrRegistrationMissingFirstName)
+	// 	response.Code = es.StatusRegistrationError
+	// }
 
-	if len(r.LastName) == 0 {
-		response.Errors = append(response.Errors, es.ErrRegistrationMissingLastName)
-		response.Code = es.StatusRegistrationError
-	}
+	// if len(r.LastName) == 0 {
+	// 	response.Errors = append(response.Errors, es.ErrRegistrationMissingLastName)
+	// 	response.Code = es.StatusRegistrationError
+	// }
 
 	return response
 }

@@ -10,6 +10,23 @@ import (
 	"github.com/aws/aws-sdk-go/service/dynamodb/expression"
 )
 
+// QueryResult holds the result of a single row result
+type QueryResult struct {
+	items *dynamodb.QueryOutput
+}
+
+// Unmarshal the QUERY result into your type
+// `Make sure that the `*out*` parameter is a ptr to a slice
+func (r *QueryResult) Unmarshal(out interface{}) error {
+	err := dynamodbattribute.UnmarshalListOfMaps(r.items.Items, &out)
+	if err != nil {
+		fmt.Println(err.Error())
+		return err
+	}
+
+	return nil
+}
+
 // GetResult holds the result of a single row result
 type GetResult struct {
 	item  *dynamodb.GetItemOutput
@@ -20,6 +37,11 @@ type GetResult struct {
 
 // Unmarshal the GET result into your type
 func (r *GetResult) Unmarshal(out interface{}) error {
+	// if no data returned we will not try to do anything, `out` will remain unchanged
+	if r.item == nil || len(r.item.Item) == 0 {
+		return nil
+	}
+
 	err := dynamodbattribute.UnmarshalMap(r.item.Item, &out)
 	if err != nil {
 		fmt.Println(err.Error())
@@ -71,6 +93,9 @@ type AttributeValue = dynamodb.AttributeValue
 
 // Query definition
 type Query = map[string]*AttributeValue
+
+// Condition definition
+type Condition = map[string]*dynamodb.Condition
 
 // NameBuilder for a list of desired named parameters
 type NameBuilder = expression.NameBuilder
@@ -148,6 +173,29 @@ func Get(table string, query Query) (*GetResult, error) {
 	return &GetResult{item: result, table: table, key: query, svc: svc}, err
 }
 
+// GetFromIndex data from the table (Single Item)
+func GetFromIndex(table, index string, condition Condition) (*QueryResult, error) {
+	// Create the dynamo client object
+	sess := session.Must(session.NewSession())
+	svc := dynamodb.New(sess)
+
+	// Perform the query
+	fmt.Println("Trying to read from table: ", table)
+	var queryInput = &dynamodb.QueryInput{
+		TableName:     aws.String(table),
+		IndexName:     aws.String(index),
+		KeyConditions: condition,
+	}
+
+	result, err := svc.Query(queryInput)
+	if err != nil {
+		fmt.Println(err.Error())
+		return nil, err
+	}
+
+	return &QueryResult{items: result}, err
+}
+
 // List data (returns possible multiple values)
 func List(table string, filter ConditionBuilder, projection ProjectionBuilder) (*ListResult, error) {
 	// Build the Dynamo client object
@@ -156,7 +204,7 @@ func List(table string, filter ConditionBuilder, projection ProjectionBuilder) (
 
 	expr, err := expression.NewBuilder().WithFilter(filter).WithProjection(projection).Build()
 	if err != nil {
-		fmt.Println("Got error building expression:")
+		fmt.Println("got error building expression:")
 		fmt.Println(err.Error())
 
 		return nil, err

@@ -21,6 +21,16 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
 	}
 
+	// Get the polygon data
+	zoneRes, err := dal.List("zones", dal.Name("sensor_id").Equal(dal.Value(request.Sensor)), dal.Projection(dal.Name("zone_id"), dal.Name("sensor_id"), dal.Name("data")))
+	zoneData := make([]m.Zone, 0)
+	err = zoneRes.Unmarshal(&zoneData)
+	if err != nil {
+		fmt.Println(err)
+		response.AddError(&es.Error{Message: err.Error(), Data: "could not unmarshal data from the DB"})
+		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
+	}
+
 	dbRes, err := dal.ListNoFilter("devices", dal.Projection(dal.Name("token"), dal.Name("device_id"), dal.Name("meta"), dal.Name("map_meta"), dal.Name("active"), dal.Name("measurements")))
 	dbData := make([]m.Device, 0)
 	err = dbRes.Unmarshal(&dbData)
@@ -39,7 +49,11 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		data = append(data, d.MapMeta[request.Sensor])
 	}
 
-	response.Data = data
+	resData := vm.MapResponseData{
+		Zones:   zoneData,
+		Devices: data,
+	}
+	response.Data = resData
 
 	return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 200, Headers: response.Headers()}, nil
 }

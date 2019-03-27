@@ -4,9 +4,12 @@ package models
 type User struct {
 	Email      string            `json:"email"`
 	CognitoID  string            `json:"cognito_id"`
+	GroupID    string            `json:"group_id"`
+	IsGroup    bool              `json:"is_group"`
 	Token      string            `json:"token"`
-	Attributes map[string]string `json:"attributes"`
 	Profile    UserProfile       `json:"profile"`
+	Attributes map[string]string `json:"attributes"`
+	Devices    []string          `json:"devices"`
 }
 
 // UserProfile meta data

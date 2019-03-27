@@ -9,14 +9,15 @@ import (
 	m "github.com/appsmonkey/core.server.functions/models"
 )
 
-// DeviceAddRequest is the request from the client
-type DeviceAddRequest struct {
+// DeviceUpdateMetaRequest is the request from the client
+type DeviceUpdateMetaRequest struct {
 	m.Metadata
+	Token string `json:"token"`
 }
 
 // Validate the request sent from client
-func (r *DeviceAddRequest) Validate(body string) *DeviceAddResponse {
-	response := new(DeviceAddResponse)
+func (r *DeviceUpdateMetaRequest) Validate(body string) *DeviceUpdateMetaResponse {
+	response := new(DeviceUpdateMetaResponse)
 	response.Code = 0
 	response.RequestID = strconv.FormatInt(time.Now().Unix(), 10)
 
@@ -48,20 +49,25 @@ func (r *DeviceAddRequest) Validate(body string) *DeviceAddResponse {
 	return response
 }
 
-// DeviceAddResponse to the client
+// DeviceUpdateMetaResponse to the client
 // `Returns a list of all devices assigned to the requestee. Data defained in the *DeviceAddData* struct`
-type DeviceAddResponse struct {
+type DeviceUpdateMetaResponse struct {
 	BaseResponse
 }
 
-// DeviceAddData holds the data to be sent to the client for *Device Add*
-type DeviceAddData struct {
-	Token string `json:"token"`
+// DeviceUpdateMetaData holds the data to be sent to the client for *Device Add*
+type DeviceUpdateMetaData struct {
+	Success bool `json:"success"`
 }
 
 // Marshal the response object
-func (r *DeviceAddResponse) Marshal() string {
+func (r *DeviceUpdateMetaResponse) Marshal() string {
 	res, _ := json.Marshal(r)
 
 	return string(res)
+}
+
+// AddError to the response object
+func (r *DeviceUpdateMetaResponse) AddError(err *es.Error) {
+	r.Errors = append(r.Errors, *err)
 }

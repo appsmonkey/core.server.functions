@@ -78,3 +78,12 @@ var ErrMissingWebsite = Error{Code: 1021, Message: "cannot update profile detail
 
 // ErrMissingBirthday [cannot updateProfile details. Missing birthday]
 var ErrMissingBirthday = Error{Code: 1022, Message: "cannot update profile details. Missing birthday"}
+
+// ErrNotYours [cannot retrieve device. It does not belong to you]
+var ErrNotYours = Error{Code: 1023, Message: "cannot retrieve device. It does not belong to you"}
+
+// ErrMissingRefreshToken [could not refresh identity tokens. Missing refresh token]
+var ErrMissingRefreshToken = Error{Code: 1024, Message: "could not refresh identity tokens. Missing refresh token"}
+
+// ErrDeviceNotFound [could not find the desired device]
+var ErrDeviceNotFound = Error{Code: 1025, Message: "could not find the desired device"}

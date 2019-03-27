@@ -15,19 +15,25 @@ register:
 	rm register
 
 signup:
-	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o signup functions/signup/*.go
+	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o signup functions/signup/main.go
 	mkdir -p bin
 	build-lambda-zip -o bin/signup.zip signup
 	rm signup
 
 signin:
-	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o signin functions/signin/*.go
+	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o signin functions/signin/main.go
 	mkdir -p bin
 	build-lambda-zip -o bin/signin.zip signin
 	rm signin
 
+refresh:
+	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o refresh functions/refresh/main.go
+	mkdir -p bin
+	build-lambda-zip -o bin/refresh.zip refresh
+	rm refresh
+
 profile:
-	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o profile functions/profile/*.go
+	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o profile functions/profile/main.go
 	mkdir -p bin
 	build-lambda-zip -o bin/profile.zip profile
 	rm profile
@@ -49,6 +55,12 @@ deviceUpdate:
 	mkdir -p bin
 	build-lambda-zip -o bin/deviceUpdate.zip deviceUpdate
 	rm deviceUpdate
+
+deviceUpdateMeta:
+	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o deviceUpdateMeta functions/deviceUpdateMeta/main.go
+	mkdir -p bin
+	build-lambda-zip -o bin/deviceUpdateMeta.zip deviceUpdateMeta
+	rm deviceUpdateMeta
 
 cognitoRegister:
 	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o cognitoRegister functions/cognitoRegister/main.go
@@ -85,3 +97,9 @@ map:
 	mkdir -p bin
 	build-lambda-zip -o bin/map.zip map
 	rm map
+
+zoneUpdate:
+	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o zoneUpdate functions/zoneUpdate/main.go
+	mkdir -p bin
+	build-lambda-zip -o bin/zoneUpdate.zip zoneUpdate
+	rm zoneUpdate

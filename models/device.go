@@ -10,7 +10,8 @@ import (
 type Device struct {
 	Token        string                 `json:"token"`
 	DeviceID     string                 `json:"device_id"`
-	CognitoID    string                 `json:"cognito_id"`
+	CognitoID    string                 `json:"cognito_id,omitempty"`
+	ZoneID       string                 `json:"zone_id"`
 	Meta         Metadata               `json:"meta"`
 	MapMeta      map[string]MapMeta     `json:"map_meta,omitempty"`
 	Active       bool                   `json:"active"`
@@ -27,8 +28,18 @@ type Metadata struct {
 
 // Location coordinates
 type Location struct {
-	Long string `json:"long"`
-	Lat  string `json:"lat"`
+	Lat string `json:"lat"`
+	Lng string `json:"lng"`
+}
+
+// IsEmpty indicates if the coordinates are set or not.
+// Returns `false` if coordinates are set
+func (l Location) IsEmpty() bool {
+	if len(l.Lat) == 0 || len(l.Lng) == 0 {
+		return true
+	}
+
+	return false
 }
 
 // MapMeta holds the calculated data used to dispay on the map
@@ -54,7 +65,7 @@ func (m MapMeta) ToAttributeMap() map[string]*dynamodb.AttributeValue {
 		"coordinates": &dynamodb.AttributeValue{
 			M: map[string]*dal.AttributeValue{
 				"long": {
-					S: aws.String(m.Coordinates.Long),
+					S: aws.String(m.Coordinates.Lng),
 				},
 				"lat": {
 					S: aws.String(m.Coordinates.Lat),

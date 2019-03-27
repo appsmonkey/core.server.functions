@@ -21,7 +21,7 @@ var (
 
 // Handler will handle our request comming from the API gateway
 func Handler(ctx context.Context, req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-	request := new(vm.SigninRequest)
+	request := new(vm.RefreshRequest)
 	response := request.Validate(req.Body)
 	if response.Code != 0 {
 		fmt.Printf("errors on request: %v, requestID: %v", response.Errors, response.RequestID)
@@ -29,14 +29,18 @@ func Handler(ctx context.Context, req events.APIGatewayProxyRequest) (events.API
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
 	}
 
-	data, err := cog.SignIn(request.Email, request.Password)
+	data, err := cog.Refresh(request.Token)
 	if err != nil {
-		errData := es.ErrRegistrationSignInError
+		errData := es.ErrMissingRefreshToken
 		errData.Data = err.Error()
 		response.Errors = append(response.Errors, errData)
 
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
 	}
+
+	// fmt.Println()
+	// fmt.Println(data.RefreshToken)
+	// fmt.Println()
 
 	response.Data = data
 	return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 200, Headers: response.Headers()}, nil
@@ -54,9 +58,8 @@ func init() {
 }
 
 func local() {
-	data, _ := json.Marshal(vm.SigninRequest{
-		Email:    os.Getenv("USER_EMAIL"),
-		Password: os.Getenv("USER_PASS"),
+	data, _ := json.Marshal(vm.RefreshRequest{
+		Token: os.Getenv("REFRESH_TOKEN"),
 	})
 
 	resp, err := Handler(context.Background(), events.APIGatewayProxyRequest{

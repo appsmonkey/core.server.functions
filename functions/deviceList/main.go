@@ -9,6 +9,7 @@ import (
 	vm "github.com/appsmonkey/core.server.functions/viewmodels"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/aws/aws-sdk-go/aws"
 )
 
 // Handler will handle our request comming from the API gateway
@@ -17,19 +18,62 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	response := new(vm.DeviceListResponse)
 	response.Init()
 
-	dbRes, err := dal.List("devices", dal.Name("cognito_id").Equal(dal.Value(cognitoID)), dal.Projection(dal.Name("token"), dal.Name("device_id"), dal.Name("meta"), dal.Name("map_meta"), dal.Name("active"), dal.Name("measurements")))
-	dbData := make([]m.Device, 0)
-	err = dbRes.Unmarshal(&dbData)
+	res, err := dal.GetFromIndex("devices", "CognitoID-index", dal.Condition{
+		"cognito_id": {
+			ComparisonOperator: aws.String("EQ"),
+			AttributeValueList: []*dal.AttributeValue{
+				{
+					S: aws.String(cognitoID),
+				},
+			},
+		},
+	})
 	if err != nil {
 		fmt.Println(err)
 		response.AddError(&es.Error{Message: err.Error(), Data: "could not unmarshal data from the DB"})
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
 	}
-	if len(dbData) == 0 {
+
+	dbData := make([]m.Device, 0)
+	err = res.Unmarshal(&dbData)
+	if err != nil {
+		fmt.Println(err)
+		response.AddError(&es.Error{Message: err.Error(), Data: "could not unmarshal data from the DB"})
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
 	}
+	// if len(dbData) == 0 {
+	// 	return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 200, Headers: response.Headers()}, nil
+	// }
 
-	response.Data = dbData
+	// dbRes, err := dal.List("devices", dal.Name("cognito_id").Equal(dal.Value(cognitoID)), dal.Projection(dal.Name("token"), dal.Name("device_id"), dal.Name("meta"), dal.Name("map_meta"), dal.Name("active"), dal.Name("measurements")))
+	// dbData := make([]m.Device, 0)
+	// err = dbRes.Unmarshal(&dbData)
+	// if err != nil {
+	// 	fmt.Println(err)
+	// 	response.AddError(&es.Error{Message: err.Error(), Data: "could not unmarshal data from the DB"})
+	// 	return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
+	// }
+	// if len(dbData) == 0 {
+	// 	return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
+	// }
+
+	rd := make([]*vm.DeviceGetData, 0)
+
+	for _, d := range dbData {
+		data := vm.DeviceGetData{
+			DeviceID: d.Token,
+			Name:     d.Meta.Name,
+			Active:   d.Active,
+			Mine:     d.CognitoID == cognitoID,
+			Model:    d.Meta.Model,
+			Indoor:   d.Meta.Indoor,
+			Location: d.Meta.Coordinates,
+			MapMeta:  d.MapMeta,
+		}
+		rd = append(rd, &data)
+	}
+
+	response.Data = rd
 
 	return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 200, Headers: response.Headers()}, nil
 }

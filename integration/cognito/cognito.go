@@ -19,10 +19,11 @@ type Cognito struct {
 }
 
 type CognitoData struct {
-	IDToken      string `json:"id_token"`
-	AccessToken  string `json:"access_token"`
-	ExpiresIn    int64  `json:"expires_in"`
-	RefreshToken string `json:"refresh_token"`
+	IDToken      string                                         `json:"id_token"`
+	AccessToken  string                                         `json:"access_token"`
+	ExpiresIn    int64                                          `json:"expires_in"`
+	RefreshToken string                                         `json:"refresh_token,omitempty"`
+	UserData     *cognitoidentityprovider.AdminCreateUserOutput `json:"-"`
 }
 
 const (
@@ -68,10 +69,11 @@ func NewCognito() *Cognito {
 // SignUp register new user
 func (c *Cognito) SignUp(username, password, gender, firstname, lastname string) (*CognitoData, error) {
 	// Step 1
-	_, err := c.identityProvider.AdminCreateUser(&cognitoidentityprovider.AdminCreateUserInput{
+	adminUserData, err := c.identityProvider.AdminCreateUser(&cognitoidentityprovider.AdminCreateUserInput{
 		Username:          aws.String(username),
 		TemporaryPassword: aws.String(password),
 		UserPoolId:        aws.String(userPoolID),
+		MessageAction:     aws.String(cognitoidentityprovider.MessageActionTypeSuppress),
 
 		UserAttributes: []*cognitoidentityprovider.AttributeType{
 			{
@@ -86,14 +88,14 @@ func (c *Cognito) SignUp(username, password, gender, firstname, lastname string)
 				Name:  aws.String("gender"),
 				Value: aws.String(gender),
 			},
-			{
-				Name:  aws.String("first_name"),
-				Value: aws.String(firstname),
-			},
-			{
-				Name:  aws.String("last_name"),
-				Value: aws.String(lastname),
-			},
+			// {
+			// 	Name:  aws.String("first_name"),
+			// 	Value: aws.String(firstname),
+			// },
+			// {
+			// 	Name:  aws.String("last_name"),
+			// 	Value: aws.String(lastname),
+			// },
 		},
 	})
 
@@ -115,7 +117,6 @@ func (c *Cognito) SignUp(username, password, gender, firstname, lastname string)
 	}
 
 	authresp, autherr := c.identityProvider.AdminInitiateAuth(aia)
-
 	if autherr != nil {
 		writeLog("AdminInitiateAuth Error:", autherr)
 		return nil, autherr
@@ -145,6 +146,32 @@ func (c *Cognito) SignUp(username, password, gender, firstname, lastname string)
 	data.AccessToken = aws.StringValue(challangeResponse.AuthenticationResult.AccessToken)
 	data.ExpiresIn = aws.Int64Value(challangeResponse.AuthenticationResult.ExpiresIn)
 	data.RefreshToken = aws.StringValue(challangeResponse.AuthenticationResult.RefreshToken)
+	data.UserData = adminUserData
+
+	return data, nil
+}
+
+// Refresh user's tokens based on the provided refresh token
+func (c *Cognito) Refresh(token string) (*CognitoData, error) {
+	aia := &cognitoidentityprovider.AdminInitiateAuthInput{
+		AuthFlow: aws.String("REFRESH_TOKEN_AUTH"),
+		AuthParameters: map[string]*string{
+			"REFRESH_TOKEN": aws.String(token),
+		},
+		ClientId:   aws.String(clientID),
+		UserPoolId: aws.String(userPoolID),
+	}
+	authresp, autherr := c.identityProvider.AdminInitiateAuth(aia)
+	if autherr != nil {
+		writeLog("AdminInitiateAuth Error:", autherr)
+		return nil, autherr
+	}
+
+	data := new(CognitoData)
+	data.IDToken = aws.StringValue(authresp.AuthenticationResult.IdToken)
+	data.AccessToken = aws.StringValue(authresp.AuthenticationResult.AccessToken)
+	data.ExpiresIn = aws.Int64Value(authresp.AuthenticationResult.ExpiresIn)
+	data.RefreshToken = aws.StringValue(authresp.AuthenticationResult.RefreshToken)
 
 	return data, nil
 }

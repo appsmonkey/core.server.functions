@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/appsmonkey/core.server.functions/dal"
+	es "github.com/appsmonkey/core.server.functions/errorStatuses"
 	m "github.com/appsmonkey/core.server.functions/models"
 	vm "github.com/appsmonkey/core.server.functions/viewmodels"
 	"github.com/aws/aws-lambda-go/events"
@@ -22,30 +23,38 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
 	}
 
-	fmt.Print("cid", cognitoID)
-	fmt.Print("token", request.Token)
-
 	res, err := dal.Get("devices", map[string]*dal.AttributeValue{
 		"token": {
 			S: aws.String(request.Token),
 		},
-		"cognito_id": {
-			S: aws.String(cognitoID),
-		},
 	})
 	if err != nil {
-		return events.APIGatewayProxyResponse{Body: "1: " + err.Error(), StatusCode: 500, Headers: response.Headers()}, nil
+		errData := es.ErrDeviceNotFound
+		errData.Data = err.Error()
+		response.Errors = append(response.Errors, errData)
+		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
 	}
 
 	model := m.Device{}
 	err = res.Unmarshal(&model)
 	if err != nil {
-		return events.APIGatewayProxyResponse{Body: "2: " + err.Error(), StatusCode: 500, Headers: response.Headers()}, nil
+		errData := es.ErrDeviceNotFound
+		errData.Data = err.Error()
+		response.Errors = append(response.Errors, errData)
+		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
 	}
 
-	// remove the user-id (do not expose it)
-	model.CognitoID = ""
-	response.Data = model
+	data := vm.DeviceGetData{
+		DeviceID: model.Token,
+		Name:     model.Meta.Name,
+		Active:   model.Active,
+		Mine:     model.CognitoID == cognitoID,
+		Model:    model.Meta.Model,
+		Indoor:   model.Meta.Indoor,
+		Location: model.Meta.Coordinates,
+		MapMeta:  model.MapMeta,
+	}
+	response.Data = data
 
 	return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 200, Headers: response.Headers()}, nil
 }

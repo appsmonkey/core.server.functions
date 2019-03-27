@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/appsmonkey/core.server.functions/dal"
 	es "github.com/appsmonkey/core.server.functions/errorStatuses"
 	"github.com/appsmonkey/core.server.functions/integration/cognito"
 	vm "github.com/appsmonkey/core.server.functions/viewmodels"
@@ -20,24 +21,43 @@ var (
 )
 
 // Handler will handle our request comming from the API gateway
-func Handler(ctx context.Context, req events.APIGatewayProxyRequest) (interface{}, error) {
+func Handler(ctx context.Context, req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	request := new(vm.SignupRequest)
-
 	response := request.Validate(req.Body)
 	if response.Code != 0 {
-		return response, nil
+		fmt.Printf("errors on request: %v, requestID: %v", response.Errors, response.RequestID)
+
+		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
 	}
 
+	// Register User in Cognito
 	signupData, err := cog.SignUp(request.Email, request.Password, request.Gender, request.FirstName, request.LastName)
 	if err != nil {
 		errData := es.ErrRegistrationCognitoSignupError
 		errData.Data = err.Error()
 		response.Errors = append(response.Errors, errData)
-		return response, nil
+
+		fmt.Printf("errors on request: %v, requestID: %v", response.Errors, response.RequestID)
+
+		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
+	}
+
+	// Now save it into our DB
+	cogReq := new(vm.CognitoRegisterRequest)
+	cogResponse := cogReq.ValidateCognito(signupData)
+	if cogResponse.Code != 0 {
+		fmt.Printf("errors on request: %v, requestID: %v", response.Errors, response.RequestID)
+
+		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
+	}
+
+	// insert data into the DB
+	if os.Getenv("ENV") != "local" {
+		dal.Insert("users", cogReq)
 	}
 
 	response.Data = signupData
-	return response, nil
+	return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 200, Headers: response.Headers()}, nil
 }
 
 func init() {
@@ -52,20 +72,12 @@ func init() {
 }
 
 func local() {
-	if len(os.Args) != 6 {
-		fmt.Println(`
-			ERROR: missing or having extra params.\n
-			HINT: required params are: email password gender firstname lastname
-		`)
-		return
-	}
-
 	data, _ := json.Marshal(vm.SignupRequest{
-		Email:     os.Args[1],
-		Password:  os.Args[2],
-		Gender:    os.Args[3],
-		FirstName: os.Args[4],
-		LastName:  os.Args[5],
+		Email:     os.Getenv("USER_EMAIL"),
+		Password:  os.Getenv("USER_PASS"),
+		Gender:    os.Getenv("USER_GENDER"),
+		FirstName: os.Getenv("USER_FIRSTNAME"),
+		LastName:  os.Getenv("USER_LASTNAME"),
 	})
 
 	resp, err := Handler(context.Background(), events.APIGatewayProxyRequest{
