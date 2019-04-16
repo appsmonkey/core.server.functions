@@ -10,6 +10,12 @@ import (
 	"github.com/aws/aws-sdk-go/service/dynamodb/expression"
 )
 
+var svc *dynamodb.DynamoDB
+
+func init() {
+	svc = dynamodb.New(session.Must(session.NewSession()))
+}
+
 // QueryResult holds the result of a single row result
 type QueryResult struct {
 	items *dynamodb.QueryOutput
@@ -18,7 +24,7 @@ type QueryResult struct {
 // Unmarshal the QUERY result into your type
 // `Make sure that the `*out*` parameter is a ptr to a slice
 func (r *QueryResult) Unmarshal(out interface{}) error {
-	err := dynamodbattribute.UnmarshalListOfMaps(r.items.Items, &out)
+	err := dynamodbattribute.UnmarshalListOfMaps(r.items.Items, out)
 	if err != nil {
 		fmt.Println(err.Error())
 		return err
@@ -79,6 +85,7 @@ type ListResult struct {
 // Unmarshal the GET result into your type
 // `Make sure that the `*out*` parameter is a ptr to a slice
 func (r *ListResult) Unmarshal(out interface{}) error {
+	// r.items.Items
 	err := dynamodbattribute.UnmarshalListOfMaps(r.items.Items, &out)
 	if err != nil {
 		fmt.Println(err.Error())
@@ -126,14 +133,10 @@ func Value(name interface{}) ValueBuilder {
 
 // Insert the data into the DynamoDB table (Single Item)
 func Insert(table string, data interface{}) error {
-	// Create the dynamo client object
-	sess := session.Must(session.NewSession())
-	svc := dynamodb.New(sess)
-
 	// Marshall the Item into a Map DynamoDB can deal with
 	av, err := dynamodbattribute.MarshalMap(data)
 	if err != nil {
-		fmt.Println("got error marshalling map:")
+		fmt.Print("got error marshalling map: ")
 		fmt.Println(err.Error())
 		return err
 	}
@@ -144,9 +147,10 @@ func Insert(table string, data interface{}) error {
 		TableName: aws.String(table),
 	}
 	pOut, err := svc.PutItem(input)
-	fmt.Println("saving item output:", pOut)
 	if err != nil {
-		fmt.Println("got error saving item:", err)
+		fmt.Print("Insert API call failed: ")
+		fmt.Println(err.Error())
+		fmt.Println("saving item output: ", pOut)
 		return err
 	}
 
@@ -155,17 +159,13 @@ func Insert(table string, data interface{}) error {
 
 // Get data from the table (Single Item)
 func Get(table string, query Query) (*GetResult, error) {
-	// Create the dynamo client object
-	sess := session.Must(session.NewSession())
-	svc := dynamodb.New(sess)
-
 	// Perform the query
-	fmt.Println("Trying to read from table: ", table)
 	result, err := svc.GetItem(&dynamodb.GetItemInput{
 		TableName: aws.String(table),
 		Key:       query,
 	})
 	if err != nil {
+		fmt.Print("Get API call failed: ")
 		fmt.Println(err.Error())
 		return nil, err
 	}
@@ -175,12 +175,7 @@ func Get(table string, query Query) (*GetResult, error) {
 
 // GetFromIndex data from the table (Single Item)
 func GetFromIndex(table, index string, condition Condition) (*QueryResult, error) {
-	// Create the dynamo client object
-	sess := session.Must(session.NewSession())
-	svc := dynamodb.New(sess)
-
 	// Perform the query
-	fmt.Println("Trying to read from table: ", table)
 	var queryInput = &dynamodb.QueryInput{
 		TableName:     aws.String(table),
 		IndexName:     aws.String(index),
@@ -189,6 +184,37 @@ func GetFromIndex(table, index string, condition Condition) (*QueryResult, error
 
 	result, err := svc.Query(queryInput)
 	if err != nil {
+		fmt.Print("GetFromIndex API call failed: ")
+		fmt.Println(err.Error())
+		return nil, err
+	}
+
+	return &QueryResult{items: result}, err
+}
+
+// QueryMultiple data from the table
+func QueryMultiple(table string, condition Condition, projection ProjectionBuilder, ascending bool) (*QueryResult, error) {
+	expr, err := expression.NewBuilder().WithProjection(projection).Build()
+	if err != nil {
+		fmt.Print("Got error building expression: ")
+		fmt.Println(err.Error())
+
+		return nil, err
+	}
+
+	// Perform the query
+	var queryInput = &dynamodb.QueryInput{
+		TableName:                 aws.String(table),
+		KeyConditions:             condition,
+		ExpressionAttributeNames:  expr.Names(),
+		ExpressionAttributeValues: expr.Values(),
+		ProjectionExpression:      expr.Projection(),
+		ScanIndexForward:          aws.Bool(ascending),
+	}
+
+	result, err := svc.Query(queryInput)
+	if err != nil {
+		fmt.Print("QueryMultiple API call failed: ")
 		fmt.Println(err.Error())
 		return nil, err
 	}
@@ -198,10 +224,6 @@ func GetFromIndex(table, index string, condition Condition) (*QueryResult, error
 
 // List data (returns possible multiple values)
 func List(table string, filter ConditionBuilder, projection ProjectionBuilder) (*ListResult, error) {
-	// Build the Dynamo client object
-	sess := session.Must(session.NewSession())
-	svc := dynamodb.New(sess)
-
 	expr, err := expression.NewBuilder().WithFilter(filter).WithProjection(projection).Build()
 	if err != nil {
 		fmt.Println("got error building expression:")
@@ -221,9 +243,8 @@ func List(table string, filter ConditionBuilder, projection ProjectionBuilder) (
 
 	// Make the DynamoDB Query API call
 	result, err := svc.Scan(params)
-	fmt.Println("Result", result)
 	if err != nil {
-		fmt.Println("Query API call failed:")
+		fmt.Print("List API call failed: ")
 		fmt.Println((err.Error()))
 		return nil, err
 	}
@@ -233,10 +254,6 @@ func List(table string, filter ConditionBuilder, projection ProjectionBuilder) (
 
 // ListNoFilter data (returns possible multiple values)
 func ListNoFilter(table string, projection ProjectionBuilder) (*ListResult, error) {
-	// Build the Dynamo client object
-	sess := session.Must(session.NewSession())
-	svc := dynamodb.New(sess)
-
 	expr, err := expression.NewBuilder().WithProjection(projection).Build()
 	if err != nil {
 		fmt.Println("Got error building expression:")
@@ -255,9 +272,8 @@ func ListNoFilter(table string, projection ProjectionBuilder) (*ListResult, erro
 
 	// Make the DynamoDB Query API call
 	result, err := svc.Scan(params)
-	fmt.Println("Result", result)
 	if err != nil {
-		fmt.Println("Query API call failed:")
+		fmt.Print("ListNoFilter API call failed: ")
 		fmt.Println((err.Error()))
 		return nil, err
 	}
@@ -267,9 +283,6 @@ func ListNoFilter(table string, projection ProjectionBuilder) (*ListResult, erro
 
 // Update an item
 func Update(table, updateExpression string, key, data Query) error {
-	sess := session.Must(session.NewSession())
-	svc := dynamodb.New(sess)
-
 	// Update Item in table and return
 	input := &dynamodb.UpdateItemInput{
 		ExpressionAttributeValues: data,
@@ -281,6 +294,25 @@ func Update(table, updateExpression string, key, data Query) error {
 
 	_, err := svc.UpdateItem(input)
 	if err != nil {
+		fmt.Print("Update API call failed: ")
+		fmt.Println(err.Error())
+		return err
+	}
+
+	return nil
+}
+
+// Delete an item
+func Delete(table string, key Query) error {
+	// Perform the delete
+	input := &dynamodb.DeleteItemInput{
+		Key:       key,
+		TableName: aws.String(table),
+	}
+
+	_, err := svc.DeleteItem(input)
+	if err != nil {
+		fmt.Print("Delete API call failed: ")
 		fmt.Println(err.Error())
 		return err
 	}

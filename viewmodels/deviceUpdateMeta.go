@@ -36,7 +36,7 @@ func (r *DeviceUpdateMetaRequest) Validate(body string) *DeviceUpdateMetaRespons
 		response.Code = es.StatusAddDeviceError
 	}
 
-	if len(r.Coordinates.Lng) == 0 || len(r.Coordinates.Lat) == 0 {
+	if r.Coordinates.Lng == 0 && r.Coordinates.Lat == 0 {
 		response.Errors = append(response.Errors, es.ErrMissingThingLocation)
 		response.Code = es.StatusAddDeviceError
 	}

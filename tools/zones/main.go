@@ -1,6 +1,9 @@
 package zones
 
-import "math"
+import (
+	"fmt"
+	"math"
+)
 
 // Point point
 type Point struct {
@@ -18,6 +21,11 @@ var zones map[string]Zone
 
 func init() {
 	zones = make(map[string]Zone, 0)
+}
+
+// All Zones that were loaded
+func All() map[string]Zone {
+	return zones
 }
 
 // AddZones will add zones to the internal storage
@@ -110,6 +118,7 @@ func intersectsWithRaycast(point *Point, start *Point, end *Point) bool {
 func ZoneByPoint(p *Point) *Zone {
 	// No point provided or no zones loaded
 	if p == nil || len(zones) == 0 {
+		fmt.Println("NO ZONES", len(zones))
 		return nil
 	}
 

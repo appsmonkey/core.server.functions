@@ -5,6 +5,11 @@
 
 #build: $(go_apps) | vendor
 
+.PHONY : all
+all : register signup signup signin refresh profile general deviceList deviceListMinimal deviceUpdate \
+	deviceUpdateMeta cognitoRegister cognitoProfileList cognitoProfileUpdate deviceAdd deviceGet \
+	deviceDel map zoneUpdate validateEmail seeder schemaGet chartLiveDevice chartCache
+
 vendor: Gopkg.toml
 		dep ensure -v
 
@@ -50,6 +55,12 @@ deviceList:
 	build-lambda-zip -o bin/devicelist.zip devicelist
 	rm devicelist
 
+deviceListMinimal:
+	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o deviceListMinimal functions/deviceListMinimal/main.go
+	mkdir -p bin
+	build-lambda-zip -o bin/deviceListMinimal.zip deviceListMinimal
+	rm deviceListMinimal
+
 deviceUpdate:
 	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o deviceUpdate functions/deviceUpdate/main.go
 	mkdir -p bin
@@ -92,6 +103,12 @@ deviceGet:
 	build-lambda-zip -o bin/deviceGet.zip deviceGet
 	rm deviceGet
 
+deviceDel:
+	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o deviceDel functions/deviceDel/main.go
+	mkdir -p bin
+	build-lambda-zip -o bin/deviceDel.zip deviceDel
+	rm deviceDel
+
 map:
 	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o map functions/map/main.go
 	mkdir -p bin
@@ -103,3 +120,39 @@ zoneUpdate:
 	mkdir -p bin
 	build-lambda-zip -o bin/zoneUpdate.zip zoneUpdate
 	rm zoneUpdate
+
+validateEmail:
+	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o validateEmail functions/validateEmail/main.go
+	mkdir -p bin
+	build-lambda-zip -o bin/validateEmail.zip validateEmail
+	rm validateEmail
+
+seeder:
+	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o seeder functions/seeder/main.go
+	mkdir -p bin
+	build-lambda-zip -o bin/seeder.zip seeder
+	rm seeder
+
+schemaGet:
+	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o schemaGet functions/schemaGet/main.go
+	mkdir -p bin
+	build-lambda-zip -o bin/schemaGet.zip schemaGet
+	rm schemaGet
+
+chartLiveDevice:
+	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o chartLiveDevice functions/chartLiveDevice/main.go
+	mkdir -p bin
+	build-lambda-zip -o bin/chartLiveDevice.zip chartLiveDevice
+	rm chartLiveDevice
+
+chartCache:
+	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o chartCache functions/chartCache/main.go
+	mkdir -p bin
+	build-lambda-zip -o bin/chartCache.zip chartCache
+	rm chartCache
+
+test:
+	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o test functions/test/main.go
+	mkdir -p bin
+	build-lambda-zip -o bin/test.zip test
+	rm test

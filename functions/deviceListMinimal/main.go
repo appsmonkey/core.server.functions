@@ -15,48 +15,47 @@ import (
 // Handler will handle our request comming from the API gateway
 func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	cognitoID := CognitoData(req.RequestContext.Authorizer)
-	request := new(vm.DeviceGetRequest)
-	response := request.Validate(req.Body)
-	if response.Code != 0 {
-		fmt.Printf("errors on request: %v, requestID: %v", response.Errors, response.RequestID)
+	response := new(vm.DeviceListResponse)
+	response.Init()
 
-		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
-	}
-
-	res, err := dal.Get("devices", map[string]*dal.AttributeValue{
-		"token": {
-			S: aws.String(request.Token),
+	res, err := dal.GetFromIndex("devices", "CognitoID-index", dal.Condition{
+		"cognito_id": {
+			ComparisonOperator: aws.String("EQ"),
+			AttributeValueList: []*dal.AttributeValue{
+				{
+					S: aws.String(cognitoID),
+				},
+			},
 		},
 	})
 	if err != nil {
-		errData := es.ErrDeviceNotFound
-		errData.Data = err.Error()
-		response.Errors = append(response.Errors, errData)
+		fmt.Println(err)
+		response.AddError(&es.Error{Message: err.Error(), Data: "could not unmarshal data from the DB"})
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
 	}
 
-	model := m.Device{}
-	err = res.Unmarshal(&model)
+	dbData := make([]m.Device, 0)
+	err = res.Unmarshal(&dbData)
 	if err != nil {
-		errData := es.ErrDeviceNotFound
-		errData.Data = err.Error()
-		response.Errors = append(response.Errors, errData)
+		fmt.Println(err)
+		response.AddError(&es.Error{Message: err.Error(), Data: "could not unmarshal data from the DB"})
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
 	}
 
-	data := vm.DeviceGetData{
-		DeviceID:  model.Token,
-		Name:      model.Meta.Name,
-		Active:    model.Active,
-		Mine:      model.CognitoID == cognitoID,
-		Model:     model.Meta.Model,
-		Indoor:    model.Meta.Indoor,
-		Location:  model.Meta.Coordinates,
-		MapMeta:   model.MapMeta,
-		Latest:    model.Measurements,
-		Timestamp: model.Timestamp,
+	rd := make([]*vm.DeviceGetDataMinimal, 0)
+
+	for _, d := range dbData {
+		data := vm.DeviceGetDataMinimal{
+			DeviceID: d.Token,
+			Name:     d.Meta.Name,
+			Active:   d.Active,
+			Model:    d.Meta.Model,
+			Indoor:   d.Meta.Indoor,
+		}
+		rd = append(rd, &data)
 	}
-	response.Data = data
+
+	response.Data = rd
 
 	return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 200, Headers: response.Headers()}, nil
 }

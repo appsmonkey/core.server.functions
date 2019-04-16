@@ -43,8 +43,8 @@ func validateGender(gender string) bool {
 func (r *BaseResponse) Headers() map[string]string {
 	hdr := make(map[string]string, 0)
 	hdr["Access-Control-Allow-Origin"] = "*"
-	hdr["Access-Control-Allow-Methods"] = "GET, OPTIONS"
-	hdr["Access-Control-Allow-Headers"] = "Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token"
+	hdr["Access-Control-Allow-Methods"] = "GET,OPTIONS,PUT,POST"
+	hdr["Access-Control-Allow-Headers"] = "Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,AccessToken,Accept-Version"
 
 	return hdr
 }

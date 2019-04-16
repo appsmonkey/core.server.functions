@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"strconv"
 
 	"github.com/appsmonkey/core.server.functions/dal"
 	m "github.com/appsmonkey/core.server.functions/models"
@@ -53,15 +52,13 @@ func Handler(ctx context.Context, req interface{}) error {
 
 	for _, d := range dbData {
 		for mmk, mmv := range d.MapMeta {
-			f, _ := strconv.ParseFloat(mmv.Value, 64)
-			data[mmk] += f
+			data[mmk] += mmv.Value
 			datak[mmk]++
 		}
 	}
 
 	for rk, rv := range data {
 		val := rv / datak[rk]
-		vals := fmt.Sprintf("%f", val)
 
 		level := m.Level(rk, val)
 		ti := m.Zone{
@@ -70,7 +67,7 @@ func Handler(ctx context.Context, req interface{}) error {
 			Data: m.ZoneMeta{
 				Name:        zoneID,
 				Level:       level,
-				Value:       vals,
+				Value:       val,
 				Measurement: m.MeasureMapName[rk],
 				Unit:        m.MeasureMapUnit[rk],
 			},

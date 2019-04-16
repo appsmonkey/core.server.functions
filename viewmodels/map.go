@@ -3,15 +3,16 @@ package viewmodels
 import (
 	"encoding/json"
 	"strconv"
+	"strings"
 	"time"
 
 	es "github.com/appsmonkey/core.server.functions/errorStatuses"
-	m "github.com/appsmonkey/core.server.functions/models"
 )
 
 // MapRequest is the request from the client
 type MapRequest struct {
-	Sensor string `json:"sensor"`
+	Zone   string   `json:"zone_data"`
+	Sensor []string `json:"device_data"`
 }
 
 // Validate the request sent from client
@@ -29,19 +30,35 @@ func (r *MapRequest) Validate(body map[string]string) *MapResponse {
 		return response
 	}
 
-	sensor, ok := body["sensor"]
+	sensor, ok := body["device_data"]
 	if !ok {
 		errData := es.ErrRegistrationIncorrectRequest
-		errData.Data = "sensor parameter is missing"
+		errData.Data = "device_data parameter is missing"
 		response.Errors = append(response.Errors, errData)
 
 		response.Code = es.StatusMapError
 		return response
 	}
 
-	r.Sensor = sensor
+	zone, ok := body["zone_data"]
+	if !ok {
+		errData := es.ErrRegistrationIncorrectRequest
+		errData.Data = "zone_data parameter is missing"
+		response.Errors = append(response.Errors, errData)
+
+		response.Code = es.StatusMapError
+		return response
+	}
+
+	r.Sensor = strings.Split(sensor, ",")
+	r.Zone = zone
 
 	if len(r.Sensor) == 0 {
+		response.Errors = append(response.Errors, es.ErrMissingSensorType)
+		response.Code = es.StatusMapError
+	}
+
+	if len(r.Zone) == 0 {
 		response.Errors = append(response.Errors, es.ErrMissingSensorType)
 		response.Code = es.StatusMapError
 	}
@@ -65,10 +82,4 @@ func (r *MapResponse) Marshal() string {
 // AddError to the response object
 func (r *MapResponse) AddError(err *es.Error) {
 	r.Errors = append(r.Errors, *err)
-}
-
-// MapResponseData to be returned
-type MapResponseData struct {
-	Zones   []m.Zone    `json:"zones"`
-	Devices []m.MapMeta `json:"devices"`
 }

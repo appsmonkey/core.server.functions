@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"strconv"
 
 	"github.com/aws/aws-lambda-go/events"
 
@@ -14,6 +13,7 @@ import (
 	// Loading the sarajevo map
 	z "github.com/appsmonkey/core.server.functions/tools/zones"
 	_ "github.com/appsmonkey/core.server.functions/tools/zones/sarajevo"
+	"github.com/aws/aws-lambda-go/lambda"
 )
 
 // Handler will handle our request comming from the API gateway
@@ -36,16 +36,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 
 	// If coordinates are set, then find the zone it belongs to
 	if !device.Meta.Coordinates.IsEmpty() {
-		var lat, lng float64
-		if s, err := strconv.ParseFloat(device.Meta.Coordinates.Lat, 64); err == nil {
-			lat = s
-		}
-		if s, err := strconv.ParseFloat(device.Meta.Coordinates.Lng, 64); err == nil {
-			lng = s
-		}
-
-		if lng > 0 && lat > 0 {
-			zone := z.ZoneByPoint(&z.Point{Lat: lat, Lng: lng})
+		if zone := z.ZoneByPoint(&z.Point{Lat: device.Meta.Coordinates.Lat, Lng: device.Meta.Coordinates.Lng}); zone != nil {
 			device.ZoneID = zone.Title
 		}
 	}
@@ -69,7 +60,7 @@ func CognitoData(in map[string]interface{}) string {
 }
 
 func main() {
-	zone := z.ZoneByPoint(&z.Point{Lat: 43.8544278, Lng: 18.448692})
-	fmt.Println(zone.Title)
-	// lambda.Start(Handler)
+	// zone := z.ZoneByPoint(&z.Point{Lat: 43.8444278, Lng: 18.408692})
+	// fmt.Println(zone.Title)
+	lambda.Start(Handler)
 }

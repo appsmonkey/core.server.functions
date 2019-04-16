@@ -1,9 +1,7 @@
 package models
 
 import (
-	"github.com/appsmonkey/core.server.functions/dal"
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/service/dynamodb"
+	"time"
 )
 
 // Device is the base model representing the state of the DB of a single device
@@ -16,6 +14,7 @@ type Device struct {
 	MapMeta      map[string]MapMeta     `json:"map_meta,omitempty"`
 	Active       bool                   `json:"active"`
 	Measurements map[string]interface{} `json:"measurements,omitempty"`
+	Timestamp    float64                `json:"timestamp"`
 }
 
 // Metadata holds all the meda around the device
@@ -28,14 +27,14 @@ type Metadata struct {
 
 // Location coordinates
 type Location struct {
-	Lat string `json:"lat"`
-	Lng string `json:"lng"`
+	Lat float64 `json:"lat"`
+	Lng float64 `json:"lng"`
 }
 
 // IsEmpty indicates if the coordinates are set or not.
 // Returns `false` if coordinates are set
 func (l Location) IsEmpty() bool {
-	if len(l.Lat) == 0 || len(l.Lng) == 0 {
+	if l.Lat == 0 && l.Lng == 0 {
 		return true
 	}
 
@@ -44,57 +43,22 @@ func (l Location) IsEmpty() bool {
 
 // MapMeta holds the calculated data used to dispay on the map
 type MapMeta struct {
-	Name        string   `json:"name"`
-	Level       string   `json:"level"`
-	Coordinates Location `json:"coordinates"`
-	Value       string   `json:"value"`
-	Icon        string   `json:"icon"`
-	Measurement string   `json:"measurement"`
-	Unit        string   `json:"unit"`
+	Level       string  `json:"level"`
+	Value       float64 `json:"value"`
+	Measurement string  `json:"measurement"`
+	Unit        string  `json:"unit"`
 }
 
-// ToAttributeMap data
-func (m MapMeta) ToAttributeMap() map[string]*dynamodb.AttributeValue {
-	return map[string]*dal.AttributeValue{
-		"name": {
-			S: aws.String(m.Name),
-		},
-		"level": {
-			S: aws.String(m.Level),
-		},
-		"coordinates": &dynamodb.AttributeValue{
-			M: map[string]*dal.AttributeValue{
-				"long": {
-					S: aws.String(m.Coordinates.Lng),
-				},
-				"lat": {
-					S: aws.String(m.Coordinates.Lat),
-				},
-			},
-		},
-		"icon": {
-			S: aws.String(m.Icon),
-		},
-		"measurement": {
-			S: aws.String(m.Measurement),
-		},
-		"unit": {
-			S: aws.String(m.Unit),
-		},
-		"value": {
-			N: aws.String(m.Value),
-		},
-	}
-}
+// ToLiveData will convert the data into live data needsd for the live table
+func (d *Device) ToLiveData() map[string]interface{} {
+	data := make(map[string]interface{}, 0)
+	data["token"] = d.Token
+	data["timestamp"] = time.Now().Unix()
+	data["ttl"] = time.Now().Add(time.Hour * 24 * 3).Unix()
 
-// MapMetaAttributes data
-func (d Device) MapMetaAttributes() map[string]*dynamodb.AttributeValue {
-	result := make(map[string]*dynamodb.AttributeValue, 0)
-	for k, v := range d.MapMeta {
-		result[k] = &dynamodb.AttributeValue{
-			M: v.ToAttributeMap(),
-		}
+	for k, v := range d.Measurements {
+		data[k] = v
 	}
 
-	return result
+	return data
 }

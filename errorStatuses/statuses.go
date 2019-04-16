@@ -20,3 +20,12 @@ var StatusMapError int64 = 6
 
 // StatusProfileUpdateError [could not update user's profile details]
 var StatusProfileUpdateError int64 = 7
+
+// StatusValidateEmailError [could not validate provided email]
+var StatusValidateEmailError int64 = 8
+
+// StatusDeleteDeviceError [could not delete the specified device]
+var StatusDeleteDeviceError int64 = 9
+
+// StatusChartLiveDeviceError [could not get chart live data for device]
+var StatusChartLiveDeviceError int64 = 10

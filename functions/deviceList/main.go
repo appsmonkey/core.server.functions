@@ -61,14 +61,15 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 
 	for _, d := range dbData {
 		data := vm.DeviceGetData{
-			DeviceID: d.Token,
-			Name:     d.Meta.Name,
-			Active:   d.Active,
-			Mine:     d.CognitoID == cognitoID,
-			Model:    d.Meta.Model,
-			Indoor:   d.Meta.Indoor,
-			Location: d.Meta.Coordinates,
-			MapMeta:  d.MapMeta,
+			DeviceID:  d.Token,
+			Name:      d.Meta.Name,
+			Active:    d.Active,
+			Mine:      d.CognitoID == cognitoID,
+			Model:     d.Meta.Model,
+			Indoor:    d.Meta.Indoor,
+			Location:  d.Meta.Coordinates,
+			MapMeta:   d.MapMeta,
+			Timestamp: d.Timestamp,
 		}
 		rd = append(rd, &data)
 	}

@@ -215,20 +215,20 @@ func (c *Cognito) SignIn(username, password string) (*CognitoData, error) {
 }
 
 // ValidateToken checks authorization token
-func (c *Cognito) ValidateToken(jwtToken string) (string, error) {
+func (c *Cognito) ValidateToken(jwtToken string) (string, string, error) {
 	token, err := jwt.Parse(jwtToken, c.getKey)
 	if err != nil {
-		return "", fmt.Errorf("could not parse jwt: %v", err)
+		return "", "", fmt.Errorf("could not parse jwt: %v", err)
 	}
 
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 		if claims["token_use"] != "access" {
-			return "", fmt.Errorf("token_use mismatch: %s", claims["token_use"])
+			return "", "", fmt.Errorf("token_use mismatch: %s", claims["token_use"])
 		}
 
-		return claims["sub"].(string), nil // valid token
+		return claims["sub"].(string), claims["username"].(string), nil // valid token
 	}
-	return "", nil // invalid token
+	return "", "", nil // invalid token
 }
 
 // getKey returns the key for validating in ValidateToken

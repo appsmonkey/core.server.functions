@@ -1,5 +1,9 @@
 package models
 
+import (
+	"encoding/json"
+)
+
 // DefaultSensor for sensors that don't need calcujlations
 const DefaultSensor = "7"
 
@@ -133,4 +137,90 @@ var LevelIconMap = map[string]string{
 	"Very Unhealthy":   "images/icon-very-unhealthy.png",
 	"Hazardous":        "images/icon-hazardous.png",
 	"Unknown":          "images/icon-unknown.png",
+}
+
+// Schema definition
+type Schema map[string]*SchemaData
+
+// Marshal the schema
+func (s Schema) Marshal() string {
+	b, _ := json.Marshal(s)
+	return string(b)
+}
+
+// MarshalSchema the schema
+func MarshalSchema() string {
+	return sch.Marshal()
+}
+
+// SensorReading will return the calculated data for the provided data on teh sensor
+func SensorReading(sensor string, value float64) (*SchemaData, string) {
+	sc, ok := sch[sensor]
+	if ok {
+		return sc, sc.Result(value)
+	}
+
+	return nil, "NOPE"
+}
+
+// SchemaData definition of a calculation
+type SchemaData struct {
+	Name         string            `json:"name"`
+	Unit         string            `json:"unit"`
+	CalcSteps    []*SchemaCalcStep `json:"steps"`
+	DefaultValue string            `json:"default"`
+}
+
+// Result will return the calculated result
+func (s *SchemaData) Result(v float64) string {
+	if len(s.CalcSteps) == 0 {
+		return s.DefaultValue
+	}
+
+	for _, cs := range s.CalcSteps {
+		if cs.IsMe(v) {
+			return cs.Result
+		}
+	}
+
+	return s.DefaultValue
+}
+
+// SchemaCalcStep to check the data
+type SchemaCalcStep struct {
+	From   float64 `json:"from"`
+	To     float64 `json:"to"`
+	Result string  `json:"result"`
+}
+
+// IsMe returns `true` if the provided value is between its defined bounds
+func (s *SchemaCalcStep) IsMe(v float64) bool {
+	if v >= s.From && v <= s.To {
+		return true
+	}
+
+	return false
+}
+
+var sch Schema
+
+func init() {
+	sch = make(map[string]*SchemaData, 0)
+	sch["1"] = &SchemaData{
+		Name:         "Temperature",
+		Unit:         "℃",
+		DefaultValue: "OK_DEFAULT",
+		CalcSteps: []*SchemaCalcStep{
+			&SchemaCalcStep{
+				From:   -12,
+				To:     0,
+				Result: "Great",
+			},
+			&SchemaCalcStep{
+				From:   0,
+				To:     24,
+				Result: "OK",
+			},
+		},
+	}
 }

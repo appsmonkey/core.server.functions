@@ -87,3 +87,12 @@ var ErrMissingRefreshToken = Error{Code: 1024, Message: "could not refresh ident
 
 // ErrDeviceNotFound [could not find the desired device]
 var ErrDeviceNotFound = Error{Code: 1025, Message: "could not find the desired device"}
+
+// ErrSchemaNotFound [could not find the desired schena]
+var ErrSchemaNotFound = Error{Code: 1026, Message: "could not find the desired schema"}
+
+// ErrIncorrectRequest [could not understand the request]
+var ErrIncorrectRequest = Error{Code: 1027, Message: "could not understand the request"}
+
+// ErrIncorrectTime [could not understand the time]
+var ErrIncorrectTime = Error{Code: 1028, Message: "could not understand the time"}

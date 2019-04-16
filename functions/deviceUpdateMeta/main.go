@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"strconv"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
@@ -12,6 +11,8 @@ import (
 	es "github.com/appsmonkey/core.server.functions/errorStatuses"
 	m "github.com/appsmonkey/core.server.functions/models"
 	vm "github.com/appsmonkey/core.server.functions/viewmodels"
+
+	h "github.com/appsmonkey/core.server.functions/tools/helper"
 
 	// Loading the sarajevo map
 	z "github.com/appsmonkey/core.server.functions/tools/zones"
@@ -51,7 +52,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
 	}
 
-	if len(device.CognitoID) == 0 {
+	if h.IsCognitoIDEmpty(device.CognitoID) {
 		// TODO: Add so that only the admin user can do this
 		// right now we are assigning the dvice to loged in user if it was not assigned before
 		device.CognitoID = CognitoData(req.RequestContext.Authorizer)
@@ -63,16 +64,8 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 
 	// If coordinates are set, then find the zone it belongs to
 	if !request.Coordinates.IsEmpty() {
-		var lat, lng float64
-		if s, err := strconv.ParseFloat(device.Meta.Coordinates.Lat, 64); err == nil {
-			lat = s
-		}
-		if s, err := strconv.ParseFloat(device.Meta.Coordinates.Lng, 64); err == nil {
-			lng = s
-		}
-
-		if lng > 0 && lat > 0 {
-			zone := z.ZoneByPoint(&z.Point{Lat: lat, Lng: lng})
+		zone := z.ZoneByPoint(&z.Point{Lat: request.Coordinates.Lat, Lng: request.Coordinates.Lng})
+		if zone != nil {
 			device.ZoneID = zone.Title
 			device.Meta.Coordinates = request.Coordinates
 		}
@@ -87,9 +80,6 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 
 	// insert data into the DB
 	dal.Insert("devices", device)
-
-	// Log and return result
-	fmt.Println("Wrote item:  ", device)
 
 	return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 200, Headers: response.Headers()}, nil
 }

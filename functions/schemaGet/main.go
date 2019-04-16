@@ -1,51 +1,56 @@
 package main
 
 import (
+	"github.com/aws/aws-lambda-go/events"
+
 	"github.com/appsmonkey/core.server.functions/dal"
 	es "github.com/appsmonkey/core.server.functions/errorStatuses"
-	m "github.com/appsmonkey/core.server.functions/models"
+	s "github.com/appsmonkey/core.server.functions/models/schema"
 	vm "github.com/appsmonkey/core.server.functions/viewmodels"
-	"github.com/aws/aws-lambda-go/events"
+
 	"github.com/aws/aws-lambda-go/lambda"
+
 	"github.com/aws/aws-sdk-go/aws"
 )
 
 // Handler will handle our request comming from the API gateway
 func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-	cognitoID, email := CognitoData(req.RequestContext.Authorizer)
-	response := new(vm.CognitoProfileListResponse)
-	response.Init()
+	response := vm.SchemaInitResponse()
+	version := "1"
+	avHdr := req.Headers["Accept-Version"]
+	if len(avHdr) > 0 {
+		version = avHdr
+	}
 
-	res, err := dal.Get("users", map[string]*dal.AttributeValue{
-		"cognito_id": {
-			S: aws.String(cognitoID),
-		},
-		"email": {
-			S: aws.String(email),
+	res, err := dal.Get("schema", map[string]*dal.AttributeValue{
+		"version": {
+			S: aws.String(version),
 		},
 	})
 	if err != nil {
-		response.AddError(&es.Error{Code: 0, Message: err.Error()})
+		errData := es.ErrSchemaNotFound
+		errData.Data = err.Error()
+		response.Errors = append(response.Errors, errData)
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
 	}
 
-	model := m.User{}
+	type versionData struct {
+		Version string   `json:"version"`
+		Data    s.Schema `json:"data"`
+	}
+
+	model := versionData{}
 	err = res.Unmarshal(&model)
 	if err != nil {
-		response.AddError(&es.Error{Code: 0, Message: err.Error()})
+		errData := es.ErrSchemaNotFound
+		errData.Data = err.Error()
+		response.Errors = append(response.Errors, errData)
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
 	}
 
-	response.Data = model.Profile
+	response.Data = model.Data
 
 	return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 200, Headers: response.Headers()}, nil
-}
-
-// CognitoData for user
-func CognitoData(in map[string]interface{}) (string, string) {
-	data := in["claims"].(map[string]interface{})
-
-	return data["sub"].(string), data["email"].(string)
 }
 
 func main() {

@@ -7,7 +7,6 @@ import (
 	"log"
 	"os"
 
-	es "github.com/appsmonkey/core.server.functions/errorStatuses"
 	"github.com/appsmonkey/core.server.functions/integration/cognito"
 	vm "github.com/appsmonkey/core.server.functions/viewmodels"
 	"github.com/aws/aws-lambda-go/events"
@@ -21,24 +20,33 @@ var (
 
 // Handler will handle our request comming from the API gateway
 func Handler(ctx context.Context, req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-	request := new(vm.SigninRequest)
+	request := new(vm.ValidateEmailRequest)
 	response := request.Validate(req.Body)
+
+	type resData struct {
+		Exists    bool `json:"exists"`
+		Confirmed bool `json:"confirmed"`
+	}
+
+	res := resData{Exists: false, Confirmed: false}
+
 	if response.Code != 0 {
 		fmt.Printf("errors on request: %v, requestID: %v", response.Errors, response.RequestID)
 
-		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 403, Headers: response.Headers()}, nil
+		response.Data = res
+		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 400, Headers: response.Headers()}, nil
 	}
 
-	data, err := cog.SignIn(request.Email, request.Password)
+	data, err := cog.Profile(request.Email)
 	if err != nil {
-		errData := es.ErrRegistrationSignInError
-		errData.Data = err.Error()
-		response.Errors = append(response.Errors, errData)
-
-		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 403, Headers: response.Headers()}, nil
+		response.Data = res
+		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
 	}
 
-	response.Data = data
+	res.Exists = true
+	res.Confirmed = data.UserStatus != nil && *data.UserStatus == "CONFIRMED"
+
+	response.Data = res
 	return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 200, Headers: response.Headers()}, nil
 }
 
@@ -54,9 +62,8 @@ func init() {
 }
 
 func local() {
-	data, _ := json.Marshal(vm.SigninRequest{
-		Email:    os.Getenv("USER_EMAIL"),
-		Password: os.Getenv("USER_PASS"),
+	data, _ := json.Marshal(vm.ValidateEmailRequest{
+		Email: os.Getenv("USER_EMAIL"),
 	})
 
 	resp, err := Handler(context.Background(), events.APIGatewayProxyRequest{
@@ -74,6 +81,13 @@ func local() {
 func main() {
 	if os.Getenv("ENV") == "local" {
 		local()
+		// a, b := mmm.SensorReading("23", "7", 200)
+		// fmt.Println(a.Name)
+		// fmt.Println(a.Unit)
+		// fmt.Println(b)
+		// fmt.Println()
+		// fmt.Println(mmm.MarshalSchema())
+
 		return
 	}
 
