@@ -45,13 +45,36 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	}
 
 	// Get the polygon data
-	zoneRes, err := dal.List("zones", dal.Name("sensor_id").Equal(dal.Value(request.Zone)), dal.Projection(dal.Name("zone_id"), dal.Name("sensor_id"), dal.Name("data")))
-	zoneData := make([]m.Zone, 0)
-	err = zoneRes.Unmarshal(&zoneData)
-	if err != nil {
-		fmt.Println(err)
-		response.AddError(&es.Error{Message: err.Error(), Data: "could not unmarshal data from the DB"})
-		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
+	type zoneResult struct {
+		ZoneID string       `json:"zone_id"`
+		Data   []m.ZoneMeta `json:"data"`
+	}
+	zoneMap := make(map[string]zoneResult, 0)
+	zoneData := make([]zoneResult, 0)
+	for _, z := range request.Zone {
+		zoneRes, err := dal.List("zones", dal.Name("sensor_id").Equal(dal.Value(z)), dal.Projection(dal.Name("zone_id"), dal.Name("data")))
+		zd := make([]m.Zone, 0)
+		err = zoneRes.Unmarshal(&zd)
+		if err != nil {
+			fmt.Println(err)
+			response.AddError(&es.Error{Message: err.Error(), Data: "could not unmarshal data from the DB"})
+			return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
+		}
+
+		for _, zz := range zd {
+			_, ok := zoneMap[zz.ZoneID]
+			if ok {
+				t := zoneMap[zz.ZoneID]
+				t.Data = append(t.Data, zz.Data)
+				zoneMap[zz.ZoneID] = t
+			} else {
+				zoneMap[zz.ZoneID] = zoneResult{ZoneID: zz.ZoneID, Data: []m.ZoneMeta{zz.Data}}
+			}
+		}
+	}
+
+	for _, tz := range zoneMap {
+		zoneData = append(zoneData, tz)
 	}
 
 	dbRes, err := dal.ListNoFilter("devices", dal.Projection(dal.Name("token"), dal.Name("device_id"), dal.Name("meta"), dal.Name("map_meta"), dal.Name("active"), dal.Name("measurements"), dal.Name("cognito_id"), dal.Name("timestamp")))
@@ -65,7 +88,8 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	data := make([]vm.DeviceGetData, 0)
 
 	for _, d := range dbData {
-		if !d.Active || d.Meta.Coordinates.IsEmpty() {
+		mine := d.CognitoID != h.CognitoIDZeroValue && cognitoID != h.CognitoIDZeroValue && d.CognitoID == cognitoID
+		if (!mine && !d.Active) || d.Meta.Coordinates.IsEmpty() {
 			continue
 		}
 
@@ -79,8 +103,8 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		dData := vm.DeviceGetData{
 			DeviceID:  d.Token,
 			Name:      d.Meta.Name,
-			Active:    true,
-			Mine:      d.CognitoID != h.CognitoIDZeroValue && cognitoID != h.CognitoIDZeroValue && d.CognitoID == cognitoID,
+			Active:    d.Active,
+			Mine:      mine,
 			Model:     d.Meta.Model,
 			Indoor:    d.Meta.Indoor,
 			Location:  d.Meta.Coordinates,
@@ -92,7 +116,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	}
 
 	type MapResponseData struct {
-		Zones   []m.Zone           `json:"zones"`
+		Zones   []zoneResult       `json:"zones"`
 		Devices []vm.DeviceGetData `json:"devices"`
 	}
 

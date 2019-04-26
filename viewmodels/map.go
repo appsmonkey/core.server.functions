@@ -11,7 +11,7 @@ import (
 
 // MapRequest is the request from the client
 type MapRequest struct {
-	Zone   string   `json:"zone_data"`
+	Zone   []string `json:"zone_data"`
 	Sensor []string `json:"device_data"`
 }
 
@@ -51,7 +51,7 @@ func (r *MapRequest) Validate(body map[string]string) *MapResponse {
 	}
 
 	r.Sensor = strings.Split(sensor, ",")
-	r.Zone = zone
+	r.Zone = strings.Split(zone, ",")
 
 	if len(r.Sensor) == 0 {
 		response.Errors = append(response.Errors, es.ErrMissingSensorType)

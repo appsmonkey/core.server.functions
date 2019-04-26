@@ -23,6 +23,7 @@ func loadZones() {
 				ZoneID:   zk,
 				SensorID: sk,
 				Data: m.ZoneMeta{
+					SensorID:    sk,
 					Name:        zk,
 					Level:       ln,
 					Value:       0,

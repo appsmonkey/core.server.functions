@@ -96,3 +96,6 @@ var ErrIncorrectRequest = Error{Code: 1027, Message: "could not understand the r
 
 // ErrIncorrectTime [could not understand the time]
 var ErrIncorrectTime = Error{Code: 1028, Message: "could not understand the time"}
+
+// ErrMissingChart [cannot get data count. Missing chart type]
+var ErrMissingChart = Error{Code: 1029, Message: "cannot get data count. Missing chart type"}

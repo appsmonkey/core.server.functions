@@ -18,7 +18,7 @@ type resultData struct {
 
 // Handler will handle our request comming from the API gateway
 func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-	request := new(vm.ChartLiveDeviceRequest)
+	request := new(vm.ChartHourDeviceRequest)
 	response := request.Validate(req.QueryStringParameters)
 	if response.Code != 0 {
 		fmt.Printf("errors on request: %v, requestID: %v", response.Errors, response.RequestID)
@@ -26,17 +26,17 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 400, Headers: response.Headers()}, nil
 	}
 
-	res, err := dal.QueryMultiple("live",
+	res, err := dal.QueryMultiple("chart_device_day",
 		dal.Condition{
-			"token": {
+			"hash": {
 				ComparisonOperator: aws.String("EQ"),
 				AttributeValueList: []*dal.AttributeValue{
 					{
-						S: aws.String(request.Token),
+						S: aws.String(fmt.Sprintf("%v:%v", request.Token, request.Sensor)),
 					},
 				},
 			},
-			"timestamp": {
+			"date": {
 				ComparisonOperator: aws.String("GT"),
 				AttributeValueList: []*dal.AttributeValue{
 					{
@@ -45,7 +45,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 				},
 			},
 		},
-		dal.Projection(dal.Name("timestamp"), dal.Name(request.Sensor)),
+		dal.Projection(dal.Name("date"), dal.Name("value")),
 		true)
 
 	if err != nil {
@@ -65,8 +65,8 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	result := make([]*resultData, 0)
 	for _, v := range dbData {
 		result = append(result, &resultData{
-			Date:  v["timestamp"],
-			Value: v[request.Sensor],
+			Date:  v["date"],
+			Value: v["value"],
 		})
 	}
 

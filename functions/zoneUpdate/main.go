@@ -65,6 +65,7 @@ func Handler(ctx context.Context, req interface{}) error {
 			ZoneID:   zoneID,
 			SensorID: rk,
 			Data: m.ZoneMeta{
+				SensorID:    rk,
 				Name:        zoneID,
 				Level:       level,
 				Value:       val,

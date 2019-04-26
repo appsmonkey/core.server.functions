@@ -46,7 +46,7 @@ func main() {
 
 func incrementData(hash, timestamp, key1, value1, key2, value2 string) *access.IncrementInput {
 	return &access.IncrementInput{
-		Table:     "chart_hour_input",
+		Table:     "chart_day_input",
 		KeyName:   "hash",
 		KeyValue:  hash,
 		TTL:       seconds,
@@ -80,13 +80,13 @@ func sensorData(v interface{}) (sensor string, value float64) {
 func calculateHash(timestamp float64, token, sensor string) (devToken, generalToken string) {
 	t := formulateTimestamp(int64(timestamp))
 
-	devToken = fmt.Sprintf("hour:%v:%v:%v", t.Unix(), token, sensor)
-	generalToken = fmt.Sprintf("hour:%v:%v", t.Unix(), sensor)
+	devToken = fmt.Sprintf("day:%v:%v:%v", t.Unix(), token, sensor)
+	generalToken = fmt.Sprintf("day:%v:%v", t.Unix(), sensor)
 
 	return
 }
 
 func formulateTimestamp(in int64) time.Time {
 	then := time.Unix(in, 0)
-	return time.Date(then.Year(), then.Month(), then.Day(), then.Hour(), 0, 0, 0, time.UTC)
+	return time.Date(then.Year(), then.Month(), then.Day(), 0, 0, 0, 0, time.UTC)
 }

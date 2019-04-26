@@ -29,3 +29,12 @@ var StatusDeleteDeviceError int64 = 9
 
 // StatusChartLiveDeviceError [could not get chart live data for device]
 var StatusChartLiveDeviceError int64 = 10
+
+// StatusChartHourDeviceError [could not get chart hour data for device]
+var StatusChartHourDeviceError int64 = 11
+
+// StatusChartAllDeviceError [could not get chart all data]
+var StatusChartAllDeviceError int64 = 12
+
+// StatusChartHasDataError [could not determined if we have data for a specific chart]
+var StatusChartHasDataError int64 = 13

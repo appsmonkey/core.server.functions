@@ -9,6 +9,7 @@ type Zone struct {
 
 // ZoneMeta holds the calculated data used to dispay on the map
 type ZoneMeta struct {
+	SensorID    string  `json:"sensor_id"`
 	Name        string  `json:"name"`
 	Level       string  `json:"level"`
 	Value       float64 `json:"value"`
