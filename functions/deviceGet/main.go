@@ -5,7 +5,9 @@ import (
 
 	"github.com/appsmonkey/core.server.functions/dal"
 	es "github.com/appsmonkey/core.server.functions/errorStatuses"
+	defaultDevice "github.com/appsmonkey/core.server.functions/functions/deviceGet/general"
 	m "github.com/appsmonkey/core.server.functions/models"
+	h "github.com/appsmonkey/core.server.functions/tools/helper"
 	vm "github.com/appsmonkey/core.server.functions/viewmodels"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
@@ -16,11 +18,16 @@ import (
 func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	cognitoID := CognitoData(req.RequestContext.Authorizer)
 	request := new(vm.DeviceGetRequest)
-	response := request.Validate(req.Body)
+	response := request.Validate(req.QueryStringParameters)
 	if response.Code != 0 {
 		fmt.Printf("errors on request: %v, requestID: %v", response.Errors, response.RequestID)
 
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
+	}
+
+	if len(request.Token) == 0 {
+		response.Data = defaultDevice.Get()
+		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 200, Headers: response.Headers()}, nil
 	}
 
 	res, err := dal.Get("devices", map[string]*dal.AttributeValue{
@@ -63,7 +70,11 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 
 // CognitoData for user
 func CognitoData(in map[string]interface{}) string {
-	data := in["claims"].(map[string]interface{})
+	data, ok := in["claims"].(map[string]interface{})
+
+	if !ok {
+		return h.CognitoIDZeroValue
+	}
 
 	return data["sub"].(string)
 }

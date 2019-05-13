@@ -3,23 +3,20 @@ package viewmodels
 import (
 	"encoding/json"
 	"strconv"
-	"strings"
 	"time"
 
 	es "github.com/appsmonkey/core.server.functions/errorStatuses"
 )
 
-// ChartHasDataRequest is the request from the client
-type ChartHasDataRequest struct {
-	Chart  string `json:"chart"`
+// ChartLiveAllRequest is the request from the client
+type ChartLiveAllRequest struct {
 	Sensor string `json:"sensor"`
-	Device bool   `json:"device"`
 	From   int64  `json:"from"`
 }
 
 // Validate the request sent from client
-func (r *ChartHasDataRequest) Validate(body map[string]string) *ChartHasDataResponse {
-	response := new(ChartHasDataResponse)
+func (r *ChartLiveAllRequest) Validate(body map[string]string) *ChartLiveAllResponse {
+	response := new(ChartLiveAllResponse)
 	response.Code = 0
 	response.RequestID = strconv.FormatInt(time.Now().Unix(), 10)
 
@@ -28,17 +25,7 @@ func (r *ChartHasDataRequest) Validate(body map[string]string) *ChartHasDataResp
 		errData.Data = "no query parameters sent"
 		response.Errors = append(response.Errors, errData)
 
-		response.Code = es.StatusChartHasDataError
-		return response
-	}
-
-	chart, ok := body["chart"]
-	if !ok {
-		errData := es.ErrIncorrectRequest
-		errData.Data = "chart parameter is missing"
-		response.Errors = append(response.Errors, errData)
-
-		response.Code = es.StatusChartHasDataError
+		response.Code = es.StatusChartLiveAllError
 		return response
 	}
 
@@ -48,7 +35,7 @@ func (r *ChartHasDataRequest) Validate(body map[string]string) *ChartHasDataResp
 		errData.Data = "sensor parameter is missing"
 		response.Errors = append(response.Errors, errData)
 
-		response.Code = es.StatusChartHasDataError
+		response.Code = es.StatusChartLiveAllError
 		return response
 	}
 
@@ -58,61 +45,41 @@ func (r *ChartHasDataRequest) Validate(body map[string]string) *ChartHasDataResp
 		errData.Data = "from parameter is missing"
 		response.Errors = append(response.Errors, errData)
 
-		response.Code = es.StatusChartHasDataError
+		response.Code = es.StatusChartLiveAllError
 		return response
-	}
-
-	device, ok := body["device"]
-	if !ok {
-		errData := es.ErrIncorrectRequest
-		errData.Data = "device parameter is missing"
-		response.Errors = append(response.Errors, errData)
-
-		response.Code = es.StatusChartHasDataError
-		return response
-	}
-
-	if len(chart) == 0 {
-		response.Errors = append(response.Errors, es.ErrMissingChart)
-		response.Code = es.StatusChartHasDataError
 	}
 
 	if len(sensor) == 0 {
 		response.Errors = append(response.Errors, es.ErrMissingSensorType)
-		response.Code = es.StatusChartHasDataError
+		response.Code = es.StatusChartLiveAllError
 	}
 
 	f, err := strconv.ParseInt(from, 10, 64)
 	if err != nil {
 		response.Errors = append(response.Errors, es.ErrIncorrectTime)
-		response.Code = es.StatusChartHasDataError
+		response.Code = es.StatusChartLiveAllError
 	}
 
-	if strings.ToLower(device) == "1" {
-		r.Device = true
-	}
-
-	r.Chart = chart
 	r.Sensor = sensor
 	r.From = f
 
 	return response
 }
 
-// ChartHasDataResponse to the client
+// ChartLiveAllResponse to the client
 // `Returns a list of all devices assigned to the requestee. Data defained in the *DeviceAddData* struct`
-type ChartHasDataResponse struct {
+type ChartLiveAllResponse struct {
 	BaseResponse
 }
 
 // Marshal the response object
-func (r *ChartHasDataResponse) Marshal() string {
+func (r *ChartLiveAllResponse) Marshal() string {
 	res, _ := json.Marshal(r)
 
 	return string(res)
 }
 
 // AddError to the response object
-func (r *ChartHasDataResponse) AddError(err *es.Error) {
+func (r *ChartLiveAllResponse) AddError(err *es.Error) {
 	r.Errors = append(r.Errors, *err)
 }

@@ -10,7 +10,7 @@ all : register signup signup signin refresh profile general deviceList deviceLis
 	deviceUpdateMeta cognitoRegister cognitoProfileList cognitoProfileUpdate deviceAdd deviceGet \
 	deviceDel map zoneUpdate validateEmail seeder schemaGet chartLiveDevice chartCache chartHour \
 	chartSave chartHourDevice chartHourAll chartCacheDay chartDay chartDayDevice chartDayAll chartHasData \
-	chartCacheSix chartSix chartSixDevice chartSixAll
+	chartCacheSix chartSix chartSixDevice chartSixAll chartLiveAll
 
 vendor: Gopkg.toml
 		dep ensure -v
@@ -146,6 +146,12 @@ chartLiveDevice:
 	mkdir -p bin
 	build-lambda-zip -o bin/chartLiveDevice.zip chartLiveDevice
 	rm chartLiveDevice
+
+chartLiveAll:
+	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o chartLiveAll functions/chartLiveAll/main.go
+	mkdir -p bin
+	build-lambda-zip -o bin/chartLiveAll.zip chartLiveAll
+	rm chartLiveAll
 
 chartHourDevice:
 	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o chartHourDevice functions/chartHourDevice/main.go

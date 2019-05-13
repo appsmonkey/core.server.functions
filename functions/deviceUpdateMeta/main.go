@@ -17,7 +17,12 @@ import (
 	// Loading the sarajevo map
 	z "github.com/appsmonkey/core.server.functions/tools/zones"
 	_ "github.com/appsmonkey/core.server.functions/tools/zones/sarajevo"
+
+	ss "github.com/aws/aws-sdk-go/aws/session"
+	sl "github.com/aws/aws-sdk-go/service/lambda"
 )
+
+var lambdaClient *sl.Lambda
 
 // Handler will handle our request comming from the API gateway
 func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
@@ -62,6 +67,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 400, Headers: response.Headers()}, nil
 	}
 
+	oldZone := device.ZoneID
 	// If coordinates are set, then find the zone it belongs to
 	if !request.Coordinates.IsEmpty() {
 		zone := z.ZoneByPoint(&z.Point{Lat: request.Coordinates.Lat, Lng: request.Coordinates.Lng})
@@ -81,16 +87,50 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	// insert data into the DB
 	dal.Insert("devices", device)
 
+	// Update the old zone data
+	if oldZone != "none" {
+		payload := fmt.Sprintf(`{ "zone_id": "%v" }`, oldZone)
+
+		invOut, err := lambdaClient.Invoke(&sl.InvokeInput{FunctionName: aws.String("CityOSZoneUpdate"), Payload: []byte(payload)})
+		if err != nil {
+			fmt.Println("invOut", invOut)
+			fmt.Println("err", err)
+		}
+	}
+
+	// Update the new zone data if different
+	if oldZone != device.ZoneID {
+		payload := fmt.Sprintf(`{ "zone_id": "%v" }`, device.ZoneID)
+
+		invOut, err := lambdaClient.Invoke(&sl.InvokeInput{FunctionName: aws.String("CityOSZoneUpdate"), Payload: []byte(payload)})
+		if err != nil {
+			fmt.Println("invOut", invOut)
+			fmt.Println("err", err)
+		}
+	}
+
 	return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 200, Headers: response.Headers()}, nil
 }
 
 // CognitoData for user
 func CognitoData(in map[string]interface{}) string {
-	data := in["claims"].(map[string]interface{})
+	data, ok := in["claims"].(map[string]interface{})
+
+	if !ok {
+		return h.CognitoIDZeroValue
+	}
 
 	return data["sub"].(string)
 }
 
 func main() {
 	lambda.Start(Handler)
+}
+
+func init() {
+	sess := ss.Must(ss.NewSessionWithOptions(ss.Options{
+		SharedConfigState: ss.SharedConfigEnable,
+	}))
+
+	lambdaClient = sl.New(sess, &aws.Config{Region: aws.String("eu-west-1")})
 }

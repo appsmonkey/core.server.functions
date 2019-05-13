@@ -8,7 +8,6 @@ import (
 	vm "github.com/appsmonkey/core.server.functions/viewmodels"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
-	"github.com/aws/aws-sdk-go/aws"
 )
 
 type resultData struct {
@@ -18,7 +17,7 @@ type resultData struct {
 
 // Handler will handle our request comming from the API gateway
 func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-	request := new(vm.ChartHourDeviceRequest)
+	request := new(vm.ChartLiveAllRequest)
 	response := request.Validate(req.QueryStringParameters)
 	if response.Code != 0 {
 		fmt.Printf("errors on request: %v, requestID: %v", response.Errors, response.RequestID)
@@ -26,28 +25,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 400, Headers: response.Headers()}, nil
 	}
 
-	res, err := dal.QueryMultiple("chart_device_six",
-		dal.Condition{
-			"hash": {
-				ComparisonOperator: aws.String("EQ"),
-				AttributeValueList: []*dal.AttributeValue{
-					{
-						S: aws.String(fmt.Sprintf("%v:%v", request.Token, request.Sensor)),
-					},
-				},
-			},
-			"date": {
-				ComparisonOperator: aws.String("GT"),
-				AttributeValueList: []*dal.AttributeValue{
-					{
-						N: aws.String(request.From),
-					},
-				},
-			},
-		},
-		dal.Projection(dal.Name("date"), dal.Name("value")),
-		true)
-
+	res, err := dal.List("live", dal.Name("timestamp").GreaterThanEqual(dal.Value(request.From)), dal.Projection(dal.Name(request.Sensor), dal.Name("timestamp_sort")))
 	if err != nil {
 		response.AddError(&es.Error{Message: err.Error(), Data: "could not unmarshal data from the DB"})
 		fmt.Printf("errors on request: %v, requestID: %v", response.Errors, response.RequestID)
@@ -63,11 +41,28 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	}
 
 	result := make([]*resultData, 0)
+	d := make(map[float64][]float64, 0)
 	for _, v := range dbData {
-		result = append(result, &resultData{
-			Date:  v["date"],
-			Value: v["value"],
-		})
+		d[v["timestamp_sort"]] = append(d[v["timestamp_sort"]], v[request.Sensor])
+	}
+
+	for k, v := range d {
+		rd := new(resultData)
+		rd.Date = k
+		if len(v) > 0 {
+			var av float64
+			for _, sv := range v {
+				av += sv
+			}
+
+			if av == 0 {
+				rd.Value = 0
+			} else {
+				rd.Value = av / float64(len(v))
+			}
+		}
+
+		result = append(result, rd)
 	}
 
 	response.Data = result

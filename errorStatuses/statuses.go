@@ -38,3 +38,6 @@ var StatusChartAllDeviceError int64 = 12
 
 // StatusChartHasDataError [could not determined if we have data for a specific chart]
 var StatusChartHasDataError int64 = 13
+
+// StatusChartLiveAllError [could not get avg chart live data]
+var StatusChartLiveAllError int64 = 14

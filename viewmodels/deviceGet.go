@@ -5,7 +5,6 @@ import (
 	"strconv"
 	"time"
 
-	es "github.com/appsmonkey/core.server.functions/errorStatuses"
 	m "github.com/appsmonkey/core.server.functions/models"
 )
 
@@ -15,24 +14,14 @@ type DeviceGetRequest struct {
 }
 
 // Validate the request sent from client
-func (r *DeviceGetRequest) Validate(body string) *DeviceAddResponse {
+func (r *DeviceGetRequest) Validate(body map[string]string) *DeviceAddResponse {
 	response := new(DeviceAddResponse)
 	response.Code = 0
 	response.RequestID = strconv.FormatInt(time.Now().Unix(), 10)
 
-	err := json.Unmarshal([]byte(body), r)
-	if err != nil {
-		errData := es.ErrRegistrationIncorrectRequest
-		errData.Data = err.Error()
-		response.Errors = append(response.Errors, errData)
-
-		response.Code = es.StatusGetDeviceError
-		return response
-	}
-
-	if len(r.Token) == 0 {
-		response.Errors = append(response.Errors, es.ErrMissingThingToken)
-		response.Code = es.StatusGetDeviceError
+	token, ok := body["token"]
+	if ok {
+		r.Token = token
 	}
 
 	return response

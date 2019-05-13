@@ -52,13 +52,20 @@ type MapMeta struct {
 // ToLiveData will convert the data into live data needsd for the live table
 func (d *Device) ToLiveData() map[string]interface{} {
 	data := make(map[string]interface{}, 0)
+	then := time.Now()
 	data["token"] = d.Token
-	data["timestamp"] = time.Now().Unix()
-	data["ttl"] = time.Now().Add(time.Hour * 24 * 3).Unix()
+	data["timestamp"] = then.Unix()
+	data["timestamp_sort"] = formulateTimestamp(then.Unix()).Unix()
+	data["ttl"] = then.Add(time.Hour * 24 * 3).Unix()
 
 	for k, v := range d.Measurements {
 		data[k] = v
 	}
 
 	return data
+}
+
+func formulateTimestamp(in int64) time.Time {
+	then := time.Unix(in, 0)
+	return time.Date(then.Year(), then.Month(), then.Day(), then.Hour(), then.Minute(), then.Second(), 0, time.UTC)
 }

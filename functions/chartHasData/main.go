@@ -5,7 +5,7 @@ import (
 
 	"github.com/appsmonkey/core.server.functions/dal"
 	es "github.com/appsmonkey/core.server.functions/errorStatuses"
-	vm "github.com/appsmonkey/core.server.functions/viewModels"
+	vm "github.com/appsmonkey/core.server.functions/viewmodels"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 )
@@ -16,6 +16,7 @@ type resultData struct {
 }
 
 var mapping map[string]string
+var mappingAll map[string]string
 
 // Handler will handle our request comming from the API gateway
 func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
@@ -27,23 +28,34 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 400, Headers: response.Headers()}, nil
 	}
 
-	table, ok := mapping[request.Chart]
+	m := mapping
+	if request.Device {
+		m = mappingAll
+	}
+
+	table, ok := m[request.Chart]
 	if !ok {
 		response.AddError(&es.ErrMissingChart)
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 400, Headers: response.Headers()}, nil
 	}
 
-	response.Data = dal.HasItems(table)
+	response.Data = dal.HasItemsWithFilter(table, dal.Name("sensor").Equal(dal.Value(request.Sensor)).And(dal.Name("date").GreaterThanEqual(dal.Value(request.From))))
 
 	return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 200, Headers: response.Headers()}, nil
 }
 
 func main() {
+	mappingAll = make(map[string]string, 0)
+	mappingAll["live"] = "live"
+	mappingAll["day"] = "chart_hour"
+	mappingAll["week"] = "chart_six"
+	mappingAll["month"] = "chart_day"
+
 	mapping = make(map[string]string, 0)
 	mapping["live"] = "live"
-	mapping["day"] = "chart_hour"
-	mapping["week"] = "chart_six"
-	mapping["month"] = "chart_day"
+	mapping["day"] = "chart_device_hour"
+	mapping["week"] = "chart_device_six"
+	mapping["month"] = "chart_device_day"
 
 	lambda.Start(Handler)
 }

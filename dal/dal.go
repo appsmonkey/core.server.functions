@@ -281,12 +281,70 @@ func ListNoFilter(table string, projection ProjectionBuilder) (*ListResult, erro
 	return &ListResult{items: result}, nil
 }
 
+// ListNoProjection data (returns possible multiple values)
+func ListNoProjection(table string, filter ConditionBuilder) (*ListResult, error) {
+	expr, err := expression.NewBuilder().WithFilter(filter).Build()
+	if err != nil {
+		fmt.Println("Got error building expression:")
+		fmt.Println(err.Error())
+
+		return nil, err
+	}
+
+	// Build the query input parameters
+	params := &dynamodb.ScanInput{
+		ExpressionAttributeNames:  expr.Names(),
+		ExpressionAttributeValues: expr.Values(),
+		FilterExpression:          expr.Filter(),
+		TableName:                 aws.String(table),
+	}
+
+	// Make the DynamoDB Query API call
+	result, err := svc.Scan(params)
+	if err != nil {
+		fmt.Print("ListNoProjection API call failed: ")
+		fmt.Println((err.Error()))
+		return nil, err
+	}
+
+	return &ListResult{items: result}, nil
+}
+
 // HasItems returns if the table has items in it
 func HasItems(table string) bool {
 	// Build the query input parameters
 	params := &dynamodb.ScanInput{
 		TableName: aws.String(table),
 		Limit:     aws.Int64(1),
+	}
+
+	// Make the DynamoDB Query API call
+	result, err := svc.Scan(params)
+	if err != nil {
+		fmt.Print("Count API call failed: ")
+		fmt.Println((err.Error()))
+		return false
+	}
+
+	return *result.Count > 0
+}
+
+// HasItemsWithFilter returns if the table has items in it
+func HasItemsWithFilter(table string, filter ConditionBuilder) bool {
+	expr, err := expression.NewBuilder().WithFilter(filter).Build()
+	if err != nil {
+		fmt.Println("got error building expression:")
+		fmt.Println(err.Error())
+
+		return false
+	}
+
+	// Build the query input parameters
+	params := &dynamodb.ScanInput{
+		ExpressionAttributeNames:  expr.Names(),
+		ExpressionAttributeValues: expr.Values(),
+		FilterExpression:          expr.Filter(),
+		TableName:                 aws.String(table),
 	}
 
 	// Make the DynamoDB Query API call
