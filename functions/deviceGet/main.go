@@ -5,8 +5,8 @@ import (
 
 	"github.com/appsmonkey/core.server.functions/dal"
 	es "github.com/appsmonkey/core.server.functions/errorStatuses"
-	defaultDevice "github.com/appsmonkey/core.server.functions/functions/deviceGet/general"
 	m "github.com/appsmonkey/core.server.functions/models"
+	defaultDevice "github.com/appsmonkey/core.server.functions/tools/defaultDevice"
 	h "github.com/appsmonkey/core.server.functions/tools/helper"
 	vm "github.com/appsmonkey/core.server.functions/viewmodels"
 	"github.com/aws/aws-lambda-go/events"

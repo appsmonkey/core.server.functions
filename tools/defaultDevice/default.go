@@ -1,4 +1,4 @@
-package general
+package defaultDevice
 
 import (
 	"fmt"
