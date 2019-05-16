@@ -1,10 +1,3 @@
-#go_apps = bin/register
-
-#bin/% : functions/%.go
-#		env GOOS=linux go build -ldflags="-s -w" -o $@ $<
-
-#build: $(go_apps) | vendor
-
 ifdef OS
     package_lambda = build-lambda-zip -o
     FixPath = $(subst /,\,$1)
@@ -38,221 +31,221 @@ register:
 signup:
 	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o signup functions/signup/main.go
 	mkdir -p bin
-	$(package_lambda) -o bin/signup.zip signup
+	$(package_lambda) bin/signup.zip signup
 	rm signup
 
 signin:
 	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o signin functions/signin/main.go
 	mkdir -p bin
-	$(package_lambda) -o bin/signin.zip signin
+	$(package_lambda) bin/signin.zip signin
 	rm signin
 
 refresh:
 	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o refresh functions/refresh/main.go
 	mkdir -p bin
-	$(package_lambda) -o bin/refresh.zip refresh
+	$(package_lambda) bin/refresh.zip refresh
 	rm refresh
 
 profile:
 	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o profile functions/profile/main.go
 	mkdir -p bin
-	$(package_lambda) -o bin/profile.zip profile
+	$(package_lambda) bin/profile.zip profile
 	rm profile
 
 general:
 	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o general functions/general/main.go
 	mkdir -p bin
-	$(package_lambda) -o bin/general.zip general
+	$(package_lambda) bin/general.zip general
 	rm general
 
 deviceList:
 	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o devicelist functions/deviceList/main.go
 	mkdir -p bin
-	$(package_lambda) -o bin/devicelist.zip devicelist
+	$(package_lambda) bin/devicelist.zip devicelist
 	rm devicelist
 
 deviceListMinimal:
 	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o deviceListMinimal functions/deviceListMinimal/main.go
 	mkdir -p bin
-	$(package_lambda) -o bin/deviceListMinimal.zip deviceListMinimal
+	$(package_lambda) bin/deviceListMinimal.zip deviceListMinimal
 	rm deviceListMinimal
 
 deviceUpdate:
 	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o deviceUpdate functions/deviceUpdate/main.go
 	mkdir -p bin
-	$(package_lambda) -o bin/deviceUpdate.zip deviceUpdate
+	$(package_lambda) bin/deviceUpdate.zip deviceUpdate
 	rm deviceUpdate
 
 deviceUpdateMeta:
 	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o deviceUpdateMeta functions/deviceUpdateMeta/main.go
 	mkdir -p bin
-	$(package_lambda) -o bin/deviceUpdateMeta.zip deviceUpdateMeta
+	$(package_lambda) bin/deviceUpdateMeta.zip deviceUpdateMeta
 	rm deviceUpdateMeta
 
 cognitoRegister:
 	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o cognitoRegister functions/cognitoRegister/main.go
 	mkdir -p bin
-	$(package_lambda) -o bin/cognitoRegister.zip cognitoRegister
+	$(package_lambda) bin/cognitoRegister.zip cognitoRegister
 	rm cognitoRegister
 
 cognitoProfileList:
 	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o cognitoProfileList functions/cognitoProfileList/main.go
 	mkdir -p bin
-	$(package_lambda) -o bin/cognitoProfileList.zip cognitoProfileList
+	$(package_lambda) bin/cognitoProfileList.zip cognitoProfileList
 	rm cognitoProfileList
 
 cognitoProfileUpdate:
 	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o cognitoProfileUpdate functions/cognitoProfileUpdate/main.go
 	mkdir -p bin
-	$(package_lambda) -o bin/cognitoProfileUpdate.zip cognitoProfileUpdate
+	$(package_lambda) bin/cognitoProfileUpdate.zip cognitoProfileUpdate
 	rm cognitoProfileUpdate
 
 deviceAdd:
 	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o deviceAdd functions/deviceAdd/main.go
 	mkdir -p bin
-	$(package_lambda) -o bin/deviceAdd.zip deviceAdd
+	$(package_lambda) bin/deviceAdd.zip deviceAdd
 	rm deviceAdd
 
 deviceGet:
 	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o deviceGet functions/deviceGet/main.go
 	mkdir -p bin
-	$(package_lambda) -o bin/deviceGet.zip deviceGet
+	$(package_lambda) bin/deviceGet.zip deviceGet
 	rm deviceGet
 
 deviceDel:
 	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o deviceDel functions/deviceDel/main.go
 	mkdir -p bin
-	$(package_lambda) -o bin/deviceDel.zip deviceDel
+	$(package_lambda) bin/deviceDel.zip deviceDel
 	rm deviceDel
 
 map:
 	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o map functions/map/main.go
 	mkdir -p bin
-	$(package_lambda) -o bin/map.zip map
+	$(package_lambda) bin/map.zip map
 	rm map
 
 zoneUpdate:
 	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o zoneUpdate functions/zoneUpdate/main.go
 	mkdir -p bin
-	$(package_lambda) -o bin/zoneUpdate.zip zoneUpdate
+	$(package_lambda) bin/zoneUpdate.zip zoneUpdate
 	rm zoneUpdate
 
 validateEmail:
 	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o validateEmail functions/validateEmail/main.go
 	mkdir -p bin
-	$(package_lambda) -o bin/validateEmail.zip validateEmail
+	$(package_lambda) bin/validateEmail.zip validateEmail
 	rm validateEmail
 
 seeder:
 	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o seeder functions/seeder/main.go
 	mkdir -p bin
-	$(package_lambda) -o bin/seeder.zip seeder
+	$(package_lambda) bin/seeder.zip seeder
 	rm seeder
 
 schemaGet:
 	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o schemaGet functions/schemaGet/main.go
 	mkdir -p bin
-	$(package_lambda) -o bin/schemaGet.zip schemaGet
+	$(package_lambda) bin/schemaGet.zip schemaGet
 	rm schemaGet
 
 chartLiveDevice:
 	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o chartLiveDevice functions/chartLiveDevice/main.go
 	mkdir -p bin
-	$(package_lambda) -o bin/chartLiveDevice.zip chartLiveDevice
+	$(package_lambda) bin/chartLiveDevice.zip chartLiveDevice
 	rm chartLiveDevice
 
 chartLiveAll:
 	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o chartLiveAll functions/chartLiveAll/main.go
 	mkdir -p bin
-	$(package_lambda) -o bin/chartLiveAll.zip chartLiveAll
+	$(package_lambda) bin/chartLiveAll.zip chartLiveAll
 	rm chartLiveAll
 
 chartHourDevice:
 	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o chartHourDevice functions/chartHourDevice/main.go
 	mkdir -p bin
-	$(package_lambda) -o bin/chartHourDevice.zip chartHourDevice
+	$(package_lambda) bin/chartHourDevice.zip chartHourDevice
 	rm chartHourDevice
 
 chartHourAll:
 	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o chartHourAll functions/chartHourAll/main.go
 	mkdir -p bin
-	$(package_lambda) -o bin/chartHourAll.zip chartHourAll
+	$(package_lambda) bin/chartHourAll.zip chartHourAll
 	rm chartHourAll
 
 chartCache:
 	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o chartCache functions/chartCache/main.go
 	mkdir -p bin
-	$(package_lambda) -o bin/chartCache.zip chartCache
+	$(package_lambda) bin/chartCache.zip chartCache
 	rm chartCache
 
 chartCacheDay:
 	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o chartCacheDay functions/chartCacheDay/main.go
 	mkdir -p bin
-	$(package_lambda) -o bin/chartCacheDay.zip chartCacheDay
+	$(package_lambda) bin/chartCacheDay.zip chartCacheDay
 	rm chartCacheDay
 
 chartCacheSix:
 	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o chartCacheSix functions/chartCacheSix/main.go
 	mkdir -p bin
-	$(package_lambda) -o bin/chartCacheSix.zip chartCacheSix
+	$(package_lambda) bin/chartCacheSix.zip chartCacheSix
 	rm chartCacheSix
 
 chartSix:
 	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o chartSix functions/chartSix/main.go
 	mkdir -p bin
-	$(package_lambda) -o bin/chartSix.zip chartSix
+	$(package_lambda) bin/chartSix.zip chartSix
 	rm chartSix
 
 chartHour:
 	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o chartHour functions/chartHour/main.go
 	mkdir -p bin
-	$(package_lambda) -o bin/chartHour.zip chartHour
+	$(package_lambda) bin/chartHour.zip chartHour
 	rm chartHour
 
 chartDay:
 	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o chartDay functions/chartDay/main.go
 	mkdir -p bin
-	$(package_lambda) -o bin/chartDay.zip chartDay
+	$(package_lambda) bin/chartDay.zip chartDay
 	rm chartDay
 
 chartDayDevice:
 	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o chartDayDevice functions/chartDayDevice/main.go
 	mkdir -p bin
-	$(package_lambda) -o bin/chartDayDevice.zip chartDayDevice
+	$(package_lambda) bin/chartDayDevice.zip chartDayDevice
 	rm chartDayDevice
 
 chartHasData:
 	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o chartHasData functions/chartHasData/main.go
 	mkdir -p bin
-	$(package_lambda) -o bin/chartHasData.zip chartHasData
+	$(package_lambda) bin/chartHasData.zip chartHasData
 	rm chartHasData
 
 chartDayAll:
 	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o chartDayAll functions/chartDayAll/main.go
 	mkdir -p bin
-	$(package_lambda) -o bin/chartDayAll.zip chartDayAll
+	$(package_lambda) bin/chartDayAll.zip chartDayAll
 	rm chartDayAll
 
 chartSixDevice:
 	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o chartSixDevice functions/chartSixDevice/main.go
 	mkdir -p bin
-	$(package_lambda) -o bin/chartSixDevice.zip chartSixDevice
+	$(package_lambda) bin/chartSixDevice.zip chartSixDevice
 	rm chartSixDevice
 
 chartSixAll:
 	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o chartSixAll functions/chartSixAll/main.go
 	mkdir -p bin
-	$(package_lambda) -o bin/chartSixAll.zip chartSixAll
+	$(package_lambda) bin/chartSixAll.zip chartSixAll
 	rm chartSixAll
 
 chartSave:
 	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o chartSave functions/chartSave/main.go
 	mkdir -p bin
-	$(package_lambda) -o bin/chartSave.zip chartSave
+	$(package_lambda) bin/chartSave.zip chartSave
 	rm chartSave
 
 test:
 	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o test functions/test/main.go
 	mkdir -p bin
-	$(package_lambda) -o bin/test.zip test
+	$(package_lambda) bin/test.zip test
 	rm test
