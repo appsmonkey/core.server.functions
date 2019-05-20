@@ -1,0 +1,31 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+       golang: 1.12
+       python: 3.7
+
+  pre_build:
+    commands:
+       - pip install awscli==1.16.141
+       - pip install aws-sam-cli
+
+  build:
+    commands:
+      - make vendor
+      - make all
+      
+  post_build:
+    commands:
+      - make deploy
+
+artifacts:
+  files:
+    - "bin/*"
+    - packaged.yaml
+  discard-paths: yes
+  name: $(AWS_REGION)-$(date +%Y-%m-%d) 
+cache:
+  paths:
+   - vendor/**/*
