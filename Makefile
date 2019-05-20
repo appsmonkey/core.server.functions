@@ -71,10 +71,10 @@ general:
 	rm general
 
 deviceList:
-	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o devicelist functions/deviceList/main.go
+	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o deviceList functions/deviceList/main.go
 	mkdir -p bin
-	$(package_lambda) bin/devicelist.zip devicelist
-	rm devicelist
+	$(package_lambda) bin/deviceList.zip deviceList
+	rm deviceList
 
 deviceListMinimal:
 	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o deviceListMinimal functions/deviceListMinimal/main.go
@@ -267,7 +267,7 @@ deploy_swagger:
 	aws s3 cp swagger.yaml s3://artifacts.cityos.io/CityOS/swagger.yaml
 
 #.PHONY: package
-package: #all
+package: all
 	sam package --template-file $(TEMPLATE) --s3-bucket $(S3_BUCKET) --s3-prefix $(STACK_NAME) --output-template-file $(PACKAGED_TEMPLATE)
 
 .PHONY: deploy
