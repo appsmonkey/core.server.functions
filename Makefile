@@ -73,7 +73,7 @@ general:
 deviceList:
 	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o devicelist functions/deviceList/main.go
 	mkdir -p bin
-	$(package_lambda) -o bin/devicelist.zip devicelist
+	$(package_lambda) bin/devicelist.zip devicelist
 	rm devicelist
 
 deviceListMinimal:
@@ -121,7 +121,7 @@ deviceAdd:
 deviceGet:
 	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o deviceGet functions/deviceGet/main.go
 	mkdir -p bin
-	$(package_lambda) -o bin/deviceGet.zip deviceGet
+	$(package_lambda) bin/deviceGet.zip deviceGet
 	rm deviceGet
 
 deviceDel:
