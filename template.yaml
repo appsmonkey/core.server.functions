@@ -786,6 +786,11 @@ Resources:
       CodeUri: 'bin/chartSix.zip'
       Handler: 'chartSix'
       Role: !GetAtt LambdaRole.Arn
+      Events:
+        CronJob:
+          Type: Schedule
+          Properties:
+            Schedule: rate(10 minutes)
       
   chartHour:
     Type: 'AWS::Serverless::Function'
@@ -793,6 +798,11 @@ Resources:
       CodeUri: 'bin/chartHour.zip'
       Handler: 'chartHour'
       Role: !GetAtt LambdaRole.Arn
+      Events:
+        CronJob:
+          Type: Schedule
+          Properties:
+            Schedule: rate(10 minutes)
       
   chartDay:
     Type: 'AWS::Serverless::Function'
@@ -800,6 +810,11 @@ Resources:
       CodeUri: 'bin/chartDay.zip'
       Handler: 'chartDay'
       Role: !GetAtt LambdaRole.Arn
+      Events:
+        CronJob:
+          Type: Schedule
+          Properties:
+            Schedule: rate(10 minutes)
       
   chartDayDevice:
     Type: 'AWS::Serverless::Function'
@@ -848,4 +863,3 @@ Resources:
   #   Properties:
   #     CodeUri: 'bin/test.zip'
   #     Handler: 'test'
-      
