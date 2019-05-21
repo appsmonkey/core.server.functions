@@ -8,6 +8,14 @@ Parameters:
     Type: String
     Default: https://dev.cityos.io
 
+  CityOSGlobalACMCert:
+    Type: String
+    Default: arn:aws:acm:us-east-1:264316115206:certificate/8b720a82-01cd-4f20-a723-5ff597c96cc1
+  
+  CityOSAPIGWDomain:
+    Type: String
+    Default: apigw.cityos.io
+
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:
   Api:
@@ -541,6 +549,22 @@ Resources:
           Parameters:            
             Location: 
               Fn::Sub: 's3://artifacts.cityos.io/CityOS/swagger.yaml'
+
+  CityOSAPIDomain:
+    Type: AWS::ApiGateway::DomainName
+    Properties: 
+      CertificateArn: !Ref CityOSGlobalACMCert
+      DomainName: !Ref CityOSAPIGWDomain
+      EndpointConfiguration: 
+        Types: 
+          - EDGE
+
+  CityOSAPIPathMapping:
+    Type: AWS::ApiGateway::BasePathMapping
+    Properties: 
+      DomainName: !Ref CityOSAPIGWDomain
+      RestApiId: !Ref CityOSAPI
+      Stage: prod
 
   register:
     Type: 'AWS::Serverless::Function'
