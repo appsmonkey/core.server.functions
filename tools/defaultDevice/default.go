@@ -9,10 +9,23 @@ import (
 	vm "github.com/appsmonkey/core.server.functions/viewmodels"
 )
 
-// Get default device data
-func Get() (result vm.DeviceGetData) {
+// GetMinimal default device data with minimal data
+func GetMinimal() (result vm.DeviceGetDataMinimal) {
+	result.DeviceID = ""
+	result.Model = "BOXY"
+	result.Name = "Sarajevo Air"
+	result.Indoor = false
 	result.Active = true
-	result.DeviceID = "DEFAULT"
+	result.DefaultDevice = true
+
+	return
+}
+
+// GetFrom will return the default device from the specific time
+func GetFrom(from int64) (result vm.DeviceGetData) {
+	result.DefaultDevice = true
+	result.Active = true
+	result.DeviceID = ""
 	result.Indoor = false
 	result.Location = m.Location{}
 	result.MapMeta = make(map[string]m.MapMeta, 0)
@@ -22,7 +35,6 @@ func Get() (result vm.DeviceGetData) {
 	result.Name = "Sarajevo Air"
 	result.Timestamp = float64(time.Now().Unix())
 
-	from := time.Now().Add(-time.Hour * 3).Unix()
 	res, err := dal.ListNoProjection("live", dal.Name("timestamp").GreaterThanEqual(dal.Value(from)))
 	if err != nil {
 		fmt.Println("could not retirieve data")
@@ -58,6 +70,29 @@ func Get() (result vm.DeviceGetData) {
 				result.Latest[k] = av / float64(len(v))
 			}
 		}
+	}
+
+	return
+}
+
+// Get default device data
+func Get() (result vm.DeviceGetData) {
+	result = GetFrom(time.Now().Add(-time.Hour * 3).Unix())
+
+	if len(result.Latest) == 0 {
+		result = GetFrom(time.Now().Add(-time.Hour * 6).Unix())
+	}
+
+	if len(result.Latest) == 0 {
+		result = GetFrom(time.Now().Add(-time.Hour * 24).Unix())
+	}
+
+	// Since we did not get any data, get the last successfull state
+	if len(result.Latest) == 0 {
+		result = getState()
+	} else {
+		// We have data, update the state
+		saveState(&result)
 	}
 
 	return

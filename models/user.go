@@ -10,6 +10,8 @@ type User struct {
 	Profile    UserProfile       `json:"profile"`
 	Attributes map[string]string `json:"attributes"`
 	Devices    []string          `json:"devices"`
+	SocialID   string            `json:"social_id"`
+	SocialType string            `json:"social_type"`
 }
 
 // UserProfile meta data

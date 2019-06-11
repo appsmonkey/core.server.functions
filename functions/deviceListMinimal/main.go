@@ -6,6 +6,7 @@ import (
 	"github.com/appsmonkey/core.server.functions/dal"
 	es "github.com/appsmonkey/core.server.functions/errorStatuses"
 	m "github.com/appsmonkey/core.server.functions/models"
+	"github.com/appsmonkey/core.server.functions/tools/defaultDevice"
 	vm "github.com/appsmonkey/core.server.functions/viewmodels"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
@@ -43,6 +44,10 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	}
 
 	rd := make([]*vm.DeviceGetDataMinimal, 0)
+
+	// Add the default device on the top
+	dd := defaultDevice.GetMinimal()
+	rd = append(rd, &dd)
 
 	for _, d := range dbData {
 		data := vm.DeviceGetDataMinimal{

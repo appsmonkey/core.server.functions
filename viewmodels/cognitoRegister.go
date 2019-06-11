@@ -9,6 +9,7 @@ import (
 	c "github.com/appsmonkey/core.server.functions/integration/cognito"
 	m "github.com/appsmonkey/core.server.functions/models"
 	"github.com/aws/aws-lambda-go/events"
+	"github.com/aws/aws-sdk-go/service/cognitoidentityprovider"
 	bg "github.com/kjk/betterguid"
 )
 
@@ -26,6 +27,8 @@ func (r *CognitoRegisterRequest) Validate(body *events.CognitoEventUserPoolsPost
 	r.Attributes = make(map[string]string, 0)
 	r.Profile = m.UserProfile{}
 	r.Token = bg.New()
+	r.SocialID = "none"
+	r.SocialType = "none"
 
 	for uak, uav := range body.Request.UserAttributes {
 		switch uak {
@@ -37,6 +40,44 @@ func (r *CognitoRegisterRequest) Validate(body *events.CognitoEventUserPoolsPost
 			r.Attributes[uak] = uav
 		default:
 			r.Attributes[uak] = uav
+		}
+	}
+
+	if len(r.CognitoID) == 0 {
+		response.Errors = append(response.Errors, es.ErrMissingCognitoID)
+		response.Code = es.StatusRegistrationError
+	}
+
+	if len(r.Email) == 0 {
+		response.Errors = append(response.Errors, es.ErrRegistrationMissingEmail)
+		response.Code = es.StatusRegistrationError
+	}
+
+	return response
+}
+
+// ValidateProfile the request sent from client
+func (r *CognitoRegisterRequest) ValidateProfile(body *cognitoidentityprovider.AdminGetUserOutput) *CognitoRegisterResponse {
+	response := new(CognitoRegisterResponse)
+	response.Code = 0
+	response.RequestID = strconv.FormatInt(time.Now().Unix(), 10)
+
+	r.Attributes = make(map[string]string, 0)
+	r.Profile = m.UserProfile{}
+	r.Token = bg.New()
+	r.SocialID = "none"
+	r.SocialType = "none"
+
+	for _, uav := range body.UserAttributes {
+		switch *uav.Name {
+		case "email":
+			r.Email = *uav.Value
+			r.Attributes[*uav.Name] = *uav.Value
+		case "sub": // Unique Cognito User ID
+			r.CognitoID = *uav.Value
+			r.Attributes[*uav.Name] = *uav.Value
+		default:
+			r.Attributes[*uav.Name] = *uav.Value
 		}
 	}
 

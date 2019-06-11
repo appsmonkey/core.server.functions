@@ -35,25 +35,27 @@ type DeviceGetResponse struct {
 
 // DeviceGetData returned to user
 type DeviceGetData struct {
-	DeviceID  string                 `json:"device_id"`
-	Name      string                 `json:"name"`
-	Active    bool                   `json:"active"`
-	Model     string                 `json:"model"`
-	Indoor    bool                   `json:"indoor"`
-	Mine      bool                   `json:"mine"`
-	Location  m.Location             `json:"location"`
-	MapMeta   map[string]m.MapMeta   `json:"map_meta"`
-	Latest    map[string]interface{} `json:"latest"`
-	Timestamp float64                `json:"timestamp"`
+	DeviceID      string                 `json:"device_id"`
+	Name          string                 `json:"name"`
+	Active        bool                   `json:"active"`
+	Model         string                 `json:"model"`
+	Indoor        bool                   `json:"indoor"`
+	DefaultDevice bool                   `json:"default_device"`
+	Mine          bool                   `json:"mine"`
+	Location      m.Location             `json:"location"`
+	MapMeta       map[string]m.MapMeta   `json:"map_meta"`
+	Latest        map[string]interface{} `json:"latest"`
+	Timestamp     float64                `json:"timestamp"`
 }
 
 // DeviceGetDataMinimal returned to user
 type DeviceGetDataMinimal struct {
-	DeviceID string `json:"device_id"`
-	Name     string `json:"name"`
-	Active   bool   `json:"active"`
-	Model    string `json:"model"`
-	Indoor   bool   `json:"indoor"`
+	DeviceID      string `json:"device_id"`
+	Name          string `json:"name"`
+	Active        bool   `json:"active"`
+	Model         string `json:"model"`
+	Indoor        bool   `json:"indoor"`
+	DefaultDevice bool   `json:"default_device"`
 }
 
 // Marshal the response object

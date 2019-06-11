@@ -88,14 +88,6 @@ func (c *Cognito) SignUp(username, password, gender, firstname, lastname string)
 				Name:  aws.String("gender"),
 				Value: aws.String(gender),
 			},
-			// {
-			// 	Name:  aws.String("first_name"),
-			// 	Value: aws.String(firstname),
-			// },
-			// {
-			// 	Name:  aws.String("last_name"),
-			// 	Value: aws.String(lastname),
-			// },
 		},
 	})
 
@@ -174,6 +166,38 @@ func (c *Cognito) Refresh(token string) (*CognitoData, error) {
 	data.RefreshToken = aws.StringValue(authresp.AuthenticationResult.RefreshToken)
 
 	return data, nil
+}
+
+// ForgotPasswordStart will send the user's email with code
+func (c *Cognito) ForgotPasswordStart(userName string) error {
+	aia := &cognitoidentityprovider.ForgotPasswordInput{
+		ClientId: aws.String(clientID),
+		Username: aws.String(userName),
+	}
+	_, autherr := c.identityProvider.ForgotPassword(aia)
+	if autherr != nil {
+		writeLog("ForgotPasswordStart Error:", autherr)
+		return autherr
+	}
+
+	return nil
+}
+
+// ForgotPasswordEnd will update the new password
+func (c *Cognito) ForgotPasswordEnd(userName, code, password string) error {
+	aia := &cognitoidentityprovider.ConfirmForgotPasswordInput{
+		ClientId:         aws.String(clientID),
+		Username:         aws.String(userName),
+		ConfirmationCode: aws.String(code),
+		Password:         aws.String(password),
+	}
+	_, autherr := c.identityProvider.ConfirmForgotPassword(aia)
+	if autherr != nil {
+		writeLog("ForgotPasswordStart Error:", autherr)
+		return autherr
+	}
+
+	return nil
 }
 
 // Profile returns user's profile based on username

@@ -17,7 +17,7 @@ all : register signup signup signin refresh profile general deviceList deviceLis
 	deviceUpdateMeta cognitoRegister cognitoProfileList cognitoProfileUpdate deviceAdd deviceGet \
 	deviceDel map zoneUpdate validateEmail seeder schemaGet chartLiveDevice chartCache chartHour \
 	chartSave chartHourDevice chartHourAll chartCacheDay chartDay chartDayDevice chartDayAll chartHasData \
-	chartCacheSix chartSix chartSixDevice chartSixAll chartLiveAll
+	chartCacheSix chartSix chartSixDevice chartSixAll chartLiveAll forgotPasswordStart forgotPasswordEnd
 
 vendor: Gopkg.toml
 		dep ensure -v
@@ -249,3 +249,21 @@ test:
 	mkdir -p bin
 	$(package_lambda) bin/test.zip test
 	rm test
+
+notifications:
+	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o notifications functions/notifications/main.go
+	mkdir -p bin
+	$(package_lambda) bin/notifications.zip notifications
+	rm notifications
+
+forgotPasswordStart:
+	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o forgotPasswordStart functions/forgotPasswordStart/main.go
+	mkdir -p bin
+	$(package_lambda) bin/forgotPasswordStart.zip forgotPasswordStart
+	rm forgotPasswordStart
+
+forgotPasswordEnd:
+	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o forgotPasswordEnd functions/forgotPasswordEnd/main.go
+	mkdir -p bin
+	$(package_lambda) bin/forgotPasswordEnd.zip forgotPasswordEnd
+	rm forgotPasswordEnd

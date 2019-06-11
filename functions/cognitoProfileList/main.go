@@ -29,7 +29,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
 	}
 
-	model := m.User{}
+	model := m.User{SocialID: "none", SocialType: "none"}
 	err = res.Unmarshal(&model)
 	if err != nil {
 		response.AddError(&es.Error{Code: 0, Message: err.Error()})

@@ -99,3 +99,12 @@ var ErrIncorrectTime = Error{Code: 1028, Message: "could not understand the time
 
 // ErrMissingChart [cannot get data count. Missing chart type]
 var ErrMissingChart = Error{Code: 1029, Message: "cannot get data count. Missing chart type"}
+
+// ErrMissingSocialData [Missing social data]
+var ErrMissingSocialData = Error{Code: 1030, Message: "Missing social data"}
+
+// ErrMissingCode [Missing code]
+var ErrMissingCode = Error{Code: 1031, Message: "Missing code"}
+
+// ErrCouldNotInitiateForgottenPasswordFlow [Forgot Psssword Flow Error]
+var ErrCouldNotInitiateForgottenPasswordFlow = Error{Code: 1032, Message: "Forgot password flow error"}

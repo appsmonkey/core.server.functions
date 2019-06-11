@@ -41,3 +41,6 @@ var StatusChartHasDataError int64 = 13
 
 // StatusChartLiveAllError [could not get avg chart live data]
 var StatusChartLiveAllError int64 = 14
+
+// StatusForgotPasswordError [could not reset passowrd]
+var StatusForgotPasswordError int64 = 15

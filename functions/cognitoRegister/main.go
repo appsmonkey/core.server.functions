@@ -8,6 +8,7 @@ import (
 	"github.com/aws/aws-lambda-go/lambda"
 
 	"github.com/appsmonkey/core.server.functions/dal"
+	dala "github.com/appsmonkey/core.server.functions/dal/access"
 	vm "github.com/appsmonkey/core.server.functions/viewmodels"
 )
 
@@ -25,11 +26,21 @@ func Handler(req events.CognitoEventUserPoolsPostConfirmation) (events.CognitoEv
 		return req, nil
 	}
 
-	// insert data into the DB
-	dal.Insert("users", request)
+	sid, st, _, err := dala.GetTempUser(request.Email)
+	if err != nil {
+		fmt.Println("email register", request)
+		// We do not have a temp user
+		// insert data into the DB as is
+		dal.Insert("users", request)
 
-	// // Log and return result
-	fmt.Println("Wrote item:  ", request)
+		return req, nil
+	}
+
+	request.SocialID = sid
+	request.SocialType = st
+
+	fmt.Println("social register", request)
+	dal.Insert("users", request)
 
 	return req, nil
 }

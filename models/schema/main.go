@@ -10,6 +10,9 @@ var defaultData Schema
 // All the loaded version of the schema
 var versions map[string]Schema
 
+// levels maped in order
+var levels map[string]int
+
 // Schema definition
 type Schema map[string]*Data
 
@@ -22,6 +25,17 @@ func (s Schema) Marshal() string {
 // AddSensor will add the sensor data into the schema
 func (s Schema) AddSensor(sensor string, data *Data) {
 	s[sensor] = data
+}
+
+// ExtractData reurn the sensor based on it's name
+func (s Schema) ExtractData(name string) (*Data, string) {
+	for k, v := range s {
+		if v.Name == name {
+			return v, k
+		}
+	}
+
+	return nil, ""
 }
 
 // AddVersion will add the schema as the provided verfsion
@@ -94,6 +108,23 @@ func (s *CalcStep) IsMe(v float64) bool {
 	return false
 }
 
+// LevelOrder will return the weight of the level
+func LevelOrder(level string) int {
+	lvl, ok := levels[level]
+	if !ok {
+		return -1
+	}
+
+	return lvl
+}
+
 func init() {
 	versions = make(map[string]Schema, 0)
+	levels = make(map[string]int, 0)
+	levels["Great"] = 0
+	levels["OK"] = 1
+	levels["Sensitive beware"] = 2
+	levels["Unhealthy"] = 3
+	levels["Very Unhealthy"] = 4
+	levels["Hazardous"] = 5
 }

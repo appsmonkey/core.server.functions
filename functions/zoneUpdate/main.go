@@ -9,6 +9,8 @@ import (
 	m "github.com/appsmonkey/core.server.functions/models"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go/aws"
+
+	s "github.com/appsmonkey/core.server.functions/models/schema"
 )
 
 // Handler will handle our request comming from the API gateway
@@ -44,6 +46,25 @@ func Handler(ctx context.Context, req interface{}) error {
 		return err
 	}
 	if len(dbData) == 0 {
+		sensors := s.ExtractVersion("1")
+		for sk := range sensors {
+			ld, ln := s.SensorReading("1", sk, 0)
+			zd := m.Zone{
+				ZoneID:   zoneID,
+				SensorID: sk,
+				Data: m.ZoneMeta{
+					SensorID:    sk,
+					Name:        zoneID,
+					Level:       ln,
+					Value:       0,
+					Measurement: ld.Name,
+					Unit:        ld.Unit,
+				},
+			}
+
+			dal.Insert("zones", zd)
+		}
+
 		return nil
 	}
 
@@ -60,21 +81,21 @@ func Handler(ctx context.Context, req interface{}) error {
 	for rk, rv := range data {
 		val := rv / datak[rk]
 
-		level := m.Level(rk, val)
-		ti := m.Zone{
+		ld, ln := s.SensorReading("1", rk, val)
+		zd := m.Zone{
 			ZoneID:   zoneID,
 			SensorID: rk,
 			Data: m.ZoneMeta{
 				SensorID:    rk,
 				Name:        zoneID,
-				Level:       level,
+				Level:       ln,
 				Value:       val,
-				Measurement: m.MeasureMapName[rk],
-				Unit:        m.MeasureMapUnit[rk],
+				Measurement: ld.Name,
+				Unit:        ld.Unit,
 			},
 		}
 
-		dal.Insert("zones", ti)
+		dal.Insert("zones", zd)
 	}
 
 	return nil

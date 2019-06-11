@@ -30,46 +30,6 @@ func (r *CognitoProfileUpdateRequest) Validate(body string) *CognitoProfileUpdat
 		return response
 	}
 
-	if len(r.Bio) == 0 {
-		response.Errors = append(response.Errors, es.ErrMissingBio)
-		response.Code = es.StatusProfileUpdateError
-	}
-
-	if r.Birthday <= 0 {
-		response.Errors = append(response.Errors, es.ErrMissingBirthday)
-		response.Code = es.StatusProfileUpdateError
-	}
-
-	if len(r.City) == 0 {
-		response.Errors = append(response.Errors, es.ErrMissingCity)
-		response.Code = es.StatusProfileUpdateError
-	}
-
-	if len(r.FirstName) <= 0 {
-		response.Errors = append(response.Errors, es.ErrMissingFirstname)
-		response.Code = es.StatusProfileUpdateError
-	}
-
-	if len(r.Gender) <= 0 {
-		response.Errors = append(response.Errors, es.ErrRegistrationInvalidGender)
-		response.Code = es.StatusProfileUpdateError
-	}
-
-	if len(r.LastName) <= 0 {
-		response.Errors = append(response.Errors, es.ErrMissingLastname)
-		response.Code = es.StatusProfileUpdateError
-	}
-
-	if len(r.Mantra) <= 0 {
-		response.Errors = append(response.Errors, es.ErrMissingMantra)
-		response.Code = es.StatusProfileUpdateError
-	}
-
-	if len(r.Website) <= 0 {
-		response.Errors = append(response.Errors, es.ErrMissingWebsite)
-		response.Code = es.StatusProfileUpdateError
-	}
-
 	return response
 }
 

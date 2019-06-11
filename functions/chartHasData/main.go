@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"github.com/appsmonkey/core.server.functions/dal"
@@ -29,7 +30,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	}
 
 	m := mapping
-	if request.Device {
+	if !request.Device {
 		m = mappingAll
 	}
 
@@ -39,7 +40,14 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 400, Headers: response.Headers()}, nil
 	}
 
-	response.Data = dal.HasItemsWithFilter(table, dal.Name("sensor").Equal(dal.Value(request.Sensor)).And(dal.Name("date").GreaterThanEqual(dal.Value(request.From))))
+	var qry dal.ConditionBuilder
+	if request.Device {
+		qry = dal.Name("hash").Equal(dal.Value(request.Token + ":" + request.Sensor)).And(dal.Name("date").GreaterThanEqual(dal.Value(request.From)))
+	} else {
+		qry = dal.Name("sensor").Equal(dal.Value(request.Sensor)).And(dal.Name("date").GreaterThanEqual(dal.Value(request.From)))
+	}
+
+	response.Data = dal.HasItemsWithFilter(table, qry)
 
 	return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 200, Headers: response.Headers()}, nil
 }
@@ -58,4 +66,9 @@ func main() {
 	mapping["month"] = "chart_device_day"
 
 	lambda.Start(Handler)
+}
+
+func printJson(in interface{}) {
+	b, _ := json.Marshal(in)
+	fmt.Println(string(b))
 }

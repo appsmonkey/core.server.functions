@@ -3,7 +3,6 @@ package viewmodels
 import (
 	"encoding/json"
 	"strconv"
-	"strings"
 	"time"
 
 	es "github.com/appsmonkey/core.server.functions/errorStatuses"
@@ -13,8 +12,9 @@ import (
 type ChartHasDataRequest struct {
 	Chart  string `json:"chart"`
 	Sensor string `json:"sensor"`
-	Device bool   `json:"device"`
+	Device bool   `json:"-"`
 	From   int64  `json:"from"`
+	Token  string `json:"token"`
 }
 
 // Validate the request sent from client
@@ -62,15 +62,7 @@ func (r *ChartHasDataRequest) Validate(body map[string]string) *ChartHasDataResp
 		return response
 	}
 
-	device, ok := body["device"]
-	if !ok {
-		errData := es.ErrIncorrectRequest
-		errData.Data = "device parameter is missing"
-		response.Errors = append(response.Errors, errData)
-
-		response.Code = es.StatusChartHasDataError
-		return response
-	}
+	device := body["token"]
 
 	if len(chart) == 0 {
 		response.Errors = append(response.Errors, es.ErrMissingChart)
@@ -88,13 +80,14 @@ func (r *ChartHasDataRequest) Validate(body map[string]string) *ChartHasDataResp
 		response.Code = es.StatusChartHasDataError
 	}
 
-	if strings.ToLower(device) == "1" {
+	if len(device) > 0 {
 		r.Device = true
 	}
 
 	r.Chart = chart
 	r.Sensor = sensor
 	r.From = f
+	r.Token = device
 
 	return response
 }

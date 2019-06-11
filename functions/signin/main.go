@@ -7,16 +7,20 @@ import (
 	"log"
 	"os"
 
+	dal "github.com/appsmonkey/core.server.functions/dal/access"
 	es "github.com/appsmonkey/core.server.functions/errorStatuses"
 	"github.com/appsmonkey/core.server.functions/integration/cognito"
 	vm "github.com/appsmonkey/core.server.functions/viewmodels"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/joho/godotenv"
+
+	"net/http"
 )
 
 var (
-	cog *cognito.Cognito
+	cog        *cognito.Cognito
+	httpClient = &http.Client{}
 )
 
 // Handler will handle our request comming from the API gateway
@@ -27,6 +31,31 @@ func Handler(ctx context.Context, req events.APIGatewayProxyRequest) (events.API
 		fmt.Printf("errors on request: %v, requestID: %v", response.Errors, response.RequestID)
 
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 403, Headers: response.Headers()}, nil
+	}
+
+	// 1. Check if we have social login data, if so then validate the token first
+	if request.Social.HasData() {
+		data, err := cog.Google(request.Social.ID, request.Social.Token, request.Email, httpClient)
+		if err != nil {
+			errData := es.ErrRegistrationSignInError
+			errData.Data = err.Error()
+			response.Errors = append(response.Errors, errData)
+
+			return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 403, Headers: response.Headers()}, nil
+		}
+
+		response.Data = data
+		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 200, Headers: response.Headers()}, nil
+	} else {
+		// do not allow social user to login with username and password
+		_, email, _, _, suc, err := dal.CheckSocial(request.Password)
+		if email == request.Email && !suc && err == nil {
+			errData := es.ErrRegistrationSignInError
+			errData.Data = err.Error()
+			response.Errors = append(response.Errors, errData)
+
+			return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 403, Headers: response.Headers()}, nil
+		}
 	}
 
 	data, err := cog.SignIn(request.Email, request.Password)

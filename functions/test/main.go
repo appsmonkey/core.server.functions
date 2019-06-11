@@ -1,18 +1,60 @@
 package main
 
 import (
+	"github.com/aws/aws-lambda-go/lambda"
+
 	"context"
 
-	"github.com/appsmonkey/core.server.functions/dal"
-
-	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/appsmonkey/core.server.functions/integration/cognito"
 )
 
+// type sensor struct {
+// 	name    string
+// 	display string
+// 	value   float64
+// 	level   string
+// }
+
+// // Value representing a composite of the name and value
+// func (s *sensor) Value() string {
+// 	return fmt.Sprintf("%v = %v", s.display, s.value)
+// }
+
+// // Channel in UA
+// func (s *sensor) Channel() ua.ChanelType {
+// 	switch s.level {
+// 	case "Sensitive beware":
+// 		return ua.Sensitive
+// 	case "Unhealthy":
+// 		return ua.Unhealthy
+// 	case "Very Unhealthy":
+// 		return ua.VeryUnhealthy
+// 	case "Hazardous":
+// 		return ua.Hazardous
+// 	default:
+// 		return ua.Good
+// 	}
+// }
+
+// // Handler will handle our request comming from the API gateway
+// func Handler(ctx context.Context, req interface{}) (int64, error) {
+// 	in := req.(map[string]interface{})
+// 	lvl := in["level"].(float64)
+
+// 	schemaDefault := s.ExtractVersion("")
+// 	pm10, pm10Sensor := schemaDefault.ExtractData("PM 10")
+// 	sens10 := sensor{name: pm10Sensor, display: "PM 10", value: lvl, level: pm10.Result(lvl)}
+
+// 	ua.New().Send(sens10.Value(), sens10.Channel())
+
+// 	return 0, nil
+// }
+
 // Handler will handle our request comming from the API gateway
-func Handler(ctx context.Context, req interface{}) (int64, error) {
-	in := req.(map[string]interface{})
-	return dal.Count(in["table"].(string)), nil
-}
+// func Handler(ctx context.Context, req interface{}) (int64, error) {
+// 	in := req.(map[string]interface{})
+// 	return dal.Count(in["table"].(string)), nil
+// }
 
 // // Handler will handle our request comming from the API gateway
 // func Handler(ctx context.Context, req interface{}) (string, error) {
@@ -64,8 +106,25 @@ func Handler(ctx context.Context, req interface{}) (int64, error) {
 // 	return "No Command Found", nil
 // }
 
+var (
+	cog *cognito.Cognito
+)
+
+func Handler(ctx context.Context, req interface{}) error {
+	in := req.(map[string]interface{})
+	email := in["email"].(string)
+	token := in["token"].(string)
+
+	_, err := cog.SignInTest(email, token)
+	return err
+}
+
 func main() {
 	lambda.Start(Handler)
+}
+
+func init() {
+	cog = cognito.NewCognito()
 }
 
 // func sensorData(v interface{}) (sensor string, value float64) {

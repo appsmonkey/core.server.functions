@@ -8,23 +8,19 @@ import (
 	es "github.com/appsmonkey/core.server.functions/errorStatuses"
 )
 
-// SignupRequest sent from the client
-type SignupRequest struct {
-	FirstName string `json:"first_name"`
-	LastName  string `json:"last_name"`
-	Gender    string `json:"gender"`
-	Email     string `json:"email"`
-	Password  string `json:"password"`
+// ForgotPasswordStartRequest sent from the client
+type ForgotPasswordStartRequest struct {
+	Email string `json:"email"`
 }
 
-// SignupResponse to the client
-type SignupResponse struct {
+// ForgotPasswordStartResponse to the client
+type ForgotPasswordStartResponse struct {
 	BaseResponse
 }
 
 // Validate the request sent from client
-func (r *SignupRequest) Validate(body string) *SignupResponse {
-	response := new(SignupResponse)
+func (r *ForgotPasswordStartRequest) Validate(body string) *ForgotPasswordStartResponse {
+	response := new(ForgotPasswordStartResponse)
 	response.Code = 0
 	response.RequestID = strconv.FormatInt(time.Now().Unix(), 10)
 
@@ -43,16 +39,11 @@ func (r *SignupRequest) Validate(body string) *SignupResponse {
 		response.Code = es.StatusRegistrationError
 	}
 
-	if !validatePassword(r.Password) {
-		response.Errors = append(response.Errors, es.ErrRegistrationMissingPass)
-		response.Code = es.StatusRegistrationError
-	}
-
 	return response
 }
 
 // Marshal the response object
-func (r *SignupResponse) Marshal() string {
+func (r *ForgotPasswordStartResponse) Marshal() string {
 	res, _ := json.Marshal(r)
 
 	return string(res)
