@@ -1,0 +1,889 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  CityOSAPI
+
+Parameters:
+  APIGatewayAllowOrigin:
+    Type: String
+    Default: https://dev.cityos.io
+
+  CityOSGlobalACMCert:
+    Type: String
+    Default: arn:aws:acm:us-east-1:264316115206:certificate/8b720a82-01cd-4f20-a723-5ff597c96cc1
+  
+  CityOSAPIGWDomain:
+    Type: String
+    Default: apigw.cityos.io
+
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Api:
+    Cors:
+      AllowMethods: "'*'"
+      AllowHeaders: "'*'"
+      AllowOrigin: "'*'"
+  Function:
+    Timeout: 5
+    Runtime: 'go1.x'
+    AutoPublishAlias: live
+    Tags:
+      project: CityOS
+
+Resources:
+  CognitoUserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      EmailConfiguration: 
+        EmailSendingAccount: COGNITO_DEFAULT
+      EmailVerificationMessage: Your verification code is {####}. 
+      EmailVerificationSubject: Your verification code
+      LambdaConfig: 
+        PostConfirmation: !GetAtt cognitoRegister.Arn
+      MfaConfiguration: "OFF"
+      Policies: 
+        PasswordPolicy: 
+          MinimumLength: 8
+          RequireLowercase: True
+          RequireNumbers: True
+          RequireSymbols: True
+          RequireUppercase: True
+          TemporaryPasswordValidityDays: 7
+      UserPoolName: CityOSUserPool
+      Schema: 
+        - 
+          Mutable: false
+          Name: email
+          Required: true
+  CognitoAppClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties: 
+      ClientName: CityOS_App_Web
+      ExplicitAuthFlows: 
+        - ADMIN_NO_SRP_AUTH
+      GenerateSecret: False
+      RefreshTokenValidity: 30
+      UserPoolId: !Ref CognitoUserPool
+      ReadAttributes: 
+        - address
+        - birthdate
+        - email
+        - email_verified
+        - family_name
+        - gender
+        - given_name
+        - locale
+        - middle_name
+        - name
+        - nickname
+        - phone_number
+        - phone_number_verified
+        - picture
+        - preferred_username
+        - profile
+        - zoneinfo
+        - updated_at
+        - website
+      WriteAttributes: 
+        - address
+        - birthdate
+        - email
+        - family_name
+        - gender
+        - given_name
+        - locale
+        - middle_name
+        - name
+        - nickname
+        - phone_number
+        - picture
+        - preferred_username
+        - profile
+        - zoneinfo
+        - updated_at
+        - website
+
+  LambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: CityOSLambdaRole
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement: 
+          - 
+            Effect: "Allow"
+            Principal: 
+              Service: 
+                - "lambda.amazonaws.com"
+            Action: 
+              - "sts:AssumeRole"
+      Path: "/"
+      Policies:
+        - PolicyName: "CityOSLambdaRolePolicy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              -
+                Effect: "Allow"
+                Action:
+                  - "lambda:InvokeFunction"
+                Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:*"
+              -
+                Effect: "Allow"
+                Action:
+                  - "logs:CreateLogStream"
+                  - "dynamodb:Scan"
+                  - "dynamodb:Query"
+                  - "logs:PutLogEvents"
+                Resource:
+                  - "arn:aws:logs:*:*:*"
+                  - "arn:aws:dynamodb:*:*:table/*/index/*"
+              -
+                Effect: "Allow"
+                Action:
+                  - "cognito-identity:*"
+                  - "dynamodb:ListTables"
+                  - "iam:ListOpenIDConnectProviders"
+                  - "iam:ListRoles"
+                  - "cognito-idp:*"
+                  - "cognito-sync:*"
+                Resource:
+                  - "*"
+              -
+                Effect: "Allow"
+                Action:
+                  - "dynamodb:CreateTable"
+                  - "dynamodb:BatchGetItem"
+                  - "dynamodb:BatchWriteItem"
+                  - "dynamodb:ConditionCheckItem"
+                  - "dynamodb:PutItem"
+                  - "dynamodb:DescribeTable"
+                  - "dynamodb:DeleteItem"
+                  - "dynamodb:GetItem"
+                  - "dynamodb:Scan"
+                  - "dynamodb:Query"
+                  - "dynamodb:UpdateItem"
+                  - "dynamodb:UpdateTable"
+                Resource:
+                  - "arn:aws:dynamodb:*:*:table/*"
+              -
+                Effect: "Allow"
+                Action:
+                  - "dynamodb:CreateTable"
+                  - "dynamodb:BatchGetItem"
+                  - "dynamodb:BatchWriteItem"
+                  - "dynamodb:ConditionCheckItem"
+                  - "dynamodb:PutItem"
+                  - "dynamodb:DescribeTable"
+                  - "dynamodb:DeleteItem"
+                  - "dynamodb:GetItem"
+                  - "dynamodb:Scan"
+                  - "dynamodb:Query"
+                  - "dynamodb:UpdateItem"
+                  - "dynamodb:UpdateTable"
+                Resource:
+                  - "arn:aws:dynamodb:*:*:table/*"
+              -
+                Effect: "Allow"
+                Action:
+                  - "logs:CreateLogGroup"
+                Resource:
+                  - "arn:aws:logs:*:*:*"
+              -
+                Effect: "Allow"
+                Action:
+                  - "logs:CreateLogGroup"
+                  - "logs:CreateLogStream"
+                  - "logs:PutLogEvents"
+                  - "ec2:CreateNetworkInterface"
+                  - "ec2:DescribeNetworkInterfaces"
+                  - "ec2:DeleteNetworkInterface"
+                Resource:
+                  - "*"
+      
+  ChartDayTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: chart_day
+      AttributeDefinitions: 
+        - AttributeName: sensor
+          AttributeType: S
+        - AttributeName: date
+          AttributeType: N
+      KeySchema:
+        - AttributeName: sensor
+          KeyType: HASH
+        - AttributeName: date
+          KeyType: RANGE
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+
+  ChartDayInputTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: chart_day_input
+      AttributeDefinitions: 
+        - AttributeName: hash
+          AttributeType: S
+      KeySchema:
+        - AttributeName: hash
+          KeyType: HASH
+      TimeToLiveSpecification: 
+        AttributeName: time_to_live
+        Enabled: True
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+  
+  ChartDeviceDayTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: chart_device_day
+      AttributeDefinitions: 
+        - AttributeName: hash
+          AttributeType: S
+        - AttributeName: date
+          AttributeType: N
+      KeySchema:
+        - AttributeName: hash
+          KeyType: HASH
+        - AttributeName: date
+          KeyType: RANGE
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+  
+  ChartDeviceHourTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: chart_device_hour
+      AttributeDefinitions: 
+        - AttributeName: hash
+          AttributeType: S
+        - AttributeName: date
+          AttributeType: N
+      KeySchema:
+        - AttributeName: hash
+          KeyType: HASH
+        - AttributeName: date
+          KeyType: RANGE
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+
+  ChartDeviceSixTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: chart_device_six
+      AttributeDefinitions: 
+        - AttributeName: hash
+          AttributeType: S
+        - AttributeName: date
+          AttributeType: N
+      KeySchema:
+        - AttributeName: hash
+          KeyType: HASH
+        - AttributeName: date
+          KeyType: RANGE
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+
+  ChartHourTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: chart_hour
+      AttributeDefinitions: 
+        - AttributeName: sensor
+          AttributeType: S
+        - AttributeName: date
+          AttributeType: N
+      KeySchema:
+        - AttributeName: sensor
+          KeyType: HASH
+        - AttributeName: date
+          KeyType: RANGE
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+
+  ChartHourInputTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: chart_hour_input
+      AttributeDefinitions: 
+        - AttributeName: hash
+          AttributeType: S
+      KeySchema:
+        - AttributeName: hash
+          KeyType: HASH
+      TimeToLiveSpecification: 
+        AttributeName: time_to_live
+        Enabled: True
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+
+  ChartSixTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: chart_six
+      AttributeDefinitions: 
+        - AttributeName: sensor
+          AttributeType: S
+        - AttributeName: date
+          AttributeType: N
+      KeySchema:
+        - AttributeName: sensor
+          KeyType: HASH
+        - AttributeName: date
+          KeyType: RANGE
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+
+  ChartSixInputTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: chart_six_input
+      AttributeDefinitions: 
+        - AttributeName: hash
+          AttributeType: S
+      KeySchema:
+        - AttributeName: hash
+          KeyType: HASH
+      TimeToLiveSpecification: 
+        AttributeName: time_to_live
+        Enabled: True
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+
+  ChartStateTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: chart_state
+      AttributeDefinitions: 
+        - AttributeName: name
+          AttributeType: S
+      KeySchema:
+        - AttributeName: name
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+  
+  DevicesTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: devices
+      AttributeDefinitions: 
+        - AttributeName: token
+          AttributeType: S
+        - AttributeName: zone_id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: token
+          KeyType: HASH
+      BillingMode: PAY_PER_REQUEST
+      GlobalSecondaryIndexes:
+        - IndexName: ZoneID-index
+          KeySchema: 
+            - AttributeName: zone_id
+              KeyType: HASH
+          Projection: 
+            NonKeyAttributes:
+              - token
+              - map_meta
+              - token
+            ProjectionType: INCLUDE
+        - IndexName: CognitoID-index
+          KeySchema: 
+            - AttributeName: zone_id
+              KeyType: HASH
+          Projection: 
+            NonKeyAttributes:
+              - token
+              - cognito_id
+              - active
+              - cognito_id
+              - token
+              - map_meta
+              - meta
+              - timestamp
+            ProjectionType: INCLUDE
+      
+
+  LiveTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: live
+      AttributeDefinitions: 
+        - AttributeName: token
+          AttributeType: S
+        - AttributeName: timestamp
+          AttributeType: N
+      KeySchema:
+        - AttributeName: token
+          KeyType: HASH
+        - AttributeName: timestamp
+          KeyType: RANGE
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+
+  SchemaTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: schema
+      AttributeDefinitions: 
+        - AttributeName: version
+          AttributeType: S
+      KeySchema:
+        - AttributeName: version
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+
+  UsersTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: users
+      AttributeDefinitions: 
+        - AttributeName: cognito_id
+          AttributeType: S
+        - AttributeName: email
+          AttributeType: S
+      KeySchema:
+        - AttributeName: cognito_id
+          KeyType: HASH
+        - AttributeName: email
+          KeyType: RANGE
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+
+  ZonesTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: zones
+      AttributeDefinitions: 
+        - AttributeName: zone_id
+          AttributeType: S
+        - AttributeName: sensor_id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: zone_id
+          KeyType: HASH
+        - AttributeName: sensor_id
+          KeyType: RANGE
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+
+  # Boxy:
+  #   Type: AWS::IoT::Thing
+  #   Properties: 
+  #     ThingName: BOXY
+
+  # BoxyChart: 
+  #     Type: AWS::IoT::TopicRule
+  #     Properties: 
+  #        RuleName: BoxyChart
+  #        TopicRulePayload: 
+  #           RuleDisabled: "false"
+  #           Sql: >-
+  #              SELECT timestamp, state.desired.measurements, state.desired.token FROM '$aws/things/BOXY/shadow/update/accepted'
+  #           Actions: 
+  #              - 
+  #                 Lambda: 
+  #                   FunctionArn: 
+  #                     Fn::GetAtt: chartCache.Arn
+  #              - 
+  #                 Lambda: 
+  #                   FunctionArn: 
+  #                     Fn::GetAtt: chartCacheDay.Arn
+  #              - 
+  #                 Lambda: 
+  #                   FunctionArn: 
+  #                     Fn::GetAtt: chartCacheSix.Arn
+  #
+  # BoxyUpdated: 
+  #     Type: AWS::IoT::TopicRule
+  #     Properties: 
+  #        RuleName: BoxyUpdated
+  #        TopicRulePayload: 
+  #           RuleDisabled: "false"
+  #           Sql: >-
+  #              SELECT * FROM '$aws/things/BOXY/shadow/update/accepted'
+  #           Actions: 
+  #              - 
+  #                 Lambda: 
+  #                   FunctionArn: 
+  #                     Fn::GetAtt: deviceUpdate.Arn
+  #              
+  # BoxyUpdateRejected: 
+  #     Type: AWS::IoT::TopicRule
+  #     Properties: 
+  #        RuleName: BoxyUpdateRejected
+  #        TopicRulePayload: 
+  #           RuleDisabled: "false"
+  #           Sql: >-
+  #              SELECT * FROM '$aws/things/BOXY/shadow/update/rejected'
+  #           Actions: 
+  #              - 
+  #                 Lambda: 
+  #                   FunctionArn: 
+  #                     Fn::GetAtt: deviceUpdateRejected.Arn
+
+  CityOSAPI:
+    Type: "AWS::Serverless::Api"
+    Properties:
+      Name: CityOSAPI      
+      StageName: prod
+      DefinitionBody: 
+        Fn::Transform:
+          Name: AWS::Include
+          Parameters:            
+            Location: 
+              Fn::Sub: 's3://artifacts.cityos.io/CityOS/swagger.yaml'
+
+  CityOSAPIDomain:
+    Type: AWS::ApiGateway::DomainName
+    Properties: 
+      CertificateArn: !Ref CityOSGlobalACMCert
+      DomainName: !Ref CityOSAPIGWDomain
+      EndpointConfiguration: 
+        Types: 
+          - EDGE
+
+  CityOSAPIPathMapping:
+    Type: AWS::ApiGateway::BasePathMapping
+    Properties: 
+      DomainName: !Ref CityOSAPIGWDomain
+      RestApiId: !Ref CityOSAPI
+      Stage: prod
+
+  register:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: 'bin/register.zip'
+      Handler: 'register'
+      Role: !GetAtt LambdaRole.Arn
+      Environment:
+        Variables:
+          COGNITO_REGION: !Sub "${AWS::Region}"
+          COGNITO_CLIENT_ID: !Ref CognitoAppClient
+          COGNITO_USER_POOL_ID: !Ref CognitoUserPool
+  signup:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: 'bin/signup.zip'
+      Handler: 'signup'
+      Role: !GetAtt LambdaRole.Arn
+
+  signin:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: 'bin/signin.zip'
+      Handler: 'signin'
+      Role: !GetAtt LambdaRole.Arn
+      Environment:
+        Variables:
+          COGNITO_REGION: !Sub "${AWS::Region}"
+          COGNITO_CLIENT_ID: !Ref CognitoAppClient
+          COGNITO_USER_POOL_ID: !Ref CognitoUserPool
+      
+  refresh:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: 'bin/refresh.zip'
+      Handler: 'refresh'
+      Role: !GetAtt LambdaRole.Arn
+      Environment:
+        Variables:
+          COGNITO_REGION: !Sub "${AWS::Region}"
+          COGNITO_CLIENT_ID: !Ref CognitoAppClient
+          COGNITO_USER_POOL_ID: !Ref CognitoUserPool
+      
+  profile:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: 'bin/profile.zip'
+      Handler: 'profile'
+      Role: !GetAtt LambdaRole.Arn
+
+  general:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: 'bin/general.zip'
+      Handler: 'general'
+      Role: !GetAtt LambdaRole.Arn
+
+  deviceList:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: 'bin/deviceList.zip'
+      Handler: 'deviceList'
+      Role: !GetAtt LambdaRole.Arn
+      Environment:
+        Variables:
+          COGNITO_REGION: !Sub "${AWS::Region}"
+          COGNITO_CLIENT_ID: !Ref CognitoAppClient
+          COGNITO_USER_POOL_ID: !Ref CognitoUserPool
+
+  deviceListMinimal:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: 'bin/deviceListMinimal.zip'
+      Handler: 'deviceListMinimal'
+      Role: !GetAtt LambdaRole.Arn
+
+  deviceUpdate:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: 'bin/deviceUpdate.zip'
+      Handler: 'deviceUpdate'
+      Role: !GetAtt LambdaRole.Arn
+      Environment:
+        Variables:
+          ENV_TYPE: Accepted
+
+  deviceUpdateRejected:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: 'bin/deviceUpdate.zip'
+      Handler: 'deviceUpdate'
+      Role: !GetAtt LambdaRole.Arn
+      Environment:
+        Variables:
+          ENV_TYPE: Rejected
+
+  deviceUpdateMeta:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: 'bin/deviceUpdateMeta.zip'
+      Handler: 'deviceUpdateMeta'
+      Role: !GetAtt LambdaRole.Arn
+      
+  cognitoRegister:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: 'bin/cognitoRegister.zip'
+      Handler: 'cognitoRegister'
+      Role: !GetAtt LambdaRole.Arn
+      
+  cognitoProfileList:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: 'bin/cognitoProfileList.zip'
+      Handler: 'cognitoProfileList'
+      Role: !GetAtt LambdaRole.Arn
+      
+  cognitoProfileUpdate:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: 'bin/cognitoProfileUpdate.zip'
+      Handler: 'cognitoProfileUpdate'
+      Role: !GetAtt LambdaRole.Arn
+      
+  deviceAdd:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: 'bin/deviceAdd.zip'
+      Handler: 'deviceAdd'
+      Role: !GetAtt LambdaRole.Arn
+      
+  deviceGet:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: 'bin/deviceGet.zip'
+      Handler: 'deviceGet'
+      Role: !GetAtt LambdaRole.Arn
+      
+  deviceDel:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: 'bin/deviceDel.zip'
+      Handler: 'deviceDel'
+      Role: !GetAtt LambdaRole.Arn
+      
+  map:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: 'bin/map.zip'
+      Handler: 'map'
+      Role: !GetAtt LambdaRole.Arn
+      Environment:
+        Variables:
+          COGNITO_REGION: !Sub "${AWS::Region}"
+          COGNITO_CLIENT_ID: !Ref CognitoAppClient
+          COGNITO_USER_POOL_ID: !Ref CognitoUserPool
+      
+  zoneUpdate:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: 'bin/zoneUpdate.zip'
+      Handler: 'zoneUpdate'
+      Role: !GetAtt LambdaRole.Arn
+      
+  validateEmail:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: 'bin/validateEmail.zip'
+      Handler: 'validateEmail'
+      Role: !GetAtt LambdaRole.Arn
+      Environment:
+        Variables:
+          COGNITO_REGION: !Sub "${AWS::Region}"
+          COGNITO_CLIENT_ID: !Ref CognitoAppClient
+          COGNITO_USER_POOL_ID: !Ref CognitoUserPool
+      
+  seeder:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: 'bin/seeder.zip'
+      Handler: 'seeder'
+      Role: !GetAtt LambdaRole.Arn
+      
+  schemaGet:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: 'bin/schemaGet.zip'
+      Handler: 'schemaGet'
+      Role: !GetAtt LambdaRole.Arn
+
+  chartLiveDevice:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: 'bin/chartLiveDevice.zip'
+      Handler: 'chartLiveDevice'
+      Role: !GetAtt LambdaRole.Arn
+      
+  chartLiveAll:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: 'bin/chartLiveAll.zip'
+      Handler: 'chartLiveAll'
+      Role: !GetAtt LambdaRole.Arn
+      
+  chartHourDevice:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: 'bin/chartHourDevice.zip'
+      Handler: 'chartHourDevice'
+      Role: !GetAtt LambdaRole.Arn
+      
+  chartHourAll:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: 'bin/chartHourAll.zip'
+      Handler: 'chartHourAll'
+      Role: !GetAtt LambdaRole.Arn
+      
+  chartCache:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: 'bin/chartCache.zip'
+      Handler: 'chartCache'
+      Role: !GetAtt LambdaRole.Arn
+      
+  chartCacheDay:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: 'bin/chartCacheDay.zip'
+      Handler: 'chartCacheDay'
+      Role: !GetAtt LambdaRole.Arn
+      
+  chartCacheSix:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: 'bin/chartCacheSix.zip'
+      Handler: 'chartCacheSix'
+      Role: !GetAtt LambdaRole.Arn
+      
+  chartSix:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: 'bin/chartSix.zip'
+      Handler: 'chartSix'
+      Role: !GetAtt LambdaRole.Arn
+      Events:
+        CronJob:
+          Type: Schedule
+          Properties:
+            Schedule: rate(10 minutes)
+      
+  chartHour:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: 'bin/chartHour.zip'
+      Handler: 'chartHour'
+      Role: !GetAtt LambdaRole.Arn
+      Events:
+        CronJob:
+          Type: Schedule
+          Properties:
+            Schedule: rate(10 minutes)
+      
+  chartDay:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: 'bin/chartDay.zip'
+      Handler: 'chartDay'
+      Role: !GetAtt LambdaRole.Arn
+      Events:
+        CronJob:
+          Type: Schedule
+          Properties:
+            Schedule: rate(10 minutes)
+      
+  chartDayDevice:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: 'bin/chartDayDevice.zip'
+      Handler: 'chartDayDevice'
+      Role: !GetAtt LambdaRole.Arn
+
+  chartHasData:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: 'bin/chartHasData.zip'
+      Handler: 'chartHasData'
+      Role: !GetAtt LambdaRole.Arn
+
+  chartDayAll:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: 'bin/chartDayAll.zip'
+      Handler: 'chartDayAll'
+      Role: !GetAtt LambdaRole.Arn
+
+  chartSixDevice:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: 'bin/chartSixDevice.zip'
+      Handler: 'chartSixDevice'
+      Role: !GetAtt LambdaRole.Arn
+
+  chartSixAll:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: 'bin/chartSixAll.zip'
+      Handler: 'chartSixAll'
+      Role: !GetAtt LambdaRole.Arn
+
+  chartSave:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: 'bin/chartSave.zip'
+      Handler: 'chartSave'
+      Role: !GetAtt LambdaRole.Arn
+
+  # test:
+  #   Type: 'AWS::Serverless::Function'
+  #   Properties:
+  #     CodeUri: 'bin/test.zip'
+  #     Handler: 'test'

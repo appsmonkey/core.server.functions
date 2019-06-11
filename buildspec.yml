@@ -1,0 +1,26 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      golang: 1.12
+      python: 3.7
+
+  pre_build:
+    commands:
+      - pip install awscli==1.16.141
+      - pip install aws-sam-cli
+
+  build:
+    commands:
+      # something something dep emptyroot https://github.com/aws/aws-codebuild-docker-images/issues/41
+      - mkdir -p ../github.com/appsmonkey/core.server.functions
+      - mv * ../github.com/appsmonkey/core.server.functions
+      - mv ../github.com .
+      - cd github.com/appsmonkey/core.server.functions
+      - make vendor
+      - make deploy
+
+cache:
+  paths:
+  - github.com/appsmonkey/core.server.functions/vendor/**/*

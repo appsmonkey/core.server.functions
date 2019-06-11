@@ -1,3 +1,15 @@
+#go_apps = bin/register
+
+#bin/% : functions/%.go
+#		env GOOS=linux go build -ldflags="-s -w" -o $@ $<
+
+#build: $(go_apps) | vendor
+
+PACKAGED_TEMPLATE = packaged.yaml
+S3_BUCKET = artifacts.cityos.io
+STACK_NAME = CityOS
+TEMPLATE = template.yaml
+
 ifdef OS
     package_lambda = build-lambda-zip -o
     FixPath = $(subst /,\,$1)
@@ -59,10 +71,10 @@ general:
 	rm general
 
 deviceList:
-	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o devicelist functions/deviceList/main.go
+	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o deviceList functions/deviceList/main.go
 	mkdir -p bin
-	$(package_lambda) bin/devicelist.zip devicelist
-	rm devicelist
+	$(package_lambda) bin/deviceList.zip deviceList
+	rm deviceList
 
 deviceListMinimal:
 	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o deviceListMinimal functions/deviceListMinimal/main.go
@@ -267,3 +279,15 @@ forgotPasswordEnd:
 	mkdir -p bin
 	$(package_lambda) bin/forgotPasswordEnd.zip forgotPasswordEnd
 	rm forgotPasswordEnd
+	
+.PHONY: deploy_swagger
+deploy_swagger:
+	aws s3 cp swagger.yaml s3://artifacts.cityos.io/CityOS/swagger.yaml
+
+#.PHONY: package
+package: all
+	sam package --template-file $(TEMPLATE) --s3-bucket $(S3_BUCKET) --s3-prefix $(STACK_NAME) --output-template-file $(PACKAGED_TEMPLATE)
+
+.PHONY: deploy
+deploy: deploy_swagger package
+	sam deploy --stack-name $(STACK_NAME) --template-file $(PACKAGED_TEMPLATE) --capabilities CAPABILITY_NAMED_IAM
