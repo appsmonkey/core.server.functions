@@ -27,8 +27,11 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	}
 
 	device := m.Device{}
-	device.Token = bg.New()
-	device.DeviceID = ""
+	device.Token = request.Token
+	if len(device.Token) == 0 {
+		device.Token = bg.New()
+	}
+	device.DeviceID = device.Token
 	device.CognitoID = CognitoData(req.RequestContext.Authorizer)
 	device.Meta = request.Metadata
 	device.Active = false

@@ -3,6 +3,7 @@ package viewmodels
 import (
 	"encoding/json"
 	"strconv"
+	"strings"
 	"time"
 
 	es "github.com/appsmonkey/core.server.functions/errorStatuses"
@@ -10,8 +11,9 @@ import (
 
 // ChartHourAllRequest is the request from the client
 type ChartHourAllRequest struct {
-	Sensor string `json:"sensor"`
-	From   string `json:"from"`
+	Sensor    string   `json:"sensor"`
+	From      string   `json:"from"`
+	SensorAll []string `json:"-"`
 }
 
 // Validate the request sent from client
@@ -54,6 +56,12 @@ func (r *ChartHourAllRequest) Validate(body map[string]string) *ChartHourAllResp
 		response.Code = es.StatusChartAllDeviceError
 	}
 
+	sensorAll := strings.Split(sensor, ",")
+	if len(sensorAll) == 0 {
+		response.Errors = append(response.Errors, es.ErrMissingSensorType)
+		response.Code = es.StatusChartAllDeviceError
+	}
+
 	_, err := strconv.ParseInt(from, 10, 64)
 	if err != nil {
 		response.Errors = append(response.Errors, es.ErrIncorrectTime)
@@ -62,6 +70,7 @@ func (r *ChartHourAllRequest) Validate(body map[string]string) *ChartHourAllResp
 
 	r.Sensor = sensor
 	r.From = from
+	r.SensorAll = sensorAll
 
 	return response
 }

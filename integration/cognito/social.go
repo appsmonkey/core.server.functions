@@ -1,8 +1,10 @@
 package cognito
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"os"
 
@@ -90,20 +92,82 @@ func (c *Cognito) Google(id, token, inEmail string, client *http.Client) (*Cogni
 }
 
 // Facebook login
-func (c *Cognito) Facebook(id, token, inEmail string, client *http.Client) (*CognitoData, error) {
+func (c *Cognito) Facebook(id, token, inEmail string) (*CognitoData, error) {
 	clientID := os.Getenv("FB_CLIENT_ID")
 	clientSecret := os.Getenv("FB_CLIENT_SECRET")
 
 	appLink := fmt.Sprintf(`https://graph.facebook.com/oauth/access_token?client_id=%v&client_secret=%v&grant_type=client_credentials`, clientID, clientSecret)
 
-	appToken := "<CALL FB TO GET THE TOKEN = access_token from response>"
-	// appToken = requests.get(appLink).json()['access_token']
+	appTokenData := request(appLink)
+	fmt.Println("appTokenData")
+	fmt.Println(appTokenData)
+	appToken := appTokenData["access_token"].(string)
 
 	link := fmt.Sprintf(`https://graph.facebook.com/debug_token?input_token=%v&access_token=%v`, token, appToken)
-	// userId = requests.get(link).json()['data']['user_id']
+	userData := request(link)["data"].(map[string]interface{})
+	user_id := userData["user_id"].(string)
 
-	fmt.Printf("%v%v", appLink, link)
-	return nil, nil
+	if user_id != id {
+		fmt.Println("invalid token received", "Received ID", id, "Received email", inEmail, "Got ID", userData, "Got Email", "none")
+		return nil, errors.New("invalid token received")
+	}
+
+	_, _, _, _, _, err := dal.CheckSocial(id)
+	if err != nil {
+		// Register
+		cd, err := c.SignUp(inEmail, "@aA"+id, "male", "fn", "ln")
+		if err != nil {
+			fmt.Println("Could not register at cognito", err)
+			return nil, err
+		}
+
+		// Get userdata
+		p, err := c.Profile(inEmail)
+		if err != nil {
+			fmt.Println("Could not get user's profile from cognito", err)
+			return nil, err
+		}
+
+		r := &m.User{}
+		r.Attributes = make(map[string]string, 0)
+		r.Profile = m.UserProfile{}
+		r.Token = bg.New()
+		r.SocialID = id
+		r.SocialType = "G"
+
+		for _, uav := range p.UserAttributes {
+			switch *uav.Name {
+			case "email":
+				r.Email = *uav.Value
+				r.Attributes[*uav.Name] = *uav.Value
+			case "sub": // Unique Cognito User ID
+				r.CognitoID = *uav.Value
+				r.Attributes[*uav.Name] = *uav.Value
+			default:
+				r.Attributes[*uav.Name] = *uav.Value
+			}
+		}
+
+		if len(r.CognitoID) == 0 {
+			fmt.Println("Could not get user's profile from cognito [CognitoID]", err)
+			return nil, err
+		}
+
+		if len(r.Email) == 0 {
+			fmt.Println("Could not get user's profile from cognito [Email]", err)
+			return nil, err
+		}
+
+		err = dal.AddUser(r)
+		if err != nil {
+			fmt.Println("Could not save user into cognito", err)
+			return nil, err
+		}
+
+		return cd, nil
+	}
+
+	return c.SignIn(inEmail, "@aA"+id)
 }
 
 func verifyIDTokenGoogle(idToken string, client *http.Client) (*oauth2.Tokeninfo, error) {
@@ -130,4 +194,30 @@ func verifyIDTokenGoogle(idToken string, client *http.Client) (*oauth2.Tokeninfo
 	fmt.Println("verifyIDTokenGoogle Result", string(m))
 
 	return tokenInfo, nil
+}
+
+func request(url string) map[string]interface{} {
+	req, _ := http.NewRequest("GET", url, nil)
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		fmt.Println("Could not send data to FB [client.Do]", err)
+		return make(map[string]interface{}, 0)
+	}
+
+	defer resp.Body.Close()
+
+	fmt.Println("response Status:", resp.Status)
+	fmt.Println("response Headers:", resp.Header)
+	body, _ := ioutil.ReadAll(resp.Body)
+	fmt.Println("response Body:", string(body))
+
+	var res map[string]interface{}
+	err = json.Unmarshal(body, &res)
+	if err != nil {
+		fmt.Println("Could not send data to FB [json.Ubnmarshal]", err)
+		return make(map[string]interface{}, 0)
+	}
+
+	return res
 }

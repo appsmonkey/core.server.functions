@@ -69,10 +69,6 @@ func sendMessage(msg *Message, as *Airship) error {
 		return err
 	}
 
-	fmt.Println()
-	fmt.Println(string(toBeSent))
-	fmt.Println()
-
 	req, err := http.NewRequest("POST", as.url+as.push, bytes.NewBuffer(toBeSent))
 	req.Header.Set("Authorization", as.auth)
 	req.Header.Set("Accept", as.accept)

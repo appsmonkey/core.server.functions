@@ -35,17 +35,37 @@ func Handler(ctx context.Context, req events.APIGatewayProxyRequest) (events.API
 
 	// 1. Check if we have social login data, if so then validate the token first
 	if request.Social.HasData() {
-		data, err := cog.Google(request.Social.ID, request.Social.Token, request.Email, httpClient)
-		if err != nil {
-			errData := es.ErrRegistrationSignInError
-			errData.Data = err.Error()
-			response.Errors = append(response.Errors, errData)
+		if request.Social.Type == "G" {
+			data, err := cog.Google(request.Social.ID, request.Social.Token, request.Email, httpClient)
+			if err != nil {
+				errData := es.ErrRegistrationSignInError
+				errData.Data = err.Error()
+				response.Errors = append(response.Errors, errData)
 
-			return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 403, Headers: response.Headers()}, nil
+				return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 403, Headers: response.Headers()}, nil
+			}
+
+			response.Data = data
+			return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 200, Headers: response.Headers()}, nil
+		} else if request.Social.Type == "FB" {
+			data, err := cog.Facebook(request.Social.ID, request.Social.Token, request.Email)
+			if err != nil {
+				errData := es.ErrRegistrationSignInError
+				errData.Data = err.Error()
+				response.Errors = append(response.Errors, errData)
+
+				return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 403, Headers: response.Headers()}, nil
+			}
+
+			response.Data = data
+			return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 200, Headers: response.Headers()}, nil
+		} else {
+			errData := es.ErrRegistrationSignInError
+			errData.Data = "Unrecognized signin method"
+			response.Errors = append(response.Errors, errData)
+			return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 400, Headers: response.Headers()}, nil
 		}
 
-		response.Data = data
-		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 200, Headers: response.Headers()}, nil
 	} else {
 		// do not allow social user to login with username and password
 		_, email, _, _, suc, err := dal.CheckSocial(request.Password)

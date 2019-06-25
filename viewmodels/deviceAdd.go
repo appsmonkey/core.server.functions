@@ -12,6 +12,7 @@ import (
 // DeviceAddRequest is the request from the client
 type DeviceAddRequest struct {
 	m.Metadata
+	Token string `json:"token"`
 }
 
 // Validate the request sent from client

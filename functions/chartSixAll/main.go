@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"sort"
 
 	"github.com/appsmonkey/core.server.functions/dal"
 	es "github.com/appsmonkey/core.server.functions/errorStatuses"
@@ -16,6 +17,11 @@ type resultData struct {
 	Value float64 `json:"value"`
 }
 
+type resultDataMulti struct {
+	Chart []map[string]float64 `json:"chart"`
+	Max   map[string]float64   `json:"max"`
+}
+
 // Handler will handle our request comming from the API gateway
 func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	request := new(vm.ChartHourAllRequest)
@@ -26,52 +32,105 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 400, Headers: response.Headers()}, nil
 	}
 
-	res, err := dal.QueryMultiple("chart_six",
-		dal.Condition{
-			"sensor": {
-				ComparisonOperator: aws.String("EQ"),
-				AttributeValueList: []*dal.AttributeValue{
-					{
-						S: aws.String(request.Sensor),
+	dbRawData := make(map[string][]map[string]float64, 0)
+	for _, sid := range request.SensorAll {
+		res, err := dal.QueryMultiple("chart_six",
+			dal.Condition{
+				"sensor": {
+					ComparisonOperator: aws.String("EQ"),
+					AttributeValueList: []*dal.AttributeValue{
+						{
+							S: aws.String(sid),
+						},
+					},
+				},
+				"date": {
+					ComparisonOperator: aws.String("GT"),
+					AttributeValueList: []*dal.AttributeValue{
+						{
+							N: aws.String(request.From),
+						},
 					},
 				},
 			},
-			"date": {
-				ComparisonOperator: aws.String("GT"),
-				AttributeValueList: []*dal.AttributeValue{
-					{
-						N: aws.String(request.From),
-					},
-				},
-			},
-		},
-		dal.Projection(dal.Name("date"), dal.Name("value")),
-		true)
+			dal.Projection(dal.Name("date"), dal.Name("value")),
+			true)
 
-	if err != nil {
-		response.AddError(&es.Error{Message: err.Error(), Data: "could not unmarshal data from the DB"})
-		fmt.Printf("errors on request: %v, requestID: %v", response.Errors, response.RequestID)
-		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
+		if err != nil {
+			response.AddError(&es.Error{Message: err.Error(), Data: "could not unmarshal data from the DB"})
+			fmt.Printf("errors on request: %v, requestID: %v", response.Errors, response.RequestID)
+			return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
+		}
+
+		var dbData []map[string]float64
+		err = res.Unmarshal(&dbData)
+		if err != nil {
+			response.AddError(&es.Error{Message: err.Error(), Data: "could not unmarshal data from the DB"})
+			fmt.Printf("errors on request: %v, requestID: %v", response.Errors, response.RequestID)
+			return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
+		}
+
+		dbRawData[sid] = dbData
 	}
 
-	var dbData []map[string]float64
-	err = res.Unmarshal(&dbData)
-	if err != nil {
-		response.AddError(&es.Error{Message: err.Error(), Data: "could not unmarshal data from the DB"})
-		fmt.Printf("errors on request: %v, requestID: %v", response.Errors, response.RequestID)
-		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
+	if len(dbRawData) <= 1 {
+		result := make([]*resultData, 0)
+		for _, v := range dbRawData[request.Sensor] {
+			result = append(result, &resultData{
+				Date:  v["date"],
+				Value: v["value"],
+			})
+		}
+
+		response.Data = result
+		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 200, Headers: response.Headers()}, nil
 	}
 
-	result := make([]*resultData, 0)
-	for _, v := range dbData {
-		result = append(result, &resultData{
-			Date:  v["date"],
-			Value: v["value"],
-		})
+	resultRaw := make(map[float64]map[string]float64, 0)
+	resultRawIndex := make([]float64, 0)
+	result := make([]map[string]float64, 0)
+
+	for sid, sd := range dbRawData {
+		for _, v := range sd {
+			d := v["date"]
+			val := v["value"]
+			_, ok := resultRaw[d]
+			if !ok {
+				resultRaw[d] = make(map[string]float64, 0)
+				resultRawIndex = append(resultRawIndex, d)
+			}
+
+			resultRaw[d][sid] = val
+		}
 	}
 
-	response.Data = result
+	sort.Float64s(resultRawIndex)
+	maxValues := make(map[string]float64, 0)
 
+	for _, ri := range resultRawIndex {
+		d := resultRaw[ri]
+		rd := make(map[string]float64, 0)
+		rd["date"] = ri
+
+		for _, s := range request.SensorAll {
+			sd, ok := d[s]
+			if ok {
+				rd[s] = sd
+				mv, okmv := maxValues[s]
+				if sd > mv {
+					maxValues[s] = sd
+				} else if !okmv {
+					maxValues[s] = 0
+				}
+			} else {
+				rd[s] = 0
+			}
+		}
+
+		result = append(result, rd)
+	}
+
+	response.Data = resultDataMulti{Chart: result, Max: maxValues}
 	return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 200, Headers: response.Headers()}, nil
 }
 
