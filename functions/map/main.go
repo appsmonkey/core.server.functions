@@ -25,19 +25,22 @@ var (
 
 // Handler will handle our request comming from the API gateway
 func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+	request := new(vm.MapRequest)
+	response := request.Validate(req.QueryStringParameters)
 	cognitoID := h.CognitoIDZeroValue
 	authHdr := header("AccessToken", req.Headers)
 	if len(authHdr) > 0 {
-		c, _, err := cog.ValidateToken(authHdr)
+		c, _, isExpired, err := cog.ValidateToken(authHdr)
 		if err != nil {
 			fmt.Println(err)
+			if isExpired {
+				return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 401, Headers: response.Headers()}, nil
+			}
 		} else {
 			cognitoID = c
 		}
 	}
 
-	request := new(vm.MapRequest)
-	response := request.Validate(req.QueryStringParameters)
 	if response.Code != 0 {
 		fmt.Printf("errors on request: %v, requestID: %v", response.Errors, response.RequestID)
 

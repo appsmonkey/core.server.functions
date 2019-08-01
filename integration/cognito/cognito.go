@@ -28,6 +28,7 @@ type CognitoData struct {
 
 const (
 	authFlow = "ADMIN_NO_SRP_AUTH"
+	jwtError = "Token is expired"
 )
 
 var (
@@ -239,20 +240,25 @@ func (c *Cognito) SignIn(username, password string) (*CognitoData, error) {
 }
 
 // ValidateToken checks authorization token
-func (c *Cognito) ValidateToken(jwtToken string) (string, string, error) {
+func (c *Cognito) ValidateToken(jwtToken string) (string, string, bool, error) {
 	token, err := jwt.Parse(jwtToken, c.getKey)
 	if err != nil {
-		return "", "", fmt.Errorf("could not parse jwt: %v", err)
+		isExpired := false
+		if err.Error() == jwtError {
+			isExpired = true
+		}
+
+		return "", "", isExpired, fmt.Errorf("could not parse jwt: %v", err.Error())
 	}
 
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 		if claims["token_use"] != "access" {
-			return "", "", fmt.Errorf("token_use mismatch: %s", claims["token_use"])
+			return "", "", false, fmt.Errorf("token_use mismatch: %s", claims["token_use"])
 		}
 
-		return claims["sub"].(string), claims["username"].(string), nil // valid token
+		return claims["sub"].(string), claims["username"].(string), false, nil // valid token
 	}
-	return "", "", nil // invalid token
+	return "", "", false, nil // invalid token
 }
 
 // getKey returns the key for validating in ValidateToken
