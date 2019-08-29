@@ -479,11 +479,6 @@ Resources:
           KeyType: HASH
         - AttributeName: sensor_id
           KeyType: RANGE
-           GlobalSecondaryIndexes:
-        - IndexName: CityID-index
-            KeySchema: 
-          - AttributeName: ctiy_id
-              KeyType: HASH
         GlobalSecondaryIndexes:
         - IndexName: CityID-index
           KeySchema: 
