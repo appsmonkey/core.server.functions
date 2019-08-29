@@ -32,21 +32,18 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		device.Token = bg.New()
 	}
 	device.DeviceID = device.Token
+	// FIXME: If cognito id is bad ??
 	device.CognitoID = CognitoData(req.RequestContext.Authorizer)
 	device.Meta = request.Metadata
 	device.Active = false
 	device.ZoneID = "none"
 
 	// We can add manually or we can check with lat lon
-	device.City = "Sarajevo" // default value is Sarajevo
+	// device.City = "Sarajevo" // default value is Sarajevo
 
 	// If coordinates are set, then find the zone it belongs to
 	if !device.Meta.Coordinates.IsEmpty() {
 		if zone := z.ZoneByPoint(&z.Point{Lat: device.Meta.Coordinates.Lat, Lng: device.Meta.Coordinates.Lng}); zone != nil {
-			device.ZoneID = zone.Title
-		}
-
-		if city := z.CityByPoint(&z.Point{Lat: device.Meta.Coordinates.Lat, Lng: device.Meta.Coordinates.Lng}); zone != nil {
 			device.ZoneID = zone.Title
 		}
 	}

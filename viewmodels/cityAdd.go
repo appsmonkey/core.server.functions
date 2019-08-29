@@ -2,8 +2,6 @@ package viewmodels
 
 import (
 	"encoding/json"
-	"fmt"
-	"reflect"
 	"strconv"
 	"time"
 
@@ -12,10 +10,9 @@ import (
 
 // CityAddRequest is the request from the client
 type CityAddRequest struct {
-	CityID  string   `json:"id"`
-	Name    string   `json:"name"`
-	Country string   `json:"country"` // ID
-	Zones   []string `json:"zones"`   // IDs
+	CityID  string `json:"id"`
+	Name    string `json:"name"`
+	Country string `json:"country"` // FIXME: maybe we want to have country as an entity too ?
 }
 
 // Validate the request sent from client
@@ -44,12 +41,12 @@ func (r *CityAddRequest) Validate(body string) *CityAddResponse {
 		response.Code = es.StatusCityMissingCountry
 	}
 
-	fmt.Sprintln(r.Zones, "Zones")
-	rt := reflect.TypeOf(r.Zones)
-	if len(r.Zones) == 0 && rt.Kind() != reflect.Array && rt.Kind() != reflect.Slice {
-		response.Errors = append(response.Errors, es.ErrCityMissingZones)
-		response.Code = es.StatusCityMissingZones
-	}
+	// fmt.Sprintln(r.Zones, "Zones")
+	// rt := reflect.TypeOf(r.Zones)
+	// if len(r.Zones) == 0 && rt.Kind() != reflect.Array && rt.Kind() != reflect.Slice {
+	// 	response.Errors = append(response.Errors, es.ErrCityMissingZones)
+	// 	response.Code = es.StatusCityMissingZones
+	// }
 
 	return response
 }
@@ -62,7 +59,7 @@ type CityAddResponse struct {
 
 // CityAddData holds the data to be sent to the client for *Device Add*
 type CityAddData struct {
-	Token string `json:"token"`
+	CityID string `json:"city_id"`
 }
 
 // Marshal the response object

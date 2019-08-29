@@ -2,18 +2,14 @@ package main
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/appsmonkey/core.server.functions/dal"
 	es "github.com/appsmonkey/core.server.functions/errorStatuses"
 	"github.com/appsmonkey/core.server.functions/integration/cognito"
 	m "github.com/appsmonkey/core.server.functions/models"
-	"github.com/appsmonkey/core.server.functions/tools/defaultDevice"
-	h "github.com/appsmonkey/core.server.functions/tools/helper"
 	vm "github.com/appsmonkey/core.server.functions/viewmodels"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
-	"github.com/aws/aws-sdk-go/aws"
 )
 
 var (
@@ -21,75 +17,36 @@ var (
 )
 
 // Handler will handle our request comming from the API gateway
+// City list fetches minimal city preview, it does not require user to be authenticated
 func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	response := new(vm.CityListResponse)
 	response.Init()
-	cognitoID := h.CognitoIDZeroValue
-	// authHdr := header("AccessToken", req.Headers)
-	// if len(authHdr) > 0 {
-	// 	c, _, isExpired, err := cog.ValidateToken(authHdr)
-	// 	if err != nil {
-	// 		fmt.Println(err)
-	// 		if isExpired {
-	// 			return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 401, Headers: response.Headers()}, nil
-	// 		}
-	// 	} else {
-	// 		cognitoID = c
-	// 	}
-	// }
 
-	// if cognitoID == h.CognitoIDZeroValue {
-	// 	rd := make([]*vm.DeviceGetData, 0)
+	// fetch all cities with minimal data
 
-	// 	// Add the default device on the top
-	// 	dd := defaultDevice.Get()
-	// 	rd = append(rd, &dd)
+	dbRes, err := dal.ListNoFilter("cities", dal.Projection(dal.Name("city_id"), dal.Name("name"), dal.Name("country"), dal.Name("timestamp")))
+	if err != nil {
+		fmt.Println(err)
+		response.AddError(&es.Error{Code: 0, Message: err.Error(), Data: ""})
+		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
+	}
 
-	// 	response.Data = rd
-	// 	return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 200, Headers: response.Headers()}, nil
-	// }
+	dbData := make([]m.City, 0)
+	err = dbRes.Unmarshal(&dbData)
 
-	res, err := dal.GetFromIndex("devices", "CognitoID-index", dal.Condition{
-		"cognito_id": {
-			ComparisonOperator: aws.String("EQ"),
-			AttributeValueList: []*dal.AttributeValue{
-				{
-					S: aws.String(cognitoID),
-				},
-			},
-		},
-	})
 	if err != nil {
 		fmt.Println(err)
 		response.AddError(&es.Error{Message: err.Error(), Data: "could not unmarshal data from the DB"})
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
 	}
 
-	dbData := make([]m.Device, 0)
-	err = res.Unmarshal(&dbData)
-	if err != nil {
-		fmt.Println(err)
-		response.AddError(&es.Error{Message: err.Error(), Data: "could not unmarshal data from the DB"})
-		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
-	}
+	rd := make([]*vm.CityGetDataMinimal, 0)
 
-	rd := make([]*vm.DeviceGetData, 0)
-
-	// Add the default device on the top
-	dd := defaultDevice.Get()
-	rd = append(rd, &dd)
-
-	for _, d := range dbData {
-		data := vm.DeviceGetData{
-			DeviceID:  d.Token,
-			Name:      d.Meta.Name,
-			Active:    d.Active,
-			Mine:      d.CognitoID == cognitoID,
-			Model:     d.Meta.Model,
-			Indoor:    d.Meta.Indoor,
-			Location:  d.Meta.Coordinates,
-			MapMeta:   d.MapMeta,
-			Timestamp: d.Timestamp,
+	for _, c := range dbData {
+		data := vm.CityGetDataMinimal{
+			CityID:    c.CityID,
+			Country:   c.Country,
+			Timestamp: c.Timestamp,
 		}
 		rd = append(rd, &data)
 	}
@@ -104,20 +61,6 @@ func CognitoData(in map[string]interface{}) string {
 	data := in["claims"].(map[string]interface{})
 
 	return data["sub"].(string)
-}
-
-func header(hdr string, in map[string]string) string {
-	result, ok := in[hdr]
-	if !ok {
-		lwr := strings.ToLower(hdr)
-		result = in[lwr]
-	}
-
-	return result
-}
-
-func init() {
-	cog = cognito.NewCognito()
 }
 
 func main() {

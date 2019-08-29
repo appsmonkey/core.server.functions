@@ -61,3 +61,8 @@ var StatusAddCityError int64 = 19
 
 // StatusDeleteCityError [could not delete the specified city]
 var StatusDeleteCityError int64 = 20
+
+// Zone errors
+
+// ZoneImportError [could not import zones, invalid data]
+var ZoneImportError int64 = 21

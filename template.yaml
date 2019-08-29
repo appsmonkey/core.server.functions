@@ -507,6 +507,13 @@ Resources:
           KeyType: HASH
         - AttributeName: name
           KeyType: HASH
+      Projection: 
+         NonKeyAttributes:
+           - city_id
+           - name
+           - country
+           - timestamp
+         ProjectionType: INCLUDE
 
   # Boxy:
   #   Type: AWS::IoT::Thing

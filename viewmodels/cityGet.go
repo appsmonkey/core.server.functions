@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"strconv"
 	"time"
+
+	m "github.com/appsmonkey/core.server.functions/models"
 )
 
 // CityGetRequest is the request from the client
@@ -36,15 +38,16 @@ type CityGetData struct {
 	CityID    string   `json:"device_id"`
 	Name      string   `json:"name"`
 	Country   string   `json:"country"`
-	Zones     []string `json:"zones"`
+	Zones     []m.Zone `json:"zones"`
 	Timestamp float64  `json:"timestamp"`
 }
 
 // CityGetDataMinimal returned to user
 type CityGetDataMinimal struct {
-	CityID  string `json:"device_id"`
-	Name    string `json:"name"`
-	Country string `json:"country"`
+	CityID    string  `json:"device_id"`
+	Name      string  `json:"name"`
+	Country   string  `json:"country"`
+	Timestamp float64 `json:"timestamp"`
 }
 
 // Marshal the response object

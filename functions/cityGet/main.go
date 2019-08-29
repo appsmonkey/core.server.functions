@@ -53,7 +53,6 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		CityID:    model.CityID,
 		Name:      model.Name,
 		Country:   model.Country,
-		Zones:     model.Zones,
 		Timestamp: model.Timestamp,
 	}
 
@@ -64,6 +63,25 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		response.Errors = append(response.Errors, errData)
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
 	}
+
+	dbRes, err := dal.GetFromIndex("zones", "CityID-index", dal.Condition{
+		"city_id": {
+			ComparisonOperator: aws.String("EQ"),
+			AttributeValueList: []*dal.AttributeValue{
+				{
+					S: aws.String(data.CityID),
+				},
+			},
+		},
+	})
+
+	dbData := make([]m.Zone, 0)
+	err = dbRes.Unmarshal(&dbData)
+	if err != nil {
+		fmt.Println(err)
+		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
+	}
+	data.Zones = dbData
 
 	response.Data = data
 
