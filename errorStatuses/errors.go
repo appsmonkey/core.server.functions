@@ -108,3 +108,22 @@ var ErrMissingCode = Error{Code: 1031, Message: "Missing code"}
 
 // ErrCouldNotInitiateForgottenPasswordFlow [Forgot Psssword Flow Error]
 var ErrCouldNotInitiateForgottenPasswordFlow = Error{Code: 1032, Message: "Forgot password flow error"}
+
+// City errors
+
+// ErrCityMissingName [Cannot add city, missing name]
+var ErrCityMissingName = Error{Code: 1033, Message: "Cannot add city missing name"}
+
+// ErrCityMissingCountry [Cannot add city, missing country]
+var ErrCityMissingCountry = Error{Code: 1034, Message: "Cannot add city, missing country"}
+
+// ErrCityMissingZones [Cannot add city, missing zones or invalid data]
+var ErrCityMissingZones = Error{Code: 1035, Message: "cannot add city, missing zones or invalid data"}
+
+// ErrMissingCityID [cannot get device details. Missing token]
+var ErrMissingCityID = Error{Code: 1036, Message: "cannot complete action. Missing city id"}
+
+// ErrCityNotFound [could not find the desired device]
+var ErrCityNotFound = Error{Code: 1037, Message: "could not find the desired city"}
+
+// Zone errors

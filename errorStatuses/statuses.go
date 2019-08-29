@@ -44,3 +44,20 @@ var StatusChartLiveAllError int64 = 14
 
 // StatusForgotPasswordError [could not reset passowrd]
 var StatusForgotPasswordError int64 = 15
+
+// City errors
+
+// StatusCityMissingName [Cannot add city, missing name]
+var StatusCityMissingName int64 = 16
+
+// StatusCityMissingCountry [Cannot add city, missing country]
+var StatusCityMissingCountry int64 = 17
+
+// StatusCityMissingZones [Cannot add city, missing zones or invalid data]
+var StatusCityMissingZones int64 = 18
+
+// StatusAddCityError [Could not add new city]
+var StatusAddCityError int64 = 19
+
+// StatusDeleteCityError [could not delete the specified city]
+var StatusDeleteCityError int64 = 20

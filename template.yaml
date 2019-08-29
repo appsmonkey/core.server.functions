@@ -373,7 +373,7 @@ Resources:
       ProvisionedThroughput:
         ReadCapacityUnits: 5
         WriteCapacityUnits: 5
-  
+
   DevicesTable:
     Type: AWS::DynamoDB::Table
     Properties:
@@ -479,9 +479,34 @@ Resources:
           KeyType: HASH
         - AttributeName: sensor_id
           KeyType: RANGE
+           GlobalSecondaryIndexes:
+        - IndexName: CityID-index
+            KeySchema: 
+          - AttributeName: ctiy_id
+              KeyType: HASH
+        GlobalSecondaryIndexes:
+        - IndexName: CityID-index
+          KeySchema: 
+            - AttributeName: city_id
+              KeyType: HASH
       ProvisionedThroughput:
         ReadCapacityUnits: 5
         WriteCapacityUnits: 5
+
+    CitiesTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: cities
+      AttributeDefinitions: 
+        - AttributeName: city_id
+          AttributeType: S
+        - AttributeName: name
+          AttributeType: S
+      KeySchema:
+        - AttributeName: city_id
+          KeyType: HASH
+        - AttributeName: name
+          KeyType: HASH
 
   # Boxy:
   #   Type: AWS::IoT::Thing

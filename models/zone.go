@@ -5,6 +5,7 @@ type Zone struct {
 	ZoneID   string   `json:"zone_id"`
 	SensorID string   `json:"sensor_id"`
 	Data     ZoneMeta `json:"data,omitempty"`
+	CityID   string   `json:"city_id"`
 }
 
 // ZoneMeta holds the calculated data used to dispay on the map

@@ -11,14 +11,14 @@ import (
 	vm "github.com/appsmonkey/core.server.functions/viewmodels"
 
 	// Loading the sarajevo map
-	z "github.com/appsmonkey/core.server.functions/tools/zones"
+
 	_ "github.com/appsmonkey/core.server.functions/tools/zones/sarajevo"
 	"github.com/aws/aws-lambda-go/lambda"
 )
 
 // Handler will handle our request comming from the API gateway
 func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-	request := new(vm.DeviceAddRequest)
+	request := new(vm.CityAddRequest)
 	response := request.Validate(req.Body)
 	if response.Code != 0 {
 		fmt.Printf("errors on request: %v, requestID: %v", response.Errors, response.RequestID)
@@ -26,38 +26,42 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
 	}
 
-	device := m.Device{}
-	device.Token = request.Token
-	if len(device.Token) == 0 {
-		device.Token = bg.New()
-	}
-	device.DeviceID = device.Token
-	device.CognitoID = CognitoData(req.RequestContext.Authorizer)
-	device.Meta = request.Metadata
-	device.Active = false
-	device.ZoneID = "none"
-
-	// We can add manually or we can check with lat lon
-	device.City = "Sarajevo" // default value is Sarajevo
-
-	// If coordinates are set, then find the zone it belongs to
-	if !device.Meta.Coordinates.IsEmpty() {
-		if zone := z.ZoneByPoint(&z.Point{Lat: device.Meta.Coordinates.Lat, Lng: device.Meta.Coordinates.Lng}); zone != nil {
-			device.ZoneID = zone.Title
-		}
-
-		if city := z.CityByPoint(&z.Point{Lat: device.Meta.Coordinates.Lat, Lng: device.Meta.Coordinates.Lng}); zone != nil {
-			device.ZoneID = zone.Title
-		}
+	city := m.City{}
+	city.CityID = request.CityID
+	if len(city.CityID) == 0 {
+		city.CityID = bg.New()
 	}
 
-	response.Data = vm.DeviceAddData{Token: device.Token}
+	// if this is true we are updating existing city
+	if len(city.CityID) > 0 {
+		city.CityID = request.CityID
+	}
+
+	city.Country = request.Country
+	city.Name = request.Name
+
+	// Zones can be empty and updated later, or initally set
+	if request.Zones != nil && len(request.Zones) > 0 {
+		// Check if each zones exists and add to city, if any zone missing break
+		for _, z := range request.Zones {
+			zoneRes, err := dal.List("zones", dal.Name("zone_id").Equal(dal.Value(z)), dal.Projection(dal.Name("zone_id"), dal.Name("data")))
+
+			if err != nil {
+
+			}
+
+		}
+	} else {
+		city.Zones = make([]string, 0)
+	}
+
+	response.Data = vm.CityAddData{Token: city.CityID}
 
 	// insert data into the DB
-	dal.Insert("devices", device)
+	dal.Insert("cities", city)
 
 	// Log and return result
-	fmt.Println("Wrote item:  ", device)
+	fmt.Println("Wrote item:  ", city)
 
 	return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 200, Headers: response.Headers()}, nil
 }

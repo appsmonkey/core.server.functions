@@ -8,14 +8,14 @@ import (
 	es "github.com/appsmonkey/core.server.functions/errorStatuses"
 )
 
-// DeviceDelRequest is the request from the client
-type DeviceDelRequest struct {
-	Token string `json:"token"`
+// CityDelRequest is the request from the client
+type CityDelRequest struct {
+	CityID string `json:"city_id"`
 }
 
 // Validate the request sent from client
-func (r *DeviceDelRequest) Validate(body string) *DeviceDelResponse {
-	response := new(DeviceDelResponse)
+func (r *CityDelRequest) Validate(body string) *CityDelResponse {
+	response := new(CityDelResponse)
 	response.Code = 0
 	response.RequestID = strconv.FormatInt(time.Now().Unix(), 10)
 
@@ -25,26 +25,25 @@ func (r *DeviceDelRequest) Validate(body string) *DeviceDelResponse {
 		errData.Data = err.Error()
 		response.Errors = append(response.Errors, errData)
 
-		response.Code = es.StatusDeleteDeviceError
+		response.Code = es.StatusDeleteCityError
 		return response
 	}
 
-	if len(r.Token) == 0 {
+	if len(r.CityID) == 0 {
 		response.Errors = append(response.Errors, es.ErrMissingThingToken)
-		response.Code = es.StatusDeleteDeviceError
+		response.Code = es.StatusDeleteCityError
 	}
 
 	return response
 }
 
-// DeviceDelResponse to the client
-// `Returns detailed data for a specific device. Data defained in the *DeviceDelData* struct`
-type DeviceDelResponse struct {
+// CityDelResponse to the client
+type CityDelResponse struct {
 	BaseResponse
 }
 
 // Marshal the response object
-func (r *DeviceDelResponse) Marshal() string {
+func (r *CityDelResponse) Marshal() string {
 	res, _ := json.Marshal(r)
 
 	return string(res)
