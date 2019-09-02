@@ -120,10 +120,16 @@ var ErrCityMissingCountry = Error{Code: 1034, Message: "Cannot add city, missing
 // ErrCityMissingZones [Cannot add city, missing zones or invalid data]
 var ErrCityMissingZones = Error{Code: 1035, Message: "cannot add city, missing zones or invalid data"}
 
-// ErrMissingCityID [cannot get device details. Missing token]
+// ErrMissingCityID [cannot get device details. Missing id]
 var ErrMissingCityID = Error{Code: 1036, Message: "cannot complete action. Missing city id"}
 
-// ErrCityNotFound [could not find the desired device]
+// ErrCityNotFound [could not find the desired city]
 var ErrCityNotFound = Error{Code: 1037, Message: "could not find the desired city"}
 
 // Zone errors
+
+// ErrMissingID [cannot get device details. Missing id]
+var ErrMissingID = Error{Code: 1038, Message: "cannot get device details. Missing identifier"}
+
+// ErrZoneNotFound [could not find the desired zone]
+var ErrZoneNotFound = Error{Code: 1039, Message: "could not find the desired zone"}

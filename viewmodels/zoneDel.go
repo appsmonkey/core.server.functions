@@ -8,14 +8,14 @@ import (
 	es "github.com/appsmonkey/core.server.functions/errorStatuses"
 )
 
-// CityDelRequest is the request from the client
-type CityDelRequest struct {
-	CityID string `json:"city_id"`
+// ZoneDelRequest is the request from the client
+type ZoneDelRequest struct {
+	ZoneID string `json:"zone_id"`
 }
 
 // Validate the request sent from client
-func (r *CityDelRequest) Validate(body string) *CityDelResponse {
-	response := new(CityDelResponse)
+func (r *ZoneDelRequest) Validate(body string) *ZoneDelResponse {
+	response := new(ZoneDelResponse)
 	response.Code = 0
 	response.RequestID = strconv.FormatInt(time.Now().Unix(), 10)
 
@@ -25,11 +25,11 @@ func (r *CityDelRequest) Validate(body string) *CityDelResponse {
 		errData.Data = err.Error()
 		response.Errors = append(response.Errors, errData)
 
-		response.Code = es.StatusDeleteCityError
+		response.Code = es.StatusDeleteZoneError
 		return response
 	}
 
-	if len(r.CityID) == 0 {
+	if len(r.ZoneID) == 0 {
 		response.Errors = append(response.Errors, es.ErrMissingID)
 		response.Code = es.StatusDeleteZoneError
 	}
@@ -37,13 +37,13 @@ func (r *CityDelRequest) Validate(body string) *CityDelResponse {
 	return response
 }
 
-// CityDelResponse to the client
-type CityDelResponse struct {
+// ZoneDelResponse to the client
+type ZoneDelResponse struct {
 	BaseResponse
 }
 
 // Marshal the response object
-func (r *CityDelResponse) Marshal() string {
+func (r *ZoneDelResponse) Marshal() string {
 	res, _ := json.Marshal(r)
 
 	return string(res)
