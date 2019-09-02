@@ -31,7 +31,7 @@ func (r *CityDelRequest) Validate(body string) *CityDelResponse {
 
 	if len(r.CityID) == 0 {
 		response.Errors = append(response.Errors, es.ErrMissingID)
-		response.Code = es.StatusDeleteZoneError
+		response.Code = es.StatusDeleteCityError
 	}
 
 	return response
