@@ -14,8 +14,8 @@ type CityGetRequest struct {
 }
 
 // Validate the request sent from client
-func (r *CityGetRequest) Validate(body map[string]string) *DeviceAddResponse {
-	response := new(DeviceAddResponse)
+func (r *CityGetRequest) Validate(body map[string]string) *CityAddResponse {
+	response := new(CityAddResponse)
 	response.Code = 0
 	response.RequestID = strconv.FormatInt(time.Now().Unix(), 10)
 
