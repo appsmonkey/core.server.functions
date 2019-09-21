@@ -1,1 +1,0 @@
-// Zone list will list all zones of specified City
