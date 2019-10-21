@@ -11,9 +11,14 @@ type ZoneGetRequest struct {
 	ZoneID string `json:"zone_id"`
 }
 
+// ZoneGetResponse to the client
+type ZoneGetResponse struct {
+	BaseResponse
+}
+
 // Validate the request sent from client
-func (r *ZoneGetRequest) Validate(body map[string]string) *ZoneAddresponse {
-	response := new(ZoneAddresponse)
+func (r *ZoneGetRequest) Validate(body map[string]string) *ZoneGetResponse {
+	response := new(ZoneGetResponse)
 	response.Code = 0
 	response.RequestID = strconv.FormatInt(time.Now().Unix(), 10)
 
@@ -27,14 +32,14 @@ func (r *ZoneGetRequest) Validate(body map[string]string) *ZoneAddresponse {
 
 // CityGetResponse to the client
 // `Returns detailed data for a specific device. Data defained in the *DeviceGetData* struct`
-type CityGetResponse struct {
-	BaseResponse
-}
+// type CityGetResponse struct {
+// 	BaseResponse
+// }
 
 // CityGetData returned to user
-type CityGetData struct {
-	// ?? what do we need on the client ??
-}
+// type CityGetData struct {
+// 	// ?? what do we need on the client ??
+// }
 
 // Marshal the response object
 func (r *ZoneGetResponse) Marshal() string {

@@ -16,7 +16,7 @@ type ZoneListRequest struct {
 
 // Validate the request sent from client
 func (r *ZoneListRequest) Validate(body string) *ZoneListResponse {
-	response := new(ZoneDelResponse)
+	response := new(ZoneListResponse)
 	response.Code = 0
 	response.RequestID = strconv.FormatInt(time.Now().Unix(), 10)
 
