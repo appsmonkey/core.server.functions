@@ -488,27 +488,27 @@ Resources:
         ReadCapacityUnits: 5
         WriteCapacityUnits: 5
 
-    CitiesTable:
-    Type: AWS::DynamoDB::Table
-    Properties:
-      TableName: cities
-      AttributeDefinitions: 
-        - AttributeName: city_id
-          AttributeType: S
-        - AttributeName: name
-          AttributeType: S
-      KeySchema:
-        - AttributeName: city_id
-          KeyType: HASH
-        - AttributeName: name
-          KeyType: HASH
-      Projection: 
-         NonKeyAttributes:
-           - city_id
-           - name
-           - country
-           - timestamp
-         ProjectionType: INCLUDE
+    # CitiesTable:
+    # Type: AWS::DynamoDB::Table
+    # Properties:
+    #   TableName: cities
+    #   AttributeDefinitions: 
+    #     - AttributeName: city_id
+    #       AttributeType: S
+    #     - AttributeName: name
+    #       AttributeType: S
+    #   KeySchema:
+    #     - AttributeName: city_id
+    #       KeyType: HASH
+    #     - AttributeName: name
+    #       KeyType: HASH
+    #   Projection: 
+    #      NonKeyAttributes:
+    #        - city_id
+    #        - name
+    #        - country
+    #        - timestamp
+    #      ProjectionType: INCLUDE
 
   # Boxy:
   #   Type: AWS::IoT::Thing
