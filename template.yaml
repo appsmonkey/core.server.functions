@@ -479,11 +479,6 @@ Resources:
           KeyType: HASH
         - AttributeName: sensor_id
           KeyType: RANGE
-      GlobalSecondaryIndexes:
-        - IndexName: CityID-index
-          KeySchema: 
-            - AttributeName: city_id
-              KeyType: HASH
       ProvisionedThroughput:
         ReadCapacityUnits: 5
         WriteCapacityUnits: 5
