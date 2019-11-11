@@ -883,6 +883,20 @@ Resources:
       Handler: 'chartSave'
       Role: !GetAtt LambdaRole.Arn
 
+  forgotPasswordStart:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: 'bin/forgotPasswordStart.zip'
+      Handler: 'forgotPasswordStart'
+      Role: !GetAtt LambdaRole.Arn
+
+  forgotPasswordEnd:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: 'bin/forgotPasswordEnd.zip'
+      Handler: 'forgotPasswordEnd'
+      Role: !GetAtt LambdaRole.Arn
+
   # test:
   #   Type: 'AWS::Serverless::Function'
   #   Properties:
