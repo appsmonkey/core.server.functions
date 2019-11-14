@@ -392,6 +392,8 @@ Resources:
           KeySchema: 
             - AttributeName: zone_id
               KeyType: HASH
+            - AttributeName: cognito_id
+              KeyType: HASH
           Projection: 
             NonKeyAttributes:
               - token
@@ -404,10 +406,8 @@ Resources:
               KeyType: HASH
           Projection: 
             NonKeyAttributes:
-              - token
               - cognito_id
               - active
-              - cognito_id
               - token
               - map_meta
               - meta
