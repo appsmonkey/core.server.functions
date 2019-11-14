@@ -386,14 +386,14 @@ Resources:
       KeySchema:
         - AttributeName: token
           KeyType: HASH
+        - AttributeName: cognito_id
+          KeyType: S
       BillingMode: PAY_PER_REQUEST
       GlobalSecondaryIndexes:
         - IndexName: ZoneID-index
           KeySchema: 
             - AttributeName: zone_id
               KeyType: HASH
-            - AttributeName: cognito_id
-              KeyType: S
           Projection: 
             NonKeyAttributes:
               - token
@@ -403,7 +403,7 @@ Resources:
         - IndexName: CognitoID-index
           KeySchema: 
             - AttributeName: cognito_id
-              KeyType: HASH
+              KeyType: S
           Projection: 
             NonKeyAttributes:
               - cognito_id
