@@ -383,11 +383,11 @@ Resources:
           AttributeType: S
         - AttributeName: zone_id
           AttributeType: S
+        - AttributeName: cognito_id
+          KeyType: S
       KeySchema:
         - AttributeName: token
           KeyType: HASH
-        - AttributeName: cognito_id
-          KeyType: S
       BillingMode: PAY_PER_REQUEST
       GlobalSecondaryIndexes:
         - IndexName: ZoneID-index
