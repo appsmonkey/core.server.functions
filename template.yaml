@@ -384,7 +384,7 @@ Resources:
         - AttributeName: zone_id
           AttributeType: S
         - AttributeName: cognito_id
-          KeyType: S
+          AttributeType: S
       KeySchema:
         - AttributeName: token
           KeyType: HASH
@@ -403,7 +403,7 @@ Resources:
         - IndexName: CognitoID-index
           KeySchema: 
             - AttributeName: cognito_id
-              KeyType: S
+              KeyType: HASH
           Projection: 
             NonKeyAttributes:
               - cognito_id
