@@ -393,7 +393,7 @@ Resources:
             - AttributeName: zone_id
               KeyType: HASH
             - AttributeName: cognito_id
-              KeyType: HASH
+              KeyType: S
           Projection: 
             NonKeyAttributes:
               - token

@@ -121,6 +121,7 @@ func LevelOrder(level string) int {
 func init() {
 	versions = make(map[string]Schema, 0)
 	levels = make(map[string]int, 0)
+	levels["No devices"] = -1
 	levels["Great"] = 0
 	levels["OK"] = 1
 	levels["Sensitive beware"] = 2
