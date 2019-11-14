@@ -400,7 +400,7 @@ Resources:
             ProjectionType: INCLUDE
         - IndexName: CognitoID-index
           KeySchema: 
-            - AttributeName: zone_id
+            - AttributeName: cognito_id
               KeyType: HASH
           Projection: 
             NonKeyAttributes:
