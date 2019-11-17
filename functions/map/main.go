@@ -78,10 +78,6 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		}
 	}
 
-	for _, tz := range zoneMap {
-		zoneData = append(zoneData, tz)
-	}
-
 	dbRes, err := dal.ListNoFilter("devices", dal.Projection(dal.Name("token"), dal.Name("device_id"), dal.Name("meta"), dal.Name("map_meta"), dal.Name("active"), dal.Name("measurements"), dal.Name("cognito_id"), dal.Name("timestamp"), dal.Name("zone_id")))
 	dbData := make([]m.Device, 0)
 	err = dbRes.Unmarshal(&dbData)
@@ -91,23 +87,25 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	}
 
 	data := make([]vm.DeviceGetData, 0)
-	for _, z := range zoneData {
+
+	for _, tz := range zoneMap {
 		var hasDevice = false
 		for _, d := range dbData {
-			if z.ZoneID == d.ZoneID {
+			if tz.ZoneID == d.ZoneID {
 				hasDevice = true
 				break
 			}
 		}
 
 		if !hasDevice {
-			for _, zs := range z.Data {
-				fmt.Println("Zone " + z.ZoneID + " has no devices!")
+			for _, zs := range tz.Data {
+				fmt.Println("Zone " + tz.ZoneID + " has no devices!")
 				zs.Value = 0
 				zs.Level = "No device"
 			}
 		}
 
+		zoneData = append(zoneData, tz)
 	}
 
 	for _, d := range dbData {
