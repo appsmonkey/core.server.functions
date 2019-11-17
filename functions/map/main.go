@@ -101,8 +101,8 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		}
 
 		if !hasDevice {
-			zd := z.Data
-			for _, zs := range zd {
+			for _, zs := range z.Data {
+				fmt.Println("Zone " + z.ZoneID + " has no devices!")
 				zs.Value = 0
 				zs.Level = "No device"
 			}
