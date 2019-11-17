@@ -52,9 +52,13 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		ZoneID string       `json:"zone_id"`
 		Data   []m.ZoneMeta `json:"data"`
 	}
+
 	zoneMap := make(map[string]zoneResult, 0)
 	zoneData := make([]zoneResult, 0)
 	for _, z := range request.Zone {
+		fmt.Println("Fetching zone data: " + z)
+		// devices, err := dal.List("devices", dal.Name("zone_id").Equal(dal.Value(z)), dal.Projection(dal.Name("device_id")))
+
 		zoneRes, err := dal.List("zones", dal.Name("sensor_id").Equal(dal.Value(z)), dal.Projection(dal.Name("zone_id"), dal.Name("data")))
 		zd := make([]m.Zone, 0)
 		err = zoneRes.Unmarshal(&zd)
