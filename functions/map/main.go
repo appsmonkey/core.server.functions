@@ -106,6 +106,13 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 			}
 		}
 
+		if hasDevice {
+			fmt.Println("Zone " + tz.ZoneID + " does have devices!")
+
+		}
+
+		fmt.Println(tz)
+
 		zoneData = append(zoneData, tz)
 	}
 
