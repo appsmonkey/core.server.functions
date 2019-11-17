@@ -56,9 +56,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	zoneMap := make(map[string]zoneResult, 0)
 	zoneData := make([]zoneResult, 0)
 	for _, z := range request.Zone {
-		fmt.Println("Fetching zone data: " + z)
-		// devices, err := dal.List("devices", dal.Name("zone_id").Equal(dal.Value(z)), dal.Projection(dal.Name("device_id")))
-
+		fmt.Println("Fetching zone data for sensor: " + z)
 		zoneRes, err := dal.List("zones", dal.Name("sensor_id").Equal(dal.Value(z)), dal.Projection(dal.Name("zone_id"), dal.Name("data")))
 		zd := make([]m.Zone, 0)
 		err = zoneRes.Unmarshal(&zd)
@@ -84,7 +82,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		zoneData = append(zoneData, tz)
 	}
 
-	dbRes, err := dal.ListNoFilter("devices", dal.Projection(dal.Name("token"), dal.Name("device_id"), dal.Name("meta"), dal.Name("map_meta"), dal.Name("active"), dal.Name("measurements"), dal.Name("cognito_id"), dal.Name("timestamp")))
+	dbRes, err := dal.ListNoFilter("devices", dal.Projection(dal.Name("token"), dal.Name("device_id"), dal.Name("meta"), dal.Name("map_meta"), dal.Name("active"), dal.Name("measurements"), dal.Name("cognito_id"), dal.Name("timestamp"), dal.Name("zone_id")))
 	dbData := make([]m.Device, 0)
 	err = dbRes.Unmarshal(&dbData)
 	if err != nil {
@@ -93,6 +91,24 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	}
 
 	data := make([]vm.DeviceGetData, 0)
+	for _, z := range zoneData {
+		var hasDevice = false
+		for _, d := range dbData {
+			if z.ZoneID == d.ZoneID {
+				hasDevice = true
+				break
+			}
+		}
+
+		if !hasDevice {
+			zd := z.Data
+			for _, zs := range zd {
+				zs.Value = 0
+				zs.Level = "No device"
+			}
+		}
+
+	}
 
 	for _, d := range dbData {
 		mine := d.CognitoID != h.CognitoIDZeroValue && cognitoID != h.CognitoIDZeroValue && d.CognitoID == cognitoID
@@ -117,6 +133,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 			Location:  d.Meta.Coordinates,
 			MapMeta:   md,
 			Timestamp: d.Timestamp,
+			ZoneID:    d.ZoneID,
 		}
 
 		data = append(data, dData)

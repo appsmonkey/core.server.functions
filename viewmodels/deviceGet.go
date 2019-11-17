@@ -46,6 +46,7 @@ type DeviceGetData struct {
 	MapMeta       map[string]m.MapMeta   `json:"map_meta"`
 	Latest        map[string]interface{} `json:"latest"`
 	Timestamp     float64                `json:"timestamp"`
+	ZoneID        string                 `json:"zone_id"`
 }
 
 // DeviceGetDataMinimal returned to user
