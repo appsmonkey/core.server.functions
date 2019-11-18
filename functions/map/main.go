@@ -91,6 +91,11 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	for _, tz := range zoneMap {
 		var hasDevice = false
 		for _, d := range dbData {
+			mine := d.CognitoID != h.CognitoIDZeroValue && cognitoID != h.CognitoIDZeroValue && d.CognitoID == cognitoID
+			if (!mine && !d.Active) || d.Meta.Coordinates.IsEmpty() {
+				continue
+			}
+
 			if tz.ZoneID == d.ZoneID {
 				hasDevice = true
 				break
