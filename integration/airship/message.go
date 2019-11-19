@@ -51,7 +51,7 @@ func newMessage(value string, lvl ChanelType) []*Message {
 		msg.data = map[string]interface{}{}
 		msg.data["device_types"] = []string{"android", "ios"}
 		msg.data["notification"] = map[string]interface{}{
-			"alert": "Air quality is currenytly unhealthy for sensitive, stay indoors. " + value,
+			"alert": "Air quality is currently unhealthy for sensitive, stay indoors. " + value,
 			"android": map[string]interface{}{
 				"extra": map[string]string{
 					"remove": "last_Good|last_Sensitive|last_Unhealthy|last_VeryUnhealthy|last_Hazardous",
@@ -120,7 +120,7 @@ func newMessage(value string, lvl ChanelType) []*Message {
 		msg.data = map[string]interface{}{}
 		msg.data["device_types"] = []string{"android", "ios"}
 		msg.data["notification"] = map[string]interface{}{
-			"alert": "Air quality is currenytly unhealthy, stay indoors. " + value,
+			"alert": "Air quality is currently unhealthy, stay indoors. " + value,
 			"android": map[string]interface{}{
 				"extra": map[string]string{
 					"remove": "last_Good|last_Sensitive|last_Unhealthy|last_VeryUnhealthy|last_Hazardous",
@@ -197,7 +197,7 @@ func newMessage(value string, lvl ChanelType) []*Message {
 		msg.data = map[string]interface{}{}
 		msg.data["device_types"] = []string{"android", "ios"}
 		msg.data["notification"] = map[string]interface{}{
-			"alert": "Air quality is currenytly very unhealthy, stay indoors. " + value,
+			"alert": "Air quality is currently very unhealthy, stay indoors. " + value,
 			"android": map[string]interface{}{
 				"extra": map[string]string{
 					"remove": "last_Good|last_Sensitive|last_Unhealthy|last_VeryUnhealthy|last_Hazardous",
@@ -270,7 +270,7 @@ func newMessage(value string, lvl ChanelType) []*Message {
 		msg.data = map[string]interface{}{}
 		msg.data["device_types"] = []string{"android", "ios"}
 		msg.data["notification"] = map[string]interface{}{
-			"alert": "Air quality is currenytly hazardous, stay indoors. " + value,
+			"alert": "Air quality is currently hazardous, stay indoors. " + value,
 			"android": map[string]interface{}{
 				"extra": map[string]string{
 					"remove": "last_Good|last_Sensitive|last_Unhealthy|last_VeryUnhealthy|last_Hazardous",
