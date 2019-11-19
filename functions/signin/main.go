@@ -34,6 +34,7 @@ func Handler(ctx context.Context, req events.APIGatewayProxyRequest) (events.API
 	}
 
 	// 1. Check if we have social login data, if so then validate the token first
+	fmt.Println("REQUEST_SOCIAL: ", request)
 	if request.Social.HasData() {
 		if request.Social.Type == "G" {
 			data, err := cog.Google(request.Social.ID, request.Social.Token, request.Email, httpClient)
