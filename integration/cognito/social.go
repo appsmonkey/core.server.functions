@@ -96,6 +96,8 @@ func (c *Cognito) Facebook(id, token, inEmail string) (*CognitoData, error) {
 	clientID := os.Getenv("FB_CLIENT_ID")
 	clientSecret := os.Getenv("FB_CLIENT_SECRET")
 
+	fmt.Println("FB_CLIENT:" + clientID)
+
 	appLink := fmt.Sprintf(`https://graph.facebook.com/oauth/access_token?client_id=%v&client_secret=%v&grant_type=client_credentials`, clientID, clientSecret)
 
 	appTokenData := request(appLink)
