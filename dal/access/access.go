@@ -99,6 +99,7 @@ func CheckSocial(id string) (sub, email, sid, st string, success bool, err error
 
 	if len(res) == 0 {
 		fmt.Println("CheckSocial Error [No data received]")
+		fmt.Println("ID passed: " + id)
 		return "", "", "", "", false, errors.New("no data received")
 	}
 
