@@ -22,6 +22,7 @@ var (
 
 // Handler will handle our request comming from the API gateway
 func Handler(ctx context.Context, req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+	fmt.Println("SIGNUP_REQUEST: ", req.Body)
 	request := new(vm.SignupRequest)
 	response := request.Validate(req.Body)
 	if response.Code != 0 {
@@ -29,8 +30,6 @@ func Handler(ctx context.Context, req events.APIGatewayProxyRequest) (events.API
 
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
 	}
-
-	fmt.Println("SIGNUP_REQUEST: ", request, req.Body)
 
 	// Register User in Cognito
 	signupData, err := cog.SignUp(request.Email, request.Password, request.Gender, request.FirstName, request.LastName)
