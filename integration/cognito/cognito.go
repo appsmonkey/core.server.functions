@@ -130,8 +130,8 @@ func (c *Cognito) SignUp(username, password, gender, firstname, lastname string)
 
 	challangeResponse, err := c.identityProvider.AdminRespondToAuthChallenge(artaci)
 	c.identityProvider.GetUserAttributeVerificationCode(&cognitoidentityprovider.GetUserAttributeVerificationCodeInput{
-		AttributeName: "email",
-		AccessToken:   aws.StringValue(challangeResponse.AuthenticationResult.AccessToken),
+		AttributeName: aws.String("email"),
+		AccessToken:   challangeResponse.AuthenticationResult.AccessToken,
 	})
 
 	if err != nil {
