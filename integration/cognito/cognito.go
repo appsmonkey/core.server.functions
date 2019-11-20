@@ -74,7 +74,7 @@ func (c *Cognito) SignUp(username, password, gender, firstname, lastname string)
 		Username:          aws.String(username),
 		TemporaryPassword: aws.String(password),
 		UserPoolId:        aws.String(userPoolID),
-		MessageAction:     aws.String(cognitoidentityprovider.MessageActionTypeSuppress),
+		MessageAction:     aws.String(cognitoidentityprovider.MessageActionTypeResend),
 
 		UserAttributes: []*cognitoidentityprovider.AttributeType{
 			{
