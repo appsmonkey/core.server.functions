@@ -79,7 +79,7 @@ func (c *Cognito) SignUp(username, password, gender, firstname, lastname string)
 		UserAttributes: []*cognitoidentityprovider.AttributeType{
 			{
 				Name:  aws.String("email_verified"),
-				Value: aws.String("true"),
+				Value: aws.String("false"),
 			},
 			{
 				Name:  aws.String("email"),
