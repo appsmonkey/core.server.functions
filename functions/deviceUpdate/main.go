@@ -19,6 +19,7 @@ var lambdaClient *sl.Lambda
 // Handler will handle our request comming from the API gateway
 func Handler(ctx context.Context, req interface{}) error {
 	input, ok := req.(map[string]interface{})
+	fmt.Println("DEVICE_UPDATE: ", input)
 	if !ok {
 		err := errors.New("incorrect data received. input has incorrect format")
 		fmt.Println(err)
@@ -34,9 +35,9 @@ func Handler(ctx context.Context, req interface{}) error {
 		return err
 	}
 
-	desired, ok := state["desired"].(map[string]interface{})
+	reproted, ok := state["reported"].(map[string]interface{})
 	if !ok {
-		err := errors.New("incorrect data received. 'desired' field is missing")
+		err := errors.New("incorrect data received. 'reproted' field is missing")
 		fmt.Println(err)
 		return err
 	}
@@ -49,10 +50,10 @@ func Handler(ctx context.Context, req interface{}) error {
 	}
 
 	deviceData := data{
-		Token:        desired["token"].(string),
-		DeviceID:     desired["device_id"].(string),
-		DeviceType:   desired["device_type"].(string),
-		Measurements: desired["measurements"].([]interface{}),
+		Token:        reproted["token"].(string),
+		DeviceID:     reproted["device_id"].(string),
+		DeviceType:   reproted["device_type"].(string),
+		Measurements: state["reported"].([]interface{}),
 	}
 
 	dbRes, err := dal.Get("devices", map[string]*dal.AttributeValue{

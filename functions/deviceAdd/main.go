@@ -18,6 +18,7 @@ import (
 
 // Handler will handle our request comming from the API gateway
 func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+	fmt.Println("Request ADD_DEVICE: ", req.Body)
 	request := new(vm.DeviceAddRequest)
 	response := request.Validate(req.Body)
 	if response.Code != 0 {
