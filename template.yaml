@@ -549,7 +549,7 @@ Resources:
           Name: AWS::Include
           Parameters:            
             Location: 
-              Fn::Sub: 's3://artifacts.cityos.io/CityOS/swagger.yaml'
+              Fn::Sub: 's3://artifacts.cityo.io/CityOS/swagger.yaml'
 
   CityOSAPIDomain:
     Type: AWS::ApiGateway::DomainName
