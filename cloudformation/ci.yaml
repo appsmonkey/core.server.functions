@@ -98,8 +98,8 @@ Resources:
                   - "s3:PutObjectAcl"
                   - "s3:ListBucket"
                 Resource: 
-                  - "arn:aws:s3:::artifacts.cityos.io"
-                  - "arn:aws:s3:::artifacts.cityos.io/*"
+                  - "arn:aws:s3:::artifacts.cityo.io"
+                  - "arn:aws:s3:::artifacts.cityo.io/*"
               -
                 Effect: Allow
                 Action:
