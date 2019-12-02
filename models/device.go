@@ -15,6 +15,7 @@ type Device struct {
 	Active       bool                   `json:"active"`
 	Measurements map[string]interface{} `json:"measurements,omitempty"`
 	Timestamp    float64                `json:"timestamp"`
+	// TODO: add thing name attr.
 }
 
 // Metadata holds all the meda around the device
