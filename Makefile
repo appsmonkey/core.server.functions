@@ -6,7 +6,7 @@
 #build: $(go_apps) | vendor
 
 PACKAGED_TEMPLATE = packaged.yaml
-S3_BUCKET = artifacts.cityos.io
+S3_BUCKET = artifacts.cityo.io
 STACK_NAME = CityOS
 TEMPLATE = template.yaml
 
@@ -282,7 +282,7 @@ forgotPasswordEnd:
 	
 .PHONY: deploy_swagger
 deploy_swagger:
-	aws s3 cp swagger.yaml s3://artifacts.cityos.io/CityOS/swagger.yaml
+	aws s3 cp swagger.yaml s3://artifacts.cityo.io/CityOS/swagger.yaml
 
 #.PHONY: package
 package: all
