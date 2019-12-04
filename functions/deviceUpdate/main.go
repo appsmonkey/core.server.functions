@@ -29,6 +29,8 @@ func Handler(ctx context.Context, req interface{}) error {
 	timestamp := input["timestamp"].(float64)
 
 	state, ok := input["state"].(map[string]interface{})
+
+	fmt.Println("CHECK", state, timestamp, ok)
 	if !ok {
 		err := errors.New("incorrect data received. 'state' field is missing")
 		fmt.Println(err)
