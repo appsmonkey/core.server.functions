@@ -47,15 +47,17 @@ func Handler(ctx context.Context, req interface{}) error {
 		Token        string
 		DeviceID     string
 		DeviceType   string
-		Measurements []interface{}
+		Measurements map[string]interface{}
 	}
 
 	deviceData := data{
 		Token:        input["token"].(string),
 		DeviceID:     input["token"].(string),
 		DeviceType:   "BOXY",
-		Measurements: state["reported"].([]interface{}),
+		Measurements: state["reported"].(map[string]interface{}),
 	}
+
+	fmt.Println("CHECK0", deviceData)
 
 	dbRes, err := dal.Get("devices", map[string]*dal.AttributeValue{
 		"token": {
