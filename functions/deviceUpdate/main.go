@@ -37,12 +37,12 @@ func Handler(ctx context.Context, req interface{}) error {
 		return err
 	}
 
-	reproted, ok := state["reported"].(map[string]interface{})
-	if !ok {
-		err := errors.New("incorrect data received. 'reproted' field is missing")
-		fmt.Println(err)
-		return err
-	}
+	// reported, ok := state["reported"].(map[string]interface{})
+	// if !ok {
+	// 	err := errors.New("incorrect data received. 'reported' field is missing")
+	// 	fmt.Println(err)
+	// 	return err
+	// }
 
 	type data struct {
 		Token        string
@@ -52,9 +52,9 @@ func Handler(ctx context.Context, req interface{}) error {
 	}
 
 	deviceData := data{
-		Token:        reproted["token"].(string),
-		DeviceID:     reproted["device_id"].(string),
-		DeviceType:   reproted["device_type"].(string),
+		Token:    input["token"].(string),
+		DeviceID: input["token"].(string),
+		// DeviceType:   reported["device_type"].(string),
 		Measurements: state["reported"].([]interface{}),
 	}
 
