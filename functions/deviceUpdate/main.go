@@ -30,7 +30,6 @@ func Handler(ctx context.Context, req interface{}) error {
 
 	state, ok := input["state"].(map[string]interface{})
 
-	fmt.Println("CHECK", state, timestamp, ok)
 	if !ok {
 		err := errors.New("incorrect data received. 'state' field is missing")
 		fmt.Println(err)
@@ -52,9 +51,9 @@ func Handler(ctx context.Context, req interface{}) error {
 	}
 
 	deviceData := data{
-		Token:    input["token"].(string),
-		DeviceID: input["token"].(string),
-		// DeviceType:   reported["device_type"].(string),
+		Token:        input["token"].(string),
+		DeviceID:     input["token"].(string),
+		DeviceType:   "BOXY",
 		Measurements: state["reported"].([]interface{}),
 	}
 
@@ -83,6 +82,8 @@ func Handler(ctx context.Context, req interface{}) error {
 	if len(device.MapMeta) == 0 {
 		device.MapMeta = make(map[string]m.MapMeta, 0)
 	}
+
+	fmt.Println("CHECK2", device)
 	if len(device.Measurements) == 0 {
 		device.Measurements = make(map[string]interface{}, 0)
 	}
