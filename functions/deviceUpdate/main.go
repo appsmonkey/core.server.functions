@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strconv"
 
 	"github.com/appsmonkey/core.server.functions/dal"
 	m "github.com/appsmonkey/core.server.functions/models"
@@ -101,7 +102,7 @@ func Handler(ctx context.Context, req interface{}) error {
 	for k, v := range deviceData.Measurements {
 		fmt.Println("CHECK", k, v)
 		var mk string = k
-		var mv float64 = v.(float64)
+		mv, _ := strconv.ParseFloat(v.(string), 64)
 
 		level := m.Level(mk, mv)
 		mm := m.MapMeta{
