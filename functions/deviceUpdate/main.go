@@ -57,8 +57,6 @@ func Handler(ctx context.Context, req interface{}) error {
 		Measurements: state["reported"].(map[string]interface{}),
 	}
 
-	fmt.Println("CHECK0", deviceData)
-
 	dbRes, err := dal.Get("devices", map[string]*dal.AttributeValue{
 		"token": {
 			S: aws.String(deviceData.Token),
@@ -85,20 +83,24 @@ func Handler(ctx context.Context, req interface{}) error {
 		device.MapMeta = make(map[string]m.MapMeta, 0)
 	}
 
-	fmt.Println("CHECK2", device)
 	if len(device.Measurements) == 0 {
 		device.Measurements = make(map[string]interface{}, 0)
 	}
 
-	for _, v := range deviceData.Measurements {
-		data := v.(map[string]interface{})
-		var mk string
-		var mv float64
-		for i, j := range data {
-			mk = i
-			mv = j.(float64)
-			break
-		}
+	// TODO: we should use schema to refer to measurement units
+	// schemaRes, err := dal.Get("schema", map[string]*dal.AttributeValue{
+	// 	"version": {
+	// 		S: aws.String("1"),
+	// 	},
+	// })
+	// if err != nil {
+	// 	fmt.Println(err)
+	// 	return err
+	// }
+
+	for k, v := range deviceData.Measurements {
+		var mk string = k
+		var mv float64 = v.(float64)
 
 		level := m.Level(mk, mv)
 		mm := m.MapMeta{

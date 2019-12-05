@@ -22,57 +22,61 @@ func IsMeasuredSensor(sensorID string) bool {
 
 // MeasureMapName sensor data mapping with names
 var MeasureMapName = map[string]string{
-	"1":  "Temperature",
-	"2":  "Humidity",
-	"3":  "Temperature Feel",
-	"4":  "Pressure",
-	"5":  "Altitude",
-	"6":  "PM 1",
-	"7":  "PM 2.5",
-	"8":  "PM 10",
-	"9":  "API Range",
-	"10": "PM 2.5 Range",
-	"11": "PM 10 Range",
-	"12": "Light Lux",
-	"13": "Eco 2",
-	"14": "TVOC",
-	"15": "Soil Temperature",
-	"16": "Soil Moisture",
-	"17": "Unix Time",
-	"18": "Water Level",
-	"19": "Motion",
+	"AIR_TEMPERATURE":      "Temperature",
+	"AIR_HUMIDITY":         "Humidity",
+	"AIR_TEMPERATURE_FEEL": "Temperature Feel",
+	"AIR_PRESSURE":         "Pressure",
+	"AIR_ALTITUDE":         "Altitude",
+	"AIR_PM1":              "PM 1",
+	"AIR_PM2P5":            "PM 2.5",
+	"AIR_PM10":             "PM 10",
+	"AIR_AQI_RANGE":        "API Range",
+	"AIR_PM2P5_RANGE":      "PM 2.5 Range",
+	"AIR_PM10_RANGE":       "PM 10 Range",
+	"LIGHT_INTENSITY":      "Light Lux",
+	"AIR_ECO2":             "Eco 2",
+	"AIR_TVOC":             "TVOC",
+	"SOIL_TEMPERATURE":     "Soil Temperature",
+	"SOIL_MOISTURE":        "Soil Moisture",
+	"TIME_UNIXTIME":        "Unix Time",
+	"WATER_LEVEL_SWITCH":   "Water Level",
+	"MOTION":               "Motion",
+	"DISTANCE":             "Distance",
+	"AIR_VOC":              "VOC",
 }
 
 // MeasureMapUnit sensor data mapping with Unit
 var MeasureMapUnit = map[string]string{
-	"1":  "℃",
-	"2":  "?",
-	"3":  "℃",
-	"4":  "Pa",
-	"5":  "m",
-	"6":  "μg/m³",
-	"7":  "μg/m³",
-	"8":  "μg/m³",
-	"9":  "?",
-	"10": "μg/m³",
-	"11": "μg/m³",
-	"12": "?",
-	"13": "?",
-	"14": "?",
-	"15": "℃",
-	"16": "?",
-	"17": "ms",
-	"18": "m",
-	"19": "?",
+	"AIR_TEMPERATURE":      "℃",
+	"AIR_HUMIDITY":         "g/m³",
+	"AIR_TEMPERATURE_FEEL": "℃",
+	"AIR_PRESSURE":         "Pa",
+	"AIR_ALTITUDE":         "m",
+	"AIR_PM1":              "μg/m³",
+	"AIR_PM2P5":            "μg/m³",
+	"AIR_PM10":             "μg/m³",
+	"AIR_AQI_RANGE":        "?",
+	"AIR_PM2P5_RANGE":      "μg/m³",
+	"AIR_PM10_RANGE":       "μg/m³",
+	"LIGHT_INTENSITY":      "℃",
+	"AIR_ECO2":             "℃",
+	"AIR_TVOC":             "℃",
+	"SOIL_TEMPERATURE":     "℃",
+	"SOIL_MOISTURE":        "g/m³",
+	"TIME_UNIXTIME":        "ms",
+	"WATER_LEVEL_SWITCH":   "m",
+	"MOTION":               "?",
+	"DISTANCE":             "m",
+	"AIR_VOC":              "℃",
 }
 
 // Level of the sensor
 func Level(sensor string, value float64) string {
 	if IsMeasuredSensor(sensor) {
-		if sensor == "7" {
+		if sensor == "AIR_PM2P5" {
 			return PM25Level(value)
 		}
-		if sensor == "8" {
+		if sensor == "AIR_PM10" {
 			return PM10Level(value)
 		}
 	}
