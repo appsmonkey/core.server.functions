@@ -100,7 +100,6 @@ func Handler(ctx context.Context, req interface{}) error {
 	// }
 
 	for k, v := range deviceData.Measurements {
-		fmt.Println("CHECK", k, v)
 		var mk string = k
 		mv, _ := strconv.ParseFloat(v.(string), 64)
 
