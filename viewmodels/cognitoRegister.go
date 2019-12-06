@@ -103,6 +103,8 @@ func (r *CognitoRegisterRequest) ValidateCognito(body *c.CognitoData) *CognitoRe
 	r.Attributes = make(map[string]string, 0)
 	r.Profile = m.UserProfile{}
 	r.Token = bg.New()
+	r.SocialID = "none"
+	r.SocialType = "none"
 
 	for _, uav := range body.UserData.User.Attributes {
 		if *uav.Name == "email" {
