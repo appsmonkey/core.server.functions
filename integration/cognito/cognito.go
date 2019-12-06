@@ -79,7 +79,7 @@ func (c *Cognito) SignUp(username, password, gender, firstname, lastname string)
 		UserAttributes: []*cognitoidentityprovider.AttributeType{
 			{
 				Name:  aws.String("email_verified"),
-				Value: aws.String("false"),
+				Value: aws.String("true"),
 			},
 			{
 				Name:  aws.String("email"),
@@ -129,10 +129,12 @@ func (c *Cognito) SignUp(username, password, gender, firstname, lastname string)
 	}
 
 	challangeResponse, err := c.identityProvider.AdminRespondToAuthChallenge(artaci)
-	c.identityProvider.GetUserAttributeVerificationCode(&cognitoidentityprovider.GetUserAttributeVerificationCodeInput{
-		AttributeName: aws.String("email"),
-		AccessToken:   challangeResponse.AuthenticationResult.AccessToken,
-	})
+
+	// send verif. code
+	// c.identityProvider.GetUserAttributeVerificationCode(&cognitoidentityprovider.GetUserAttributeVerificationCodeInput{
+	// 	AttributeName: aws.String("email"),
+	// 	AccessToken:   challangeResponse.AuthenticationResult.AccessToken,
+	// })
 
 	if err != nil {
 		writeLog("AdminRespondToAuthChallenge Error:", err)
