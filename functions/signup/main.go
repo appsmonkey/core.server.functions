@@ -46,6 +46,7 @@ func Handler(ctx context.Context, req events.APIGatewayProxyRequest) (events.API
 	// Now save it into our DB
 	cogReq := new(vm.CognitoRegisterRequest)
 	cogResponse := cogReq.ValidateCognito(signupData)
+	fmt.Println("CHECK")
 	if cogResponse.Code != 0 {
 		fmt.Printf("errors on request: %v, requestID: %v", response.Errors, response.RequestID)
 
