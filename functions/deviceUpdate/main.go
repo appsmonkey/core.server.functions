@@ -89,15 +89,17 @@ func Handler(ctx context.Context, req interface{}) error {
 	}
 
 	// TODO: we should use schema to refer to measurement units
-	// schemaRes, err := dal.Get("schema", map[string]*dal.AttributeValue{
-	// 	"version": {
-	// 		S: aws.String("1"),
-	// 	},
-	// })
-	// if err != nil {
-	// 	fmt.Println(err)
-	// 	return err
-	// }
+	schemaRes, err := dal.Get("schema", map[string]*dal.AttributeValue{
+		"version": {
+			S: aws.String("1"),
+		},
+	})
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+
+	fmt.Println("Schema: ", schemaRes)
 
 	for k, v := range deviceData.Measurements {
 		var mk string = k
