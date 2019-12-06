@@ -19,11 +19,11 @@ type Cognito struct {
 }
 
 type CognitoData struct {
-	IDToken      string                                `json:"id_token"`
-	AccessToken  string                                `json:"access_token"`
-	ExpiresIn    int64                                 `json:"expires_in"`
-	RefreshToken string                                `json:"refresh_token,omitempty"`
-	UserData     *cognitoidentityprovider.SignUpOutput `json:"-"`
+	IDToken      string                                         `json:"id_token"`
+	AccessToken  string                                         `json:"access_token"`
+	ExpiresIn    int64                                          `json:"expires_in"`
+	RefreshToken string                                         `json:"refresh_token,omitempty"`
+	UserData     *cognitoidentityprovider.AdminCreateUserOutput `json:"-"`
 }
 
 const (
@@ -70,10 +70,11 @@ func NewCognito() *Cognito {
 // SignUp register new user
 func (c *Cognito) SignUp(username, password, gender, firstname, lastname string) (*CognitoData, error) {
 	// Step 1
-	adminUserData, err := c.identityProvider.SignUp(&cognitoidentityprovider.SignUpInput{
-		Username: aws.String(username),
-		Password: aws.String(password),
-		ClientId: aws.String(clientID),
+	adminUserData, err := c.identityProvider.AdminCreateUser(&cognitoidentityprovider.AdminCreateUserInput{
+		Username:          aws.String(username),
+		TemporaryPassword: aws.String(password),
+		UserPoolId:        aws.String(userPoolID),
+		MessageAction:     aws.String(cognitoidentityprovider.MessageActionTypeSuppress),
 
 		UserAttributes: []*cognitoidentityprovider.AttributeType{
 			{
