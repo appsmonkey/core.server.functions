@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/appsmonkey/core.server.functions/dal/access"
@@ -24,10 +25,12 @@ func Handler(ctx context.Context, req interface{}) error {
 	token := input["token"].(string)
 	timestamp := input["timestamp"].(float64)
 	timestampStr := fmt.Sprintf("%f", timestamp)
-	measurements := input["measurements"].([]interface{})
+	measurements := input["reported"].(map[string]interface{})
 
-	for _, m := range measurements {
-		sensor, value := sensorData(m)
+	for k, m := range measurements {
+		sensor := k
+		value, _ := strconv.ParseFloat(m.(string), 64)
+		// sensor, value := sensorData(m)
 		dev, gen := calculateHash(timestamp, token, sensor)
 
 		// Set counter and value for the device specific value
