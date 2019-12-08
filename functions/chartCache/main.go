@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/appsmonkey/core.server.functions/dal/access"
@@ -14,6 +15,8 @@ var seconds string
 
 // Handler will handle our request comming from the API gateway
 func Handler(ctx context.Context, req interface{}) error {
+	fmt.Println("INPUT: ", req)
+
 	input, ok := req.(map[string]interface{})
 	if !ok {
 		err := errors.New("incorrect data received. input has incorrect format")
@@ -21,16 +24,16 @@ func Handler(ctx context.Context, req interface{}) error {
 		return err
 	}
 
-	fmt.Println("INPUT: ", input)
-
 	token := input["token"].(string)
 	timestamp := input["timestamp"].(float64)
 	timestampStr := fmt.Sprintf("%f", timestamp)
-	measurements := input["reported"].([]interface{})
+	measurements := input["reported"].(map[string]interface{})
 
 	for k, m := range measurements {
 		fmt.Println("range:", k, m)
-		sensor, value := sensorData(m)
+		sensor := k
+		value, _ := strconv.ParseFloat(m.(string), 64)
+		// sensor, value := sensorData(m)
 		// value := strconv.ParseFloat(v.(string), 64)
 		dev, gen := calculateHash(timestamp, token, sensor)
 
