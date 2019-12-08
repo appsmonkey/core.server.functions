@@ -51,6 +51,11 @@ func Handler(ctx context.Context, req interface{}) error {
 		Measurements map[string]interface{}
 	}
 
+	type schemaData struct {
+		Data    map[string]interface{}
+		version string
+	}
+
 	deviceData := data{
 		Token:        input["token"].(string),
 		DeviceID:     input["token"].(string),
@@ -99,7 +104,14 @@ func Handler(ctx context.Context, req interface{}) error {
 		return err
 	}
 
-	fmt.Println("Schema: ", schemaRes)
+	schema := new(schemaData)
+	err = schemaRes.Unmarshal(schema)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+
+	fmt.Println("Schema: ", schema)
 
 	for k, v := range deviceData.Measurements {
 		var mk string = k

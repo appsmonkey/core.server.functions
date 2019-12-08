@@ -30,7 +30,6 @@ func Handler(ctx context.Context, req interface{}) error {
 	for k, m := range measurements {
 		sensor := k
 		value, _ := strconv.ParseFloat(m.(string), 64)
-		// sensor, value := sensorData(m)
 		dev, gen := calculateHash(timestamp, token, sensor)
 
 		// Set counter and value for the device specific value
@@ -67,17 +66,6 @@ func incrementData(hash, timestamp, key1, value1, key2, value2 string) *access.I
 			},
 		},
 	}
-}
-
-func sensorData(v interface{}) (sensor string, value float64) {
-	data := v.(map[string]interface{})
-	for i, j := range data {
-		sensor = i
-		value = j.(float64)
-		break
-	}
-
-	return
 }
 
 func calculateHash(timestamp float64, token, sensor string) (devToken, generalToken string) {
