@@ -116,10 +116,10 @@ func Handler(ctx context.Context, req interface{}) error {
 		mv, _ := strconv.ParseFloat(v.(string), 64)
 
 		fieldData := schema.Data[mk]
+		fmt.Println("FIELD DATA", fieldData.Name, fieldData.Unit, fieldData.Result(mv))
 		level := fieldData.Result(mv)
 		// level := m.Level(mk, mv)
 
-		fmt.Println("FIELD DATA", fieldData.Name, fieldData.Unit, fieldData.Result(mv))
 		mm := m.MapMeta{
 			Level:       level,
 			Value:       mv,
