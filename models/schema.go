@@ -179,7 +179,7 @@ type SchemaData struct {
 
 // Result will return the calculated result
 func (s *SchemaData) Result(v float64) string {
-	if len(s.CalcSteps) == 0 {
+	if s.CalcSteps == nil || len(s.CalcSteps) == 0 {
 		return s.DefaultValue
 	}
 
