@@ -115,6 +115,7 @@ func Handler(ctx context.Context, req interface{}) error {
 		var mk string = k
 		mv, _ := strconv.ParseFloat(v.(string), 64)
 
+		fmt.Println("KEY", mk)
 		fieldData := schema.Data[mk]
 		fmt.Println("FIELD DATA", fieldData.Name, fieldData.Unit, mv)
 		level := fieldData.Result(mv)
