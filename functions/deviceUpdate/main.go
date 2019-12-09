@@ -52,7 +52,7 @@ func Handler(ctx context.Context, req interface{}) error {
 	}
 
 	type schemaData struct {
-		Data    map[string]interface{}
+		Data    m.Schema
 		Version string
 	}
 
@@ -115,22 +115,16 @@ func Handler(ctx context.Context, req interface{}) error {
 		var mk string = k
 		mv, _ := strconv.ParseFloat(v.(string), 64)
 
-		fieldData := schema.Data[mk].(map[string]interface{})
-		fieldSteps, ok := fieldData["steps"].([]interface{})
+		fieldData := schema.Data[mk]
+		level := fieldData.Result(mv)
+		// level := m.Level(mk, mv)
 
-		if !ok {
-			fieldSteps = nil
-		}
-
-		fmt.Println("STEPS:", fieldSteps)
-		level := m.Level(mk, mv)
-
-		fmt.Println("FIELD DATA", fieldData)
+		fmt.Println("FIELD DATA", fieldData.Name, fieldData.Unit, fieldData.Result(mv))
 		mm := m.MapMeta{
 			Level:       level,
 			Value:       mv,
-			Measurement: fieldData["name"].(string),
-			Unit:        fieldData["unit"].(string),
+			Measurement: fieldData.Name,
+			Unit:        fieldData.Unit,
 			// Measurement: m.MeasureMapName[mk],
 			// Unit:        m.MeasureMapUnit[mk],
 		}
