@@ -118,17 +118,17 @@ func Handler(ctx context.Context, req interface{}) error {
 		level := m.Level(mk, mv)
 		fieldData := schema.Data[mk].(map[string]interface{})
 
-		for k, v := range fieldData {
-			fmt.Println(k, v)
-		}
-
 		fmt.Println("FIELD DATA", fieldData)
 		mm := m.MapMeta{
 			Level:       level,
 			Value:       mv,
-			Measurement: m.MeasureMapName[mk],
-			Unit:        m.MeasureMapUnit[mk],
+			Measurement: fieldData["name"].(string),
+			Unit:        fieldData["unit"].(string),
+			// Measurement: m.MeasureMapName[mk],
+			// Unit:        m.MeasureMapUnit[mk],
 		}
+
+		fmt.Println("DATA", mm)
 
 		// Update map meta for the sensor
 		device.MapMeta[mk] = mm
