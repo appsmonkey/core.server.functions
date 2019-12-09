@@ -53,7 +53,7 @@ func Handler(ctx context.Context, req interface{}) error {
 
 	type schemaData struct {
 		Data    map[string]interface{}
-		version string
+		Version string
 	}
 
 	deviceData := data{
@@ -111,7 +111,8 @@ func Handler(ctx context.Context, req interface{}) error {
 		return err
 	}
 
-	fmt.Println("Schema: ", schema)
+	fmt.Println("Schema DATA: ", schema.Data)
+	fmt.Println("Schema VERSION: ", schema.Version)
 
 	for k, v := range deviceData.Measurements {
 		var mk string = k
