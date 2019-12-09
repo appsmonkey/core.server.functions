@@ -129,13 +129,13 @@ func Handler(ctx context.Context, req interface{}) error {
 			// Unit:        m.MeasureMapUnit[mk],
 		}
 
-		fmt.Println("DATA", mm)
-
 		// Update map meta for the sensor
 		device.MapMeta[mk] = mm
 
 		// Update the meassurement for the sensor
 		device.Measurements[mk] = mv
+		fmt.Println("TEST TEST", mm)
+
 	}
 
 	// Since zone_id is an index, we need to have some value in it
