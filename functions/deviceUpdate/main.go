@@ -111,14 +111,18 @@ func Handler(ctx context.Context, req interface{}) error {
 		return err
 	}
 
-	fmt.Println("Schema DATA: ", schema.Data)
-	fmt.Println("Schema VERSION: ", schema.Version)
-
 	for k, v := range deviceData.Measurements {
 		var mk string = k
 		mv, _ := strconv.ParseFloat(v.(string), 64)
 
 		level := m.Level(mk, mv)
+		fieldData := schema.Data[mk].(map[string]interface{})
+
+		for k, v := range fieldData {
+			fmt.Println(k, v)
+		}
+
+		fmt.Println("FIELD DATA", fieldData)
 		mm := m.MapMeta{
 			Level:       level,
 			Value:       mv,
