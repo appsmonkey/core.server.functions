@@ -115,8 +115,9 @@ func Handler(ctx context.Context, req interface{}) error {
 		var mk string = k
 		mv, _ := strconv.ParseFloat(v.(string), 64)
 
-		level := m.Level(mk, mv)
 		fieldData := schema.Data[mk].(map[string]interface{})
+		fmt.Println("STEPS: ", fieldData["steps"].([]interface{}))
+		level := m.Level(mk, mv)
 
 		fmt.Println("FIELD DATA", fieldData)
 		mm := m.MapMeta{

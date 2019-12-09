@@ -5,7 +5,7 @@ import (
 )
 
 // DefaultSensor for sensors that don't need calcujlations
-const DefaultSensor = "7"
+const DefaultSensor = "AIR_PM2P5"
 
 // DefaultValue of the default sensor
 const DefaultValue = 0
@@ -13,7 +13,7 @@ const DefaultValue = 0
 // IsMeasuredSensor returns if the sensor needs to calcuilate its state or use defaults.
 // `true = needs calculation`
 func IsMeasuredSensor(sensorID string) bool {
-	if sensorID == "7" || sensorID == "8" {
+	if sensorID == "AIR_PM10" || sensorID == "AIR_PM2P5" {
 		return true
 	}
 
