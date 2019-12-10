@@ -1,6 +1,8 @@
 package data
 
 import (
+	"fmt"
+
 	m "github.com/appsmonkey/core.server.functions/models"
 	s "github.com/appsmonkey/core.server.functions/models/schema"
 
@@ -15,6 +17,8 @@ func loadZones() {
 	data.Rows = make([]interface{}, 0)
 	zones := z.All()
 	sensors := s.ExtractVersion("1")
+
+	fmt.Println("SENSORS:", sensors)
 
 	for zk := range zones {
 		for sk := range sensors {
