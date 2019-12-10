@@ -37,13 +37,6 @@ func Handler(ctx context.Context, req interface{}) error {
 		return err
 	}
 
-	// reported, ok := state["reported"].(map[string]interface{})
-	// if !ok {
-	// 	err := errors.New("incorrect data received. 'reported' field is missing")
-	// 	fmt.Println(err)
-	// 	return err
-	// }
-
 	type data struct {
 		Token        string
 		DeviceID     string
@@ -116,7 +109,12 @@ func Handler(ctx context.Context, req interface{}) error {
 		mv, _ := strconv.ParseFloat(v.(string), 64)
 
 		fmt.Println("KEY", mk)
-		fieldData := schema.Data[mk]
+		fieldData, ok := schema.Data[mk]
+		if !ok {
+			fmt.Println("Unknow field:", mk, " , exists in schema? ", ok)
+			continue
+		}
+
 		fmt.Println("FIELD DATA", fieldData.Name, fieldData.Unit, mv)
 		level := fieldData.Result(mv)
 		// level := m.Level(mk, mv)
@@ -135,8 +133,6 @@ func Handler(ctx context.Context, req interface{}) error {
 
 		// Update the meassurement for the sensor
 		device.Measurements[mk] = mv
-		fmt.Println("TEST TEST", mm)
-
 	}
 
 	// Since zone_id is an index, we need to have some value in it
