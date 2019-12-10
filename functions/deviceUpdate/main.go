@@ -111,11 +111,10 @@ func Handler(ctx context.Context, req interface{}) error {
 		fmt.Println("KEY", mk)
 		fieldData, ok := schema.Data[mk]
 		if !ok {
-			fmt.Println("Unknow field:", mk, " , exists in schema? ", ok)
+			fmt.Println("WARNING::Unknow field: ", mk, " ,exists in schema? ", ok)
 			continue
 		}
 
-		fmt.Println("FIELD DATA", fieldData.Name, fieldData.Unit, mv)
 		level := fieldData.Result(mv)
 		// level := m.Level(mk, mv)
 
