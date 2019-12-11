@@ -54,8 +54,8 @@ Place `.env` file into the project root dir.
 
 Required environment variables:
 ```sh
-    COGNITO_REGION=eu-west-1
-    COGNITO_USER_POOL_ID=eu-west-xxxxxxxxxxx
+    COGNITO_REGION=eu-east-1
+    COGNITO_USER_POOL_ID=eu-east-xxxxxxxxxxx
     COGNITO_CLIENT_ID=xxxxxxxxxxxxxxxxxxxxxxxxxx
 ```
 

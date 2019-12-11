@@ -132,5 +132,5 @@ func init() {
 		SharedConfigState: ss.SharedConfigEnable,
 	}))
 
-	lambdaClient = sl.New(sess, &aws.Config{Region: aws.String("eu-west-1")})
+	lambdaClient = sl.New(sess, &aws.Config{Region: aws.String("eu-east-1")})
 }
