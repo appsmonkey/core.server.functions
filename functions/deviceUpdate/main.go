@@ -108,7 +108,6 @@ func Handler(ctx context.Context, req interface{}) error {
 		var mk string = k
 		mv, _ := strconv.ParseFloat(v.(string), 64)
 
-		fmt.Println("KEY", mk)
 		fieldData, ok := schema.Data[mk]
 		if !ok {
 			fmt.Println("WARNING::Unknow field: ", mk, " ,exists in schema? ", ok)
@@ -148,7 +147,7 @@ func Handler(ctx context.Context, req interface{}) error {
 	if err == nil && len(device.ZoneID) > 0 && device.ZoneID != "none" {
 		payload := fmt.Sprintf(`{ "zone_id": "%v" }`, device.ZoneID)
 
-		invOut, err := lambdaClient.Invoke(&sl.InvokeInput{FunctionName: aws.String("CityOSZoneUpdate"), Payload: []byte(payload)})
+		invOut, err := lambdaClient.Invoke(&sl.InvokeInput{FunctionName: aws.String("CityOS-zoneUpdate-1H3L31K60T4LW"), Payload: []byte(payload)})
 		if err != nil {
 			fmt.Println("invOut", invOut)
 			fmt.Println("err", err)

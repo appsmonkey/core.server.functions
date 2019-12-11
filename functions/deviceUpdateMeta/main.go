@@ -91,7 +91,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	if oldZone != "none" {
 		payload := fmt.Sprintf(`{ "zone_id": "%v" }`, oldZone)
 
-		invOut, err := lambdaClient.Invoke(&sl.InvokeInput{FunctionName: aws.String("CityOSZoneUpdate"), Payload: []byte(payload)})
+		invOut, err := lambdaClient.Invoke(&sl.InvokeInput{FunctionName: aws.String("CityOS-zoneUpdate-1H3L31K60T4LW"), Payload: []byte(payload)})
 		if err != nil {
 			fmt.Println("invOut", invOut)
 			fmt.Println("err", err)
@@ -102,7 +102,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	if oldZone != device.ZoneID {
 		payload := fmt.Sprintf(`{ "zone_id": "%v" }`, device.ZoneID)
 
-		invOut, err := lambdaClient.Invoke(&sl.InvokeInput{FunctionName: aws.String("CityOSZoneUpdate"), Payload: []byte(payload)})
+		invOut, err := lambdaClient.Invoke(&sl.InvokeInput{FunctionName: aws.String("CityOS-zoneUpdate-1H3L31K60T4LW"), Payload: []byte(payload)})
 		if err != nil {
 			fmt.Println("invOut", invOut)
 			fmt.Println("err", err)
