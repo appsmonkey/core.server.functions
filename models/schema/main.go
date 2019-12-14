@@ -71,10 +71,11 @@ func SensorReading(version, sensor string, value float64) (*Data, string) {
 
 // Data definition of a calculation
 type Data struct {
-	Name         string      `json:"name"`
-	Unit         string      `json:"unit"`
-	CalcSteps    []*CalcStep `json:"steps"`
-	DefaultValue string      `json:"default"`
+	Name           string      `json:"name"`
+	Unit           string      `json:"unit"`
+	CalcSteps      []*CalcStep `json:"steps"`
+	DefaultValue   string      `json:"default"`
+	ParseCondition string      `json:"parse_condition"`
 }
 
 // Result will return the calculated result

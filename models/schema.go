@@ -2,6 +2,7 @@ package models
 
 import (
 	"encoding/json"
+	"math"
 )
 
 // DefaultSensor for sensors that don't need calcujlations
@@ -171,10 +172,11 @@ func SensorReading(sensor string, value float64) (*SchemaData, string) {
 
 // SchemaData definition of a calculation
 type SchemaData struct {
-	Name         string            `json:"name"`
-	Unit         string            `json:"unit"`
-	CalcSteps    []*SchemaCalcStep `json:"steps"`
-	DefaultValue string            `json:"default"`
+	Name           string            `json:"name"`
+	Unit           string            `json:"unit"`
+	CalcSteps      []*SchemaCalcStep `json:"steps"`
+	DefaultValue   string            `json:"default"`
+	ParseCondition string            `json:"parse_condition"`
 }
 
 // Result will return the calculated result
@@ -190,6 +192,25 @@ func (s *SchemaData) Result(v float64) string {
 	}
 
 	return s.DefaultValue
+}
+
+// ConvertRawValue will return parsed raw value form device
+func (s *SchemaData) ConvertRawValue(v float64) interface{} {
+	if len(s.ParseCondition) > 0 {
+		switch s.ParseCondition {
+		case "round":
+			{
+				return math.Round(v)
+			}
+		// add support for more parsing logic if needed
+		default:
+			{
+				return v
+			}
+		}
+	}
+
+	return v
 }
 
 // SchemaCalcStep to check the data

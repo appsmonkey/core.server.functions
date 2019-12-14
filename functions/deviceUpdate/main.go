@@ -114,6 +114,9 @@ func Handler(ctx context.Context, req interface{}) error {
 			continue
 		}
 
+		// convert raw device value according to condition given in schema
+		mv = fieldData.ConvertRawValue(mv)
+
 		level := fieldData.Result(mv)
 		// level := m.Level(mk, mv)
 
@@ -122,8 +125,6 @@ func Handler(ctx context.Context, req interface{}) error {
 			Value:       mv,
 			Measurement: fieldData.Name,
 			Unit:        fieldData.Unit,
-			// Measurement: m.MeasureMapName[mk],
-			// Unit:        m.MeasureMapUnit[mk],
 		}
 
 		// Update map meta for the sensor
