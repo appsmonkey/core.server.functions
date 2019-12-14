@@ -115,7 +115,7 @@ func Handler(ctx context.Context, req interface{}) error {
 		}
 
 		// convert raw device value according to condition given in schema
-		mv = fieldData.ConvertRawValue(mv)
+		// mv = fieldData.ConvertRawValue(mv)
 
 		level := fieldData.Result(mv)
 		// level := m.Level(mk, mv)

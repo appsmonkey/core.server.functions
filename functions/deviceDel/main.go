@@ -15,6 +15,7 @@ import (
 // Handler will handle our request comming from the API gateway
 func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	cognitoID := CognitoData(req.RequestContext.Authorizer)
+	fmt.Println("DEVICE_DEL_REQ: ", req.Body)
 	request := new(vm.DeviceDelRequest)
 	response := request.Validate(req.Body)
 	if response.Code != 0 {

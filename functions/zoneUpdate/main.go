@@ -81,6 +81,10 @@ func Handler(ctx context.Context, req interface{}) error {
 	for rk, rv := range data {
 		val := rv / datak[rk]
 
+		schema := s.ExtractVersion("1")
+		fieldData := schema[rk]
+		val = fieldData.ConvertRawValue(val)
+
 		ld, ln := s.SensorReading("1", rk, val)
 		zd := m.Zone{
 			ZoneID:   zoneID,
