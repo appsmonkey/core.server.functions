@@ -195,7 +195,7 @@ func (s *SchemaData) Result(v float64) string {
 }
 
 // ConvertRawValue will return parsed raw value form device
-func (s *SchemaData) ConvertRawValue(v float64) interface{} {
+func (s *SchemaData) ConvertRawValue(v float64) float64 {
 	if len(s.ParseCondition) > 0 {
 		switch s.ParseCondition {
 		case "round":
