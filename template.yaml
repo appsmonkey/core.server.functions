@@ -897,6 +897,13 @@ Resources:
       Handler: 'forgotPasswordEnd'
       Role: !GetAtt LambdaRole.Arn
 
+   notifications:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: 'bin/notifications.zip'
+      Handler: 'notifications'
+      Role: !GetAtt LambdaRole.Arn
+
   # test:
   #   Type: 'AWS::Serverless::Function'
   #   Properties:

@@ -31,7 +31,7 @@ func (s Schema) AddSensor(sensor string, data *Data) {
 // ExtractData reurn the sensor based on it's name
 func (s Schema) ExtractData(name string) (*Data, string) {
 	for k, v := range s {
-		if v.Name == name {
+		if k == name {
 			return v, k
 		}
 	}
