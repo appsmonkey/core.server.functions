@@ -51,8 +51,14 @@ func (r *MapRequest) Validate(body map[string]string) *MapResponse {
 		return response
 	}
 
+	filter, ok := body["filter"]
+	if !ok {
+		filter = "none"
+	}
+
 	r.Sensor = strings.Split(sensor, ",")
 	r.Zone = strings.Split(zone, ",")
+	r.Filter = filter
 
 	if len(r.Sensor) == 0 {
 		response.Errors = append(response.Errors, es.ErrMissingSensorType)
