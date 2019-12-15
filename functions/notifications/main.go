@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"math"
 
 	ua "github.com/appsmonkey/core.server.functions/integration/airship"
 	s "github.com/appsmonkey/core.server.functions/models/schema"
@@ -18,7 +19,7 @@ type sensor struct {
 
 // Value representing a composite of the name and value
 func (s *sensor) Value() string {
-	return fmt.Sprintf("%v = %v", s.display, s.value)
+	return fmt.Sprintf("%v = %v", s.display, math.Round(s.value))
 }
 
 // Channel in UA
