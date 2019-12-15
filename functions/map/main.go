@@ -92,6 +92,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		var hasDevice = false
 		for _, d := range dbData {
 			mine := d.CognitoID != h.CognitoIDZeroValue && cognitoID != h.CognitoIDZeroValue && d.CognitoID == cognitoID
+			fmt.Println(request.Filter, "Filter")
 			if (!mine && !d.Active) || d.Meta.Coordinates.IsEmpty() {
 				continue
 			} else if len(request.Filter) > 0 && request.Filter == "mine" && !mine {
