@@ -13,6 +13,7 @@ import (
 type MapRequest struct {
 	Zone   []string `json:"zone_data"`
 	Sensor []string `json:"device_data"`
+	Filter string   `json:"filter"`
 }
 
 // Validate the request sent from client

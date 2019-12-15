@@ -94,6 +94,12 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 			mine := d.CognitoID != h.CognitoIDZeroValue && cognitoID != h.CognitoIDZeroValue && d.CognitoID == cognitoID
 			if (!mine && !d.Active) || d.Meta.Coordinates.IsEmpty() {
 				continue
+			} else if len(request.Filter) > 0 && request.Filter == "mine" && !mine {
+				continue
+			} else if len(request.Filter) > 0 && request.Filter == "indoor" && !d.Meta.Indoor {
+				continue
+			} else if len(request.Filter) > 0 && request.Filter == "outdoor" && d.Meta.Indoor {
+				continue
 			}
 
 			if tz.ZoneID == d.ZoneID {
