@@ -78,7 +78,28 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		}
 	}
 
+	var qry dal.ConditionBuilder
+	hasFilter := false
+	if request.Filter == "mine" {
+		hasFilter = true
+		qry = dal.Name("cognito_id").Equal(dal.Value(cognitoID))
+	} else if request.Filter == "indoor" {
+		hasFilter = true
+		qry = dal.Name("indoor").Equal(dal.Value(true))
+	} else if request.Filter == "outdoor" {
+		hasFilter = true
+		qry = dal.Name("indoor").Equal(dal.Value(false))
+	}
+
+	var liveRes *dal.ListResult
+	var err error
+	if hasFilter {
+		liveRes, err = dal.List("live", qry, dal.Projection(dal.Name("token"), dal.Name("device_id"), dal.Name("meta"), dal.Name("map_meta"), dal.Name("active"), dal.Name("measurements"), dal.Name("cognito_id"), dal.Name("timestamp"), dal.Name("zone_id")))
+		fmt.Println("LIVE_RES: ", liveRes)
+	}
+
 	dbRes, err := dal.ListNoFilter("devices", dal.Projection(dal.Name("token"), dal.Name("device_id"), dal.Name("meta"), dal.Name("map_meta"), dal.Name("active"), dal.Name("measurements"), dal.Name("cognito_id"), dal.Name("timestamp"), dal.Name("zone_id")))
+
 	dbData := make([]m.Device, 0)
 	err = dbRes.Unmarshal(&dbData)
 	if err != nil {
