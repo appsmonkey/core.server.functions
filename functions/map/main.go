@@ -136,6 +136,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 					}
 				}
 
+				fmt.Println(data, "PRINT DATA")
 				for rk, rv := range data {
 					val := rv / datak[rk]
 
