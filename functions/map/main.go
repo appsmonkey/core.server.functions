@@ -94,8 +94,8 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	var liveRes *dal.ListResult
 	var err error
 	if hasFilter {
-		// liveRes, err = dal.List("live", qry, dal.Projection(dal.Name("token"), dal.Name("device_id"), dal.Name("meta"), dal.Name("map_meta"), dal.Name("active"), dal.Name("measurements"), dal.Name("cognito_id"), dal.Name("timestamp"), dal.Name("zone_id")))
-		fmt.Println("LIVE_RES: ", liveRes, qry)
+		liveRes, err = dal.ListNoProjection("live", qry)
+		fmt.Println("LIVE_RES: ", liveRes)
 	}
 
 	dbRes, err := dal.ListNoFilter("devices", dal.Projection(dal.Name("token"), dal.Name("device_id"), dal.Name("meta"), dal.Name("map_meta"), dal.Name("active"), dal.Name("measurements"), dal.Name("cognito_id"), dal.Name("timestamp"), dal.Name("zone_id")))
