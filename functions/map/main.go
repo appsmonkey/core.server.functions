@@ -143,7 +143,8 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 					}
 				}
 
-				fmt.Println(data, "PRINT DATA")
+				fmt.Println(data, "PRINT DATA", request.Zone)
+				fmt.Println("MapMeta:::", d.MapMeta)
 				for rk, rv := range data {
 					val := rv / datak[rk]
 
