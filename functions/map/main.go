@@ -79,28 +79,28 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		}
 	}
 
-	var qry dal.ConditionBuilder
-	hasFilter := false
-	if request.Filter == "mine" {
-		hasFilter = true
-		qry = dal.Name("cognito_id").Equal(dal.Value(cognitoID))
-	} else if request.Filter == "indoor" {
-		hasFilter = true
-		qry = dal.Name("indoor").Equal(dal.Value(true))
-	} else if request.Filter == "outdoor" {
-		hasFilter = true
-		qry = dal.Name("indoor").Equal(dal.Value(false))
-	}
+	// var qry dal.ConditionBuilder
+	// hasFilter := false
+	// if request.Filter == "mine" {
+	// 	hasFilter = true
+	// 	qry = dal.Name("cognito_id").Equal(dal.Value(cognitoID))
+	// } else if request.Filter == "indoor" {
+	// 	hasFilter = true
+	// 	qry = dal.Name("indoor").Equal(dal.Value(true))
+	// } else if request.Filter == "outdoor" {
+	// 	hasFilter = true
+	// 	qry = dal.Name("indoor").Equal(dal.Value(false))
+	// }
 
-	var dbRes *dal.ListResult
-	var err error
+	// var dbRes *dal.ListResult
+	// var err error
 
-	if hasFilter {
-		fmt.Println("Query with filter")
-		dbRes, err = dal.List("devices", qry, dal.Projection(dal.Name("token"), dal.Name("device_id"), dal.Name("meta"), dal.Name("map_meta"), dal.Name("active"), dal.Name("measurements"), dal.Name("cognito_id"), dal.Name("timestamp"), dal.Name("zone_id")))
-	} else {
-		dbRes, err = dal.ListNoFilter("devices", dal.Projection(dal.Name("token"), dal.Name("device_id"), dal.Name("meta"), dal.Name("map_meta"), dal.Name("active"), dal.Name("measurements"), dal.Name("cognito_id"), dal.Name("timestamp"), dal.Name("zone_id")))
-	}
+	// if  {
+	// 	fmt.Println("Query with filter")
+	// 	dbRes, err = dal.List("devices", qry, dal.Projection(dal.Name("token"), dal.Name("device_id"), dal.Name("meta"), dal.Name("map_meta"), dal.Name("active"), dal.Name("measurements"), dal.Name("cognito_id"), dal.Name("timestamp"), dal.Name("zone_id")))
+	// } else {
+	dbRes, err := dal.ListNoFilter("devices", dal.Projection(dal.Name("token"), dal.Name("device_id"), dal.Name("meta"), dal.Name("map_meta"), dal.Name("active"), dal.Name("measurements"), dal.Name("cognito_id"), dal.Name("timestamp"), dal.Name("zone_id")))
+	// }
 
 	dbData := make([]m.Device, 0)
 	err = dbRes.Unmarshal(&dbData)
@@ -122,7 +122,15 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 			mine := d.CognitoID != h.CognitoIDZeroValue && cognitoID != h.CognitoIDZeroValue && d.CognitoID == cognitoID
 			if (!mine && !d.Active) || d.Meta.Coordinates.IsEmpty() {
 				continue
+			} else if request.Filter == "mine" && !mine {
+				continue
+			} else if request.Filter == "outdoor" && d.Meta.Indoor == false {
+				continue
+			} else if request.Filter == "indoor" && d.Meta.Indoor {
+				continue
 			}
+
+			fmt.Println(request.Filter, "::: FILTER")
 
 			if tz.ZoneID == d.ZoneID {
 				hasDevice = true
