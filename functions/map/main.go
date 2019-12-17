@@ -15,6 +15,7 @@ import (
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 
+	s "github.com/appsmonkey/core.server.functions/models/schema"
 	h "github.com/appsmonkey/core.server.functions/tools/helper"
 	"github.com/joho/godotenv"
 )
@@ -91,14 +92,14 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		qry = dal.Name("indoor").Equal(dal.Value(false))
 	}
 
-	var liveRes *dal.ListResult
+	var dbRes *dal.ListResult
 	var err error
-	if hasFilter {
-		liveRes, err = dal.ListNoProjection("live", qry)
-		fmt.Println("LIVE_RES: ", liveRes)
-	}
 
-	dbRes, err := dal.ListNoFilter("devices", dal.Projection(dal.Name("token"), dal.Name("device_id"), dal.Name("meta"), dal.Name("map_meta"), dal.Name("active"), dal.Name("measurements"), dal.Name("cognito_id"), dal.Name("timestamp"), dal.Name("zone_id")))
+	if hasFilter {
+		dbRes, err = dal.List("devices", qry, dal.Projection(dal.Name("token"), dal.Name("device_id"), dal.Name("meta"), dal.Name("map_meta"), dal.Name("active"), dal.Name("measurements"), dal.Name("cognito_id"), dal.Name("timestamp"), dal.Name("zone_id")))
+	} else {
+		dbRes, err = dal.ListNoFilter("devices", dal.Projection(dal.Name("token"), dal.Name("device_id"), dal.Name("meta"), dal.Name("map_meta"), dal.Name("active"), dal.Name("measurements"), dal.Name("cognito_id"), dal.Name("timestamp"), dal.Name("zone_id")))
+	}
 
 	dbData := make([]m.Device, 0)
 	err = dbRes.Unmarshal(&dbData)
@@ -111,21 +112,49 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 
 	for _, tz := range zoneMap {
 		var hasDevice = false
+		tz.Data = make([]m.ZoneMeta, 0)
+
+		data := make(map[string]float64, 0)
+		datak := make(map[string]float64, 0)
+
 		for _, d := range dbData {
 			mine := d.CognitoID != h.CognitoIDZeroValue && cognitoID != h.CognitoIDZeroValue && d.CognitoID == cognitoID
 			if (!mine && !d.Active) || d.Meta.Coordinates.IsEmpty() {
-				continue
-			} else if len(request.Filter) > 0 && request.Filter == "mine" && !mine {
-				continue
-			} else if len(request.Filter) > 0 && request.Filter == "indoor" && !d.Meta.Indoor {
-				continue
-			} else if len(request.Filter) > 0 && request.Filter == "outdoor" && d.Meta.Indoor {
 				continue
 			}
 
 			if tz.ZoneID == d.ZoneID {
 				hasDevice = true
-				break
+
+				// take sensors in query in consideration
+				for mmk, mmv := range d.MapMeta {
+					for _, z := range request.Zone {
+						if z == mmk {
+							data[mmk] += mmv.Value
+							datak[mmk]++
+						}
+					}
+				}
+
+				for rk, rv := range data {
+					val := rv / datak[rk]
+
+					schema := s.ExtractVersion("1")
+					fieldData := schema[rk]
+					val = fieldData.ConvertRawValue(val)
+
+					ld, ln := s.SensorReading("1", rk, val)
+					Data := m.ZoneMeta{
+						SensorID:    rk,
+						Name:        tz.ZoneID,
+						Level:       ln,
+						Value:       val,
+						Measurement: ld.Name,
+						Unit:        ld.Unit,
+					}
+
+					tz.Data = append(tz.Data, Data)
+				}
 			}
 		}
 
