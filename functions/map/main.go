@@ -130,8 +130,6 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 				continue
 			}
 
-			fmt.Println(request.Filter, "::: FILTER")
-
 			if tz.ZoneID == d.ZoneID {
 				hasDevice = true
 
