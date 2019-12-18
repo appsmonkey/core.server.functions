@@ -113,8 +113,6 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 
 	for _, tz := range zoneMap {
 		var hasDevice = false
-		tz.Data = make([]m.ZoneMeta, 0)
-
 		data := make(map[string]float64, 0)
 		datak := make(map[string]float64, 0)
 
