@@ -52,6 +52,7 @@ func GetFrom(from int64) (result vm.DeviceGetData) {
 	for _, v := range dbData {
 		for ki, vi := range v {
 			if ki != "timestamp" && ki != "token" && ki != "timestamp_sort" && ki != "ttl" {
+				fmt.Println(ki, vi)
 				data[ki] = append(data[ki], vi.(float64))
 			}
 		}
