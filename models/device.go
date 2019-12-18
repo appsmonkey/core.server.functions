@@ -56,8 +56,6 @@ func (d *Device) ToLiveData() map[string]interface{} {
 	then := time.Now()
 	data["token"] = d.Token
 	data["timestamp"] = then.Unix()
-	data["indoor"] = d.Meta.Indoor
-	data["cognito_id"] = d.CognitoID
 	data["timestamp_sort"] = formulateTimestamp(then.Unix()).Unix()
 	data["ttl"] = then.Add(time.Hour * 24 * 3).Unix()
 
