@@ -110,6 +110,8 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 			if tz.ZoneID == d.ZoneID {
 				hasDevice = true
 
+				tz.Data = make([]m.ZoneMeta, 0)
+
 				// take sensors in query in consideration
 				for mmk, mmv := range d.MapMeta {
 					for _, z := range request.Zone {
