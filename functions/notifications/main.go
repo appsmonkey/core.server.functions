@@ -42,7 +42,6 @@ func (s *sensor) Channel() ua.ChanelType {
 func Handler() error {
 	data := defaultDevice.Get()
 	schemaDefault := s.ExtractVersion("")
-	fmt.Println("SCHEMA PRINT: ", schemaDefault)
 	// pm25, pm25Sensor := schemaDefault.ExtractData("PM 2.5")
 	// pm10, pm10Sensor := schemaDefault.ExtractData("PM 10")
 
@@ -59,6 +58,7 @@ func Handler() error {
 
 	small := smaller(&sens25, &sens10)
 
+	fmt.Println("CHECK PRINT: ", small, small.Value())
 	ua.New().Send(small.Value(), small.Channel())
 
 	return nil
