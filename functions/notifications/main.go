@@ -45,8 +45,8 @@ func Handler() error {
 	// pm25, pm25Sensor := schemaDefault.ExtractData("PM 2.5")
 	// pm10, pm10Sensor := schemaDefault.ExtractData("PM 10")
 
-	pm25, pm25Sensor := schemaDefault.ExtractData("AIR_PM10")
-	pm10, pm10Sensor := schemaDefault.ExtractData("AIR_PM2P5")
+	pm25, pm25Sensor := schemaDefault.ExtractData("AIR_PM2P5")
+	pm10, pm10Sensor := schemaDefault.ExtractData("AIR_PM10")
 
 	fmt.Println(pm10, pm25)
 
