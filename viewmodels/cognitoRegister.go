@@ -144,7 +144,7 @@ func (r *CognitoRegisterRequest) ValidateCognitoWithVerif(body *c.CognitoDataWit
 	r.SocialType = "none"
 
 	for _, uav := range body.UserData.UserAttributes {
-		if *uav.Name == "email" {bodybody
+		if *uav.Name == "email" {
 			r.Email = *uav.Value
 			r.Attributes["email"] = r.Email
 		} else if *uav.Name == "sub" {
