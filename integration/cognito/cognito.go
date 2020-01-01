@@ -26,6 +26,14 @@ type CognitoData struct {
 	UserData     *cognitoidentityprovider.AdminCreateUserOutput `json:"-"`
 }
 
+type CognitoDataWithVerif struct {
+	IDToken      string                                `json:"id_token"`
+	AccessToken  string                                `json:"access_token"`
+	ExpiresIn    int64                                 `json:"expires_in"`
+	RefreshToken string                                `json:"refresh_token,omitempty"`
+	UserData     *cognitoidentityprovider.SignUpOutput `json:"-"`
+}
+
 const (
 	authFlow = "ADMIN_NO_SRP_AUTH"
 	jwtError = "Token is expired"
@@ -68,10 +76,10 @@ func NewCognito() *Cognito {
 }
 
 //SignUpWithVerif register new user
-func (c *Cognito) SignUpWithVerif(username, password, gender, firstname, lastname string) (*CognitoData, error) {
+func (c *Cognito) SignUpWithVerif(username, password, gender, firstname, lastname string) (bool, error) {
 	// Step 1
 	fmt.Println("Register user with verif: ", username, password, gender, firstname, lastname)
-	_, err := c.identityProvider.SignUp(&cognitoidentityprovider.SignUpInput{
+	signupData, err := c.identityProvider.SignUp(&cognitoidentityprovider.SignUpInput{
 		Username: aws.String(username),
 		Password: aws.String(password),
 		ClientId: aws.String(clientID),
@@ -84,13 +92,14 @@ func (c *Cognito) SignUpWithVerif(username, password, gender, firstname, lastnam
 		},
 	})
 
+	fmt.Println("data: ", signupData)
+
 	if err != nil {
 		writeLog("SignUp Error: ", err)
-		return nil, err
+		return false, err
 	}
 
-	data := new(CognitoData)
-	return data, nil
+	return true, nil
 }
 
 // SignUp register new user
