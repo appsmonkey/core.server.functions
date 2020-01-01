@@ -70,6 +70,7 @@ func NewCognito() *Cognito {
 // SignUp register new user
 func (c *Cognito) SignUp(username, password, gender, firstname, lastname string) (*CognitoData, error) {
 	// Step 1
+	fmt.Println("Register user: ", username, password, gender, firstname, lastname)
 	adminUserData, err := c.identityProvider.AdminCreateUser(&cognitoidentityprovider.AdminCreateUserInput{
 		Username:          aws.String(username),
 		TemporaryPassword: aws.String(password),
