@@ -19,14 +19,6 @@ type Cognito struct {
 }
 
 type CognitoData struct {
-	IDToken      string                                         `json:"id_token"`
-	AccessToken  string                                         `json:"access_token"`
-	ExpiresIn    int64                                          `json:"expires_in"`
-	RefreshToken string                                         `json:"refresh_token,omitempty"`
-	UserData     *cognitoidentityprovider.AdminCreateUserOutput `json:"-"`
-}
-
-type CognitoDataWithVerif struct {
 	IDToken      string      `json:"id_token"`
 	AccessToken  string      `json:"access_token"`
 	ExpiresIn    int64       `json:"expires_in"`
@@ -76,7 +68,7 @@ func NewCognito() *Cognito {
 }
 
 //SignUpWithVerif register new user
-func (c *Cognito) SignUpWithVerif(username, password, gender, firstname, lastname string) (*CognitoDataWithVerif, error) {
+func (c *Cognito) SignUpWithVerif(username, password, gender, firstname, lastname string) (*CognitoData, error) {
 	// Step 1
 	fmt.Println("Register user with verif: ", username, password, gender, firstname, lastname)
 	signupData, err := c.identityProvider.SignUp(&cognitoidentityprovider.SignUpInput{
@@ -115,7 +107,7 @@ func (c *Cognito) SignUpWithVerif(username, password, gender, firstname, lastnam
 		User interface{}
 	}
 
-	data := new(CognitoDataWithVerif)
+	data := new(CognitoData)
 	data.IDToken = res.IDToken
 	data.AccessToken = res.AccessToken
 	data.ExpiresIn = res.ExpiresIn
