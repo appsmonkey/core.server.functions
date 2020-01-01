@@ -78,16 +78,8 @@ func (c *Cognito) SignUpWithVerif(username, password, gender, firstname, lastnam
 
 		UserAttributes: []*cognitoidentityprovider.AttributeType{
 			{
-				Name:  aws.String("email_verified"),
-				Value: aws.String("true"),
-			},
-			{
 				Name:  aws.String("email"),
 				Value: aws.String(username),
-			},
-			{
-				Name:  aws.String("gender"),
-				Value: aws.String(gender),
 			},
 		},
 	})
@@ -113,8 +105,16 @@ func (c *Cognito) SignUp(username, password, gender, firstname, lastname string)
 
 		UserAttributes: []*cognitoidentityprovider.AttributeType{
 			{
+				Name:  aws.String("email_verified"),
+				Value: aws.String("true"),
+			},
+			{
 				Name:  aws.String("email"),
 				Value: aws.String(username),
+			},
+			{
+				Name:  aws.String("gender"),
+				Value: aws.String(gender),
 			},
 		},
 	})
