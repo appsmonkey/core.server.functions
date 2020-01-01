@@ -32,7 +32,7 @@ func Handler(ctx context.Context, req events.APIGatewayProxyRequest) (events.API
 	}
 
 	// Register User in Cognito
-	signupData, err := cog.SignUp(request.Email, request.Password, request.Gender, request.FirstName, request.LastName)
+	signupData, err := cog.SignUpWithVerif(request.Email, request.Password, request.Gender, request.FirstName, request.LastName)
 	if err != nil {
 		errData := es.ErrRegistrationCognitoSignupError
 		errData.Data = err.Error()

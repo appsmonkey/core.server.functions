@@ -67,6 +67,40 @@ func NewCognito() *Cognito {
 	return c
 }
 
+//SignUpWithVerif register new user
+func (c *Cognito) SignUpWithVerif(username, password, gender, firstname, lastname string) (*CognitoData, error) {
+	// Step 1
+	fmt.Println("Register user with verif: ", username, password, gender, firstname, lastname)
+	_, err := c.identityProvider.SignUp(&cognitoidentityprovider.SignUpInput{
+		Username: aws.String(username),
+		Password: aws.String(password),
+		ClientId: aws.String(clientID),
+
+		UserAttributes: []*cognitoidentityprovider.AttributeType{
+			{
+				Name:  aws.String("email_verified"),
+				Value: aws.String("true"),
+			},
+			{
+				Name:  aws.String("email"),
+				Value: aws.String(username),
+			},
+			{
+				Name:  aws.String("gender"),
+				Value: aws.String(gender),
+			},
+		},
+	})
+
+	if err != nil {
+		writeLog("SignUp Error: ", err)
+		return nil, err
+	}
+
+	data := new(CognitoData)
+	return data, nil
+}
+
 // SignUp register new user
 func (c *Cognito) SignUp(username, password, gender, firstname, lastname string) (*CognitoData, error) {
 	// Step 1

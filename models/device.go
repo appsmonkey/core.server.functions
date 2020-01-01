@@ -20,10 +20,12 @@ type Device struct {
 
 // Metadata holds all the meda around the device
 type Metadata struct {
-	Name        string   `json:"name"`
-	Model       string   `json:"model"`
-	Coordinates Location `json:"coordinates"`
-	Indoor      bool     `json:"indoor"`
+	Name        string      `json:"name"`
+	Model       string      `json:"model"`
+	Coordinates Location    `json:"coordinates"`
+	Indoor      bool        `json:"indoor"`
+	OldSchema   interface{} `json:"old_schema"`
+	OldToken    string      `json:"old_token"`
 }
 
 // Location coordinates
