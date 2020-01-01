@@ -21,6 +21,8 @@ func (c *Cognito) Google(id, token, inEmail string, client *http.Client) (*Cogni
 		return nil, err
 	}
 
+	fmt.Println("Google login: ", id, token, inEmail, client)
+
 	if uti.UserId != id || uti.Email != inEmail {
 		fmt.Println("invalid token received", "Received ID", id, "Received email", inEmail, "Got ID", uti.UserId, "Got Email", uti.Email)
 		return nil, errors.New("invalid token received")
@@ -34,6 +36,8 @@ func (c *Cognito) Google(id, token, inEmail string, client *http.Client) (*Cogni
 		// 	fmt.Println("Could not save a temp user", err)
 		// 	return nil, err
 		// }
+
+		// Check if account exists
 
 		// Register
 		cd, err := c.SignUp(inEmail, "@aA"+id, "male", "fn", "ln")
