@@ -131,6 +131,43 @@ func (r *CognitoRegisterRequest) ValidateCognito(body *c.CognitoData) *CognitoRe
 	return response
 }
 
+// ValidateCognito the request sent from client
+func (r *CognitoRegisterRequest) ValidateCognitoWithVerif(body *c.CognitoDataWithVerif) *CognitoRegisterResponse {
+	response := new(CognitoRegisterResponse)
+	response.Code = 0
+	response.RequestID = strconv.FormatInt(time.Now().Unix(), 10)
+
+	r.Attributes = make(map[string]string, 0)
+	r.Profile = m.UserProfile{}
+	r.Token = bg.New()
+	r.SocialID = "none"
+	r.SocialType = "none"
+
+	for _, uav := range body.UserData.UserAttributes {
+		if *uav.Name == "email" {
+			r.Email = *uav.Value
+			r.Attributes["email"] = r.Email
+		} else if *uav.Name == "sub" {
+			r.CognitoID = *uav.Value
+			r.Attributes["sub"] = r.CognitoID
+		} else {
+			r.Attributes[*uav.Name] = *uav.Value
+		}
+	}
+
+	if len(r.CognitoID) == 0 {
+		response.Errors = append(response.Errors, es.ErrMissingCognitoID)
+		response.Code = es.StatusRegistrationError
+	}
+
+	if len(r.Email) == 0 {
+		response.Errors = append(response.Errors, es.ErrRegistrationMissingEmail)
+		response.Code = es.StatusRegistrationError
+	}
+
+	return response
+}
+
 // CognitoRegisterResponse to the client
 // `Returns a list of all devices assigned to the requestee. Data defained in the *DeviceAddData* struct`
 type CognitoRegisterResponse struct {
