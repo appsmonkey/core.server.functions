@@ -27,11 +27,11 @@ type CognitoData struct {
 }
 
 type CognitoDataWithVerif struct {
-	IDToken      string                                `json:"id_token"`
-	AccessToken  string                                `json:"access_token"`
-	ExpiresIn    int64                                 `json:"expires_in"`
-	RefreshToken string                                `json:"refresh_token,omitempty"`
-	UserData     *cognitoidentityprovider.SignUpOutput `json:"-"`
+	IDToken      string      `json:"id_token"`
+	AccessToken  string      `json:"access_token"`
+	ExpiresIn    int64       `json:"expires_in"`
+	RefreshToken string      `json:"refresh_token,omitempty"`
+	UserData     interface{} `json:"-"`
 }
 
 const (
@@ -76,7 +76,7 @@ func NewCognito() *Cognito {
 }
 
 //SignUpWithVerif register new user
-func (c *Cognito) SignUpWithVerif(username, password, gender, firstname, lastname string) (bool, error) {
+func (c *Cognito) SignUpWithVerif(username, password, gender, firstname, lastname string) (*CognitoDataWithVerif, error) {
 	// Step 1
 	fmt.Println("Register user with verif: ", username, password, gender, firstname, lastname)
 	signupData, err := c.identityProvider.SignUp(&cognitoidentityprovider.SignUpInput{
@@ -92,14 +92,39 @@ func (c *Cognito) SignUpWithVerif(username, password, gender, firstname, lastnam
 		},
 	})
 
-	fmt.Println("data: ", signupData)
-
 	if err != nil {
 		writeLog("SignUp Error: ", err)
-		return false, err
+		return nil, err
 	}
 
-	return true, nil
+	fmt.Println("Signup data:", signupData)
+
+	res, err := c.SignIn(username, password)
+	if err != nil {
+		writeLog("Post signup error, auth failed", err)
+		return nil, err
+	}
+
+	usr, err := c.Profile(username)
+	if err != nil {
+		writeLog("Post signup error, can not find user", err)
+		return nil, err
+	}
+
+	type usrRes = struct {
+		User interface{}
+	}
+
+	data := new(CognitoDataWithVerif)
+	data.IDToken = res.IDToken
+	data.AccessToken = res.AccessToken
+	data.ExpiresIn = res.ExpiresIn
+	data.RefreshToken = res.RefreshToken
+	data.UserData = usrRes{
+		User: usr,
+	}
+
+	return data, nil
 }
 
 // SignUp register new user
