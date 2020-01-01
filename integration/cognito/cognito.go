@@ -99,12 +99,6 @@ func (c *Cognito) SignUpWithVerif(username, password, gender, firstname, lastnam
 
 	fmt.Println("Signup data:", signupData)
 
-	res, err := c.SignIn(username, password)
-	if err != nil {
-		writeLog("Post signup error, auth failed", err)
-		return nil, err
-	}
-
 	usr, err := c.Profile(username)
 	if err != nil {
 		writeLog("Post signup error, can not find user", err)
@@ -112,10 +106,6 @@ func (c *Cognito) SignUpWithVerif(username, password, gender, firstname, lastnam
 	}
 
 	data := new(CognitoDataWithVerif)
-	data.IDToken = res.IDToken
-	data.AccessToken = res.AccessToken
-	data.ExpiresIn = res.ExpiresIn
-	data.RefreshToken = res.RefreshToken
 	data.UserData = usr
 
 	return data, nil

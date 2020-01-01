@@ -131,7 +131,7 @@ func (r *CognitoRegisterRequest) ValidateCognito(body *c.CognitoData) *CognitoRe
 	return response
 }
 
-// ValidateCognito the request sent from client
+// ValidateCognitoWithVerif the request sent from client
 func (r *CognitoRegisterRequest) ValidateCognitoWithVerif(body *c.CognitoDataWithVerif) *CognitoRegisterResponse {
 	response := new(CognitoRegisterResponse)
 	response.Code = 0
@@ -144,7 +144,7 @@ func (r *CognitoRegisterRequest) ValidateCognitoWithVerif(body *c.CognitoDataWit
 	r.SocialType = "none"
 
 	for _, uav := range body.UserData.UserAttributes {
-		if *uav.Name == "email" {
+		if *uav.Name == "email" {bodybody
 			r.Email = *uav.Value
 			r.Attributes["email"] = r.Email
 		} else if *uav.Name == "sub" {
