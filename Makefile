@@ -29,7 +29,7 @@ all : register signup signup signin refresh profile general deviceList deviceLis
 	deviceUpdateMeta cognitoRegister cognitoProfileList cognitoProfileUpdate deviceAdd deviceGet \
 	deviceDel map zoneUpdate validateEmail seeder schemaGet chartLiveDevice chartCache chartHour \
 	chartSave chartHourDevice chartHourAll chartCacheDay chartDay chartDayDevice chartDayAll chartHasData \
-	chartCacheSix chartSix chartSixDevice chartSixAll chartLiveAll forgotPasswordStart forgotPasswordEnd notifications
+	chartCacheSix chartSix chartSixDevice chartSixAll chartLiveAll forgotPasswordStart forgotPasswordEnd notifications verifyAndRedirect
 
 vendor: Gopkg.toml
 		dep ensure -v
@@ -279,6 +279,13 @@ forgotPasswordEnd:
 	mkdir -p bin
 	$(package_lambda) bin/forgotPasswordEnd.zip forgotPasswordEnd
 	rm forgotPasswordEnd
+
+
+verifyAndRedirect:
+	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o verifyAndRedirect functions/verifyAndRedirect/main.go
+	mkdir -p bin
+	$(package_lambda) bin/verifyAndRedirect.zip verifyAndRedirect
+	rm verifyAndRedirect
 	
 .PHONY: deploy_swagger
 deploy_swagger:

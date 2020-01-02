@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"net/http"
 
 	vm "github.com/appsmonkey/core.server.functions/viewmodels"
 	"github.com/aws/aws-lambda-go/events"
@@ -18,6 +19,10 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 400, Headers: response.Headers()}, nil
 	}
+
+	// create verification URL
+	verificationURL := "https://cityos.auth.us-east-1.amazoncognito.com/confirm?client_id" + request.ClientID + "&user_name=" + request.UserName + "&confirmation_code=" + request.ConfirmationCode + "&redirect_uri=https://dev.cityos.io"
+	http.Get(verificationURL)
 
 	return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 302, Headers: response.Headers()}, nil
 }
