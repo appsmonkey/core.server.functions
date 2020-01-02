@@ -903,6 +903,13 @@ Resources:
       CodeUri: 'bin/notifications.zip'
       Handler: 'notifications'
       Role: !GetAtt LambdaRole.Arn
+  
+  verifyAndRedirect:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: 'bin/verifyAndRedirect.zip'
+      Handler: 'verifyAndRedirect'
+      Role: !GetAtt LambdaRole.Arn
 
   # test:
   #   Type: 'AWS::Serverless::Function'

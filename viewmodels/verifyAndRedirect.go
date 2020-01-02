@@ -1,0 +1,51 @@
+package viewmodels
+
+import "encoding/json"
+
+// VerifyRedirectRequest sent from the client
+type VerifyRedirectRequest struct {
+	RedirectURL      string `json:"redirect_url"`
+	ClientID         string `json:"client_id"`
+	UserName         string `json:"user_name"`
+	ConfirmationCode string `json:"confirmation_code"`
+}
+
+// Validate the request sent from client
+func (r *VerifyRedirectRequest) Validate(body map[string]string) *VerifyRedirectResponse {
+	response := new(VerifyRedirectResponse)
+	response.Code = 0
+
+	url, ok := body["redirect_url"]
+	if ok {
+		r.RedirectURL = url
+	}
+
+	cid, ok := body["client_id"]
+	if ok {
+		r.ClientID = cid
+	}
+
+	userName, ok := body["user_name"]
+	if ok {
+		r.UserName = userName
+	}
+
+	cc, ok := body["confirmation_code"]
+	if ok {
+		r.ConfirmationCode = cc
+	}
+
+	return response
+}
+
+// VerifyRedirectResponse to the client
+type VerifyRedirectResponse struct {
+	BaseResponse
+}
+
+// Marshal the response object
+func (r *VerifyRedirectResponse) Marshal() string {
+	res, _ := json.Marshal(r)
+
+	return string(res)
+}
