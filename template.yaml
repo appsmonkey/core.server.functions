@@ -911,6 +911,13 @@ Resources:
       Handler: 'verifyAndRedirect'
       Role: !GetAtt LambdaRole.Arn
 
+  customizeMessage:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: 'bin/customizeMessage.zip'
+      Handler: 'customizeMessage'
+      Role: !GetAtt LambdaRole.Arn
+
   # test:
   #   Type: 'AWS::Serverless::Function'
   #   Properties:

@@ -29,7 +29,7 @@ all : register signup signup signin refresh profile general deviceList deviceLis
 	deviceUpdateMeta cognitoRegister cognitoProfileList cognitoProfileUpdate deviceAdd deviceGet \
 	deviceDel map zoneUpdate validateEmail seeder schemaGet chartLiveDevice chartCache chartHour \
 	chartSave chartHourDevice chartHourAll chartCacheDay chartDay chartDayDevice chartDayAll chartHasData \
-	chartCacheSix chartSix chartSixDevice chartSixAll chartLiveAll forgotPasswordStart forgotPasswordEnd notifications verifyAndRedirect
+	chartCacheSix chartSix chartSixDevice chartSixAll chartLiveAll forgotPasswordStart forgotPasswordEnd notifications verifyAndRedirect customizeMessage
 
 vendor: Gopkg.toml
 		dep ensure -v
@@ -41,7 +41,7 @@ register:
 	rm register
 
 signup:
-	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o signup functions/signup/main.go
+	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o signup functions/signup/main.gof
 	mkdir -p bin
 	$(package_lambda) bin/signup.zip signup
 	rm signup
@@ -286,6 +286,12 @@ verifyAndRedirect:
 	mkdir -p bin
 	$(package_lambda) bin/verifyAndRedirect.zip verifyAndRedirect
 	rm verifyAndRedirect
+
+customizeMessage:
+	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o customizeMessage functions/customizeMessage/main.go
+	mkdir -p bin
+	$(package_lambda) bin/customizeMessage.zip customizeMessage
+	rm customizeMessage:
 	
 .PHONY: deploy_swagger
 deploy_swagger:
