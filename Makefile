@@ -291,7 +291,7 @@ customizeMessage:
 	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o customizeMessage functions/customizeMessage/main.go
 	mkdir -p bin
 	$(package_lambda) bin/customizeMessage.zip customizeMessage
-	rm customizeMessage:
+	rm customizeMessage
 	
 .PHONY: deploy_swagger
 deploy_swagger:
