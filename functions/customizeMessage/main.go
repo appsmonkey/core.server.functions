@@ -1,13 +1,15 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 )
 
 // Handler will handle our request comming from the API gateway
-func Handler(event events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-	// fmt.Println("CUSTOM MESSAGE REQ EVET: ", event)
+func Handler(event events.CognitoEvent) error {
+	fmt.Println("CUSTOM MESSAGE REQ EVET: ", event)
 	// fmt.Println("CUSTOM MESSAGE REQ EVET CONTEXT: ", event.CallerContext.ClientID)
 
 	// if event.TriggerSource == "CustomMessage_SignUp" {
@@ -17,9 +19,7 @@ func Handler(event events.APIGatewayProxyRequest) (events.APIGatewayProxyRespons
 	// 	return event.Response, nil
 	// }
 
-	// return event.Response, nil
-
-	return events.APIGatewayProxyResponse{Body: "test", StatusCode: 302, Headers: make(map[string]string)}, nil
+	return nil
 }
 
 func main() {
