@@ -41,7 +41,7 @@ register:
 	rm register
 
 signup:
-	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o signup functions/signup/main.gof
+	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o signup functions/signup/main.go
 	mkdir -p bin
 	$(package_lambda) bin/signup.zip signup
 	rm signup
