@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/aws/aws-lambda-go/events"
@@ -8,8 +9,9 @@ import (
 )
 
 // Handler will handle our request comming from the API gateway
-func Handler(event events.CognitoEventUserPoolsCustomMessage) (events.CognitoEventUserPoolsCustomMessageResponse, error) {
+func Handler(ctx context.Context, event events.CognitoEventUserPoolsCustomMessage) error {
 	fmt.Println("CUSTOM MESSAGE REQ EVET: ", event)
+	fmt.Println("CUSTOM MESSAGE REQ CONTEXT: ", ctx)
 	fmt.Println("CUSTOM MESSAGE REQ EVET CONTEXT: ", event.CallerContext.ClientID)
 
 	if event.TriggerSource == "CustomMessage_SignUp" {
@@ -18,10 +20,12 @@ func Handler(event events.CognitoEventUserPoolsCustomMessage) (events.CognitoEve
 		event.Response.EmailMessage = "Welcome to CityOS, please click the following link to verify your email, this is a custom message"
 		event.Response.EmailMessage = fmt.Sprintf(`Please click the link below to verify your email address. https://apigway.com/auth/validate?client_id=%s&user_name=%s&confirmation_code=%s`, event.CallerContext.ClientID, event.UserName, event.Request.CodeParameter)
 
-		return event.Response, nil
+		ctx.Done()
 	}
 
-	return event.Response, nil
+	ctx.Done()
+
+	return nil
 }
 
 func main() {
