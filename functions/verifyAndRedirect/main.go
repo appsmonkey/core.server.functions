@@ -33,7 +33,9 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 400, Headers: response.Headers()}, nil
 	}
 
-	return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 302, Headers: response.Headers()}, nil
+	headers := response.Headers()
+	headers["Location"] = "https://dev.cityos.io"
+	return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 302, Headers: headers}, nil
 }
 
 func main() {
