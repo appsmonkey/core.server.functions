@@ -20,8 +20,17 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 400, Headers: response.Headers()}, nil
 	}
 
-	// redired URL
+	// redired URL - default
 	redirectURL := "https://dev.cityos.io"
+
+	switch request.ClientID {
+	// - Android
+	case "km0afsc8ua4f0bc56brcn7t90":
+		redirectURL = "https://dev.cityos.io" // - TODO: change URL for Android
+	// - IOS
+	case "70mq6uphtmmorkjt74ei0rj5fr":
+		redirectURL = "https://dev.cityos.io" // - TODO: change URL for IOS
+	}
 
 	// create verification URL
 	verificationURL := "https://cityos.auth.us-east-1.amazoncognito.com/confirmUser?client_id=" + request.ClientID + "&user_name=" + request.UserName + "&response_type=code" + "&confirmation_code=" + request.ConfirmationCode + "&redirect_uri=" + redirectURL
@@ -34,7 +43,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	}
 
 	headers := response.Headers()
-	headers["Location"] = "https://dev.cityos.io"
+	headers["Location"] = redirectURL
 	return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 302, Headers: headers}, nil
 }
 
