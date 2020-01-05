@@ -24,7 +24,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	redirectURL := "https://dev.cityos.io"
 
 	// create verification URL
-	verificationURL := "https://cityos.auth.us-east-1.amazoncognito.com/confirm?client_id" + request.ClientID + "&user_name=" + request.UserName + "&confirmation_code=" + request.ConfirmationCode + "&redirect_uri=" + redirectURL
+	verificationURL := "https://cityos.auth.us-east-1.amazoncognito.com/confirm?client_id=" + request.ClientID + "&user_name=" + request.UserName + "&confirmation_code=" + request.ConfirmationCode + "&redirect_uri=" + redirectURL
 	fmt.Println("VERIFICATION URL:", verificationURL)
 
 	_, err := http.Get(verificationURL)
