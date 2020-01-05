@@ -11,7 +11,7 @@ import (
 
 // Handler will handle our request comming from the API gateway
 func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-	fmt.Println("VERIFICATION REQUEST: ", req.Body)
+	fmt.Println("VERIFICATION REQUEST: ", req.QueryStringParameters)
 	request := new(vm.VerifyRedirectRequest)
 	response := request.Validate(req.QueryStringParameters)
 	if response.Code != 0 {
@@ -25,7 +25,13 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 
 	// create verification URL
 	verificationURL := "https://cityos.auth.us-east-1.amazoncognito.com/confirm?client_id" + request.ClientID + "&user_name=" + request.UserName + "&confirmation_code=" + request.ConfirmationCode + "&redirect_uri=" + redirectURL
-	http.Get(verificationURL)
+	fmt.Println("VERIFICATION URL:", verificationURL)
+
+	_, err := http.Get(verificationURL)
+	if err != nil {
+		fmt.Println("Verification error: ", err)
+		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 400, Headers: response.Headers()}, nil
+	}
 
 	return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 302, Headers: response.Headers()}, nil
 }
