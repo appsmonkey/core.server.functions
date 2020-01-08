@@ -81,7 +81,7 @@ func Handler(ctx context.Context, req interface{}) error {
 	device.DeviceID = deviceData.DeviceID
 	device.Timestamp = timestamp
 
-	device.Meta.OldToken = deviceData.OldToken
+	device.Meta.OldSchema = deviceData.OldSchema
 	device.Meta.OldToken = deviceData.OldToken
 
 	if len(device.MapMeta) == 0 {
