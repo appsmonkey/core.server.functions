@@ -40,7 +40,12 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	device.ZoneID = "none"
 
 	// We can add manually or we can check with lat lon
-	// device.City = "Sarajevo" // default value is Sarajevo
+
+	if len(request.City) > 0 {
+		device.City = request.City
+	} else {
+		device.City = "Sarajevo" // default value is Sarajevo
+	}
 
 	// If coordinates are set, then find the zone it belongs to
 	if !device.Meta.Coordinates.IsEmpty() {

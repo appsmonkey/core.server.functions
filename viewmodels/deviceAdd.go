@@ -13,6 +13,7 @@ import (
 type DeviceAddRequest struct {
 	m.Metadata
 	Token string `json:"token"`
+	City  string `json:"city"`
 }
 
 // Validate the request sent from client

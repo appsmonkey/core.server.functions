@@ -15,6 +15,7 @@ type Device struct {
 	Active       bool                   `json:"active"`
 	Measurements map[string]interface{} `json:"measurements,omitempty"`
 	Timestamp    float64                `json:"timestamp"`
+	City         string                 `json:"city"`
 	// TODO: add thing name prop
 }
 

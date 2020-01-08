@@ -116,14 +116,17 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 				for mmk, mmv := range d.MapMeta {
 					for _, z := range request.Zone {
 						if z == mmk {
+							// Don't take in account if device has no sensor
+							if d.Token == "Boxy-Libelium-1" {
+								fmt.Println("EMPTY VAL CHECK", mmv.Value, mmk)
+							}
 							data[mmk] += mmv.Value
 							datak[mmk]++
 						}
 					}
 				}
 
-				fmt.Println(data, "PRINT DATA", request.Zone)
-				fmt.Println("MapMeta:::", d.MapMeta)
+				// fmt.Println("MapMeta:::", d.MapMeta)
 				for rk, rv := range data {
 					val := rv / datak[rk]
 
