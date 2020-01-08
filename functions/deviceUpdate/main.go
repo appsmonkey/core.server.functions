@@ -41,6 +41,8 @@ func Handler(ctx context.Context, req interface{}) error {
 		Token        string
 		DeviceID     string
 		DeviceType   string
+		OldToken     string
+		OldSchema    string
 		Measurements map[string]interface{}
 	}
 
@@ -78,6 +80,10 @@ func Handler(ctx context.Context, req interface{}) error {
 	device.Token = deviceData.Token
 	device.DeviceID = deviceData.DeviceID
 	device.Timestamp = timestamp
+
+	device.Meta.OldToken = deviceData.OldToken
+	device.Meta.OldToken = deviceData.OldToken
+
 	if len(device.MapMeta) == 0 {
 		device.MapMeta = make(map[string]m.MapMeta, 0)
 	}
