@@ -58,6 +58,11 @@ func (d *Device) ToLiveData() map[string]interface{} {
 	data := make(map[string]interface{}, 0)
 	then := time.Now()
 	data["token"] = d.Token
+	data["city"] = d.City
+	// Sarajevo is the def. city
+	if len(d.City) < 1 {
+		data["city"] = "Sarajevo"
+	}
 	data["timestamp"] = then.Unix()
 	data["timestamp_sort"] = formulateTimestamp(then.Unix()).Unix()
 	data["ttl"] = then.Add(time.Hour * 24 * 3).Unix()

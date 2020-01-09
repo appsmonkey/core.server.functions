@@ -38,6 +38,12 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		}
 	}
 
+	City := req.QueryStringParameters["city"]
+	if len(City) < 1 {
+		// Sarajevo is the default city
+		City = "Sarajevo"
+	}
+
 	if cognitoID == h.CognitoIDZeroValue {
 		rd := make([]*vm.DeviceGetData, 0)
 
