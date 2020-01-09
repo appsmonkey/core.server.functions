@@ -24,7 +24,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	}
 
 	if len(request.CityID) == 0 {
-		response.Data = defaultDevice.Get()
+		response.Data = defaultDevice.Get("Sarajevo")
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 200, Headers: response.Headers()}, nil
 	}
 

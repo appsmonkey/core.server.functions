@@ -40,7 +40,7 @@ func (s *sensor) Channel() ua.ChanelType {
 
 // Handler will handle our request comming from the API gateway
 func Handler() error {
-	data := defaultDevice.Get()
+	data := defaultDevice.Get("Sarajevo")
 	schemaDefault := s.ExtractVersion("")
 	// pm25, pm25Sensor := schemaDefault.ExtractData("PM 2.5")
 	// pm10, pm10Sensor := schemaDefault.ExtractData("PM 10")
