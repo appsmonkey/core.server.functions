@@ -48,7 +48,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		rd := make([]*vm.DeviceGetData, 0)
 
 		// Add the default device on the top
-		dd := defaultDevice.Get()
+		dd := defaultDevice.Get(City)
 		rd = append(rd, &dd)
 
 		response.Data = rd
@@ -82,7 +82,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	rd := make([]*vm.DeviceGetData, 0)
 
 	// Add the default device on the top
-	dd := defaultDevice.Get()
+	dd := defaultDevice.Get(City)
 	rd = append(rd, &dd)
 
 	for _, d := range dbData {
