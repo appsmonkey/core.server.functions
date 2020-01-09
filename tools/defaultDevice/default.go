@@ -10,10 +10,15 @@ import (
 )
 
 // GetMinimal default device data with minimal data
-func GetMinimal() (result vm.DeviceGetDataMinimal) {
+func GetMinimal(city string) (result vm.DeviceGetDataMinimal) {
+	if len(city) > 0 {
+		result.Name = city + " Air"
+	} else {
+		result.Name = "Sarajevo Air"
+	}
+
 	result.DeviceID = ""
 	result.Model = "BOXY"
-	result.Name = "Sarajevo Air"
 	result.Indoor = false
 	result.Active = true
 	result.DefaultDevice = true
@@ -22,7 +27,13 @@ func GetMinimal() (result vm.DeviceGetDataMinimal) {
 }
 
 // GetFrom will return the default device from the specific time
-func GetFrom(from int64) (result vm.DeviceGetData) {
+func GetFrom(from int64, city string) (result vm.DeviceGetData) {
+	if len(city) > 0 {
+		result.Name = city + " Air"
+	} else {
+		result.Name = "Sarajevo Air"
+	}
+
 	result.DefaultDevice = true
 	result.Active = true
 	result.DeviceID = ""
@@ -32,10 +43,9 @@ func GetFrom(from int64) (result vm.DeviceGetData) {
 	result.Latest = make(map[string]interface{}, 0)
 	result.Mine = true
 	result.Model = "BOXY"
-	result.Name = "Sarajevo Air"
 	result.Timestamp = float64(time.Now().Unix())
 
-	res, err := dal.ListNoProjection("live", dal.Name("timestamp").GreaterThanEqual(dal.Value(from)))
+	res, err := dal.ListNoProjection("live", dal.Name("timestamp").GreaterThanEqual(dal.Value(from)).And(dal.Name("city").Equal(dal.Value(city))))
 	if err != nil {
 		fmt.Println("could not retirieve data")
 		return
@@ -77,15 +87,15 @@ func GetFrom(from int64) (result vm.DeviceGetData) {
 }
 
 // Get default device data
-func Get() (result vm.DeviceGetData) {
-	result = GetFrom(time.Now().Add(-time.Hour * 3).Unix())
+func Get(city string) (result vm.DeviceGetData) {
+	result = GetFrom(time.Now().Add(-time.Hour*3).Unix(), city)
 
 	if len(result.Latest) == 0 {
-		result = GetFrom(time.Now().Add(-time.Hour * 6).Unix())
+		result = GetFrom(time.Now().Add(-time.Hour*6).Unix(), city)
 	}
 
 	if len(result.Latest) == 0 {
-		result = GetFrom(time.Now().Add(-time.Hour * 24).Unix())
+		result = GetFrom(time.Now().Add(-time.Hour*24).Unix(), city)
 	}
 
 	// Since we did not get any data, get the last successfull state
