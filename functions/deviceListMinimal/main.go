@@ -35,6 +35,12 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
 	}
 
+	City := req.QueryStringParameters["city"]
+	if len(City) < 1 {
+		// Sarajevo is the default city
+		City = "Sarajevo"
+	}
+
 	dbData := make([]m.Device, 0)
 	err = res.Unmarshal(&dbData)
 	if err != nil {
@@ -46,7 +52,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	rd := make([]*vm.DeviceGetDataMinimal, 0)
 
 	// Add the default device on the top
-	dd := defaultDevice.GetMinimal()
+	dd := defaultDevice.GetMinimal(City)
 	rd = append(rd, &dd)
 
 	for _, d := range dbData {
