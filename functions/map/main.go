@@ -107,6 +107,8 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 				continue
 			}
 
+			fmt.Println("AQI:::", d.Measurements["AQI_RANGE"])
+
 			if tz.ZoneID == d.ZoneID {
 				hasDevice = true
 
