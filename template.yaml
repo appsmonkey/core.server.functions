@@ -413,8 +413,8 @@ Resources:
               - meta
               - timestamp
             ProjectionType: INCLUDE
-            
-   CitiesTable:
+
+  CitiesTable:
     Type: AWS::DynamoDB::Table
     Properties:
       TableName: cities
@@ -429,12 +429,12 @@ Resources:
         - AttributeName: name
           KeyType: HASH
       Projection: 
-         NonKeyAttributes:
-           - city_id
-           - name
-           - country
-           - timestamp
-         ProjectionType: INCLUDE
+        NonKeyAttributes:
+          - city_id
+          - name
+          - country
+          - timestamp
+        ProjectionType: INCLUDE
 
   LiveTable:
     Type: AWS::DynamoDB::Table
