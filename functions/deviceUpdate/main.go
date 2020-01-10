@@ -90,7 +90,7 @@ func Handler(ctx context.Context, req interface{}) error {
 		device.Meta.OldToken = deviceData.OldToken
 	}
 
-	if len(device.MapMeta) == 0 {
+	if len(device.MapMeta) > 0 {
 		device.MapMeta = make(map[string]m.MapMeta, 0)
 	}
 
