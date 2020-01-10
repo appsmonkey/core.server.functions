@@ -29,7 +29,8 @@ all : register signup signup signin refresh profile general deviceList deviceLis
 	deviceUpdateMeta cognitoRegister cognitoProfileList cognitoProfileUpdate deviceAdd deviceGet \
 	deviceDel map zoneUpdate validateEmail seeder schemaGet chartLiveDevice chartCache chartHour \
 	chartSave chartHourDevice chartHourAll chartCacheDay chartDay chartDayDevice chartDayAll chartHasData \
-	chartCacheSix chartSix chartSixDevice chartSixAll chartLiveAll forgotPasswordStart forgotPasswordEnd notifications verifyAndRedirect customizeMessage
+	chartCacheSix chartSix chartSixDevice chartSixAll chartLiveAll forgotPasswordStart forgotPasswordEnd notifications \
+	cityList verifyAndRedirect customizeMessage
 
 vendor: Gopkg.toml
 		dep ensure -v
@@ -292,6 +293,12 @@ customizeMessage:
 	mkdir -p bin
 	$(package_lambda) bin/customizeMessage.zip customizeMessage
 	rm customizeMessage
+
+cityList:
+	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o cityList functions/cityList/main.go
+	mkdir -p bin
+	$(package_lambda) bin/cityList.zip cityList
+	rm cityList
 	
 .PHONY: deploy_swagger
 deploy_swagger:
