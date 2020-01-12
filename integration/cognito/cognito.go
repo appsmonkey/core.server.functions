@@ -275,6 +275,8 @@ func (c *Cognito) ListGroupsForUser(username string) (*cognitoidentityprovider.A
 	input.UserPoolId = aws.String(userPoolID)
 	input.Username = aws.String(username)
 
+	fmt.Println("ListGroupsForUser - INPUT :::", input)
+
 	output, err := c.identityProvider.AdminListGroupsForUser(input)
 	return output, err
 }
