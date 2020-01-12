@@ -1,6 +1,10 @@
 package main
 
 import (
+	"fmt"
+	"log"
+	"os"
+
 	"github.com/appsmonkey/core.server.functions/dal"
 	es "github.com/appsmonkey/core.server.functions/errorStatuses"
 	"github.com/appsmonkey/core.server.functions/integration/cognito"
@@ -9,6 +13,7 @@ import (
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/joho/godotenv"
 )
 
 var (
@@ -43,6 +48,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 
 	usrGroups, err := cog.ListGroupsForUser(email)
 	if err != nil {
+		fmt.Println("Fetch user groups error ::: ", err)
 		errData := es.ErrProfileMissingEmail
 		errData.Data = err.Error()
 		response.Errors = append(response.Errors, errData)
@@ -53,6 +59,17 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	response.Data = model.Profile
 
 	return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 200, Headers: response.Headers()}, nil
+}
+
+func init() {
+	if os.Getenv("ENV") == "local" {
+		err := godotenv.Load(".env")
+		if err != nil {
+			log.Fatalf("error loading .env: %v\n", err)
+		}
+	}
+
+	cog = cognito.NewCognito()
 }
 
 // CognitoData for user
