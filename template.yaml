@@ -421,12 +421,8 @@ Resources:
       AttributeDefinitions: 
         - AttributeName: city_id
           AttributeType: S
-        - AttributeName: name
-          AttributeType: S
       KeySchema:
         - AttributeName: city_id
-          KeyType: HASH
-        - AttributeName: name
           KeyType: HASH
       ProvisionedThroughput:
         ReadCapacityUnits: 5
