@@ -272,8 +272,8 @@ func (c *Cognito) Profile(username string) (*cognitoidentityprovider.AdminGetUse
 // ListGroupsForUser returns user's affiliated groups based on username
 func (c *Cognito) ListGroupsForUser(username string) (*cognitoidentityprovider.AdminListGroupsForUserOutput, error) {
 	input := new(cognitoidentityprovider.AdminListGroupsForUserInput)
-	input.UserPoolId = aws.String(userPoolID)
 	input.Username = aws.String(username)
+	input.UserPoolId = aws.String(userPoolID)
 
 	fmt.Println("ListGroupsForUser - INPUT :::", input)
 

@@ -62,6 +62,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 }
 
 func init() {
+	fmt.Println("INIT TRIGGERED")
 	if os.Getenv("ENV") == "local" {
 		err := godotenv.Load(".env")
 		if err != nil {
