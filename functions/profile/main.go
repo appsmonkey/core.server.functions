@@ -37,6 +37,7 @@ func Handler(ctx context.Context, req events.APIGatewayProxyRequest) (interface{
 	}
 
 	usrGroups, err := cog.ListGroupsForUser(req.Body)
+	fmt.Println("USER GROUPS::", usrGroups)
 	if err != nil {
 		errData := es.ErrProfileMissingEmail
 		errData.Data = err.Error()
