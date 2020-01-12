@@ -414,6 +414,21 @@ Resources:
               - timestamp
             ProjectionType: INCLUDE
 
+  CitiesTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: cities
+      AttributeDefinitions: 
+        - AttributeName: city_id
+          AttributeType: S
+        - AttributeName: name
+          AttributeType: S
+      KeySchema:
+        - AttributeName: city_id
+          KeyType: HASH
+        - AttributeName: name
+          KeyType: HASH
+
   LiveTable:
     Type: AWS::DynamoDB::Table
     Properties:
