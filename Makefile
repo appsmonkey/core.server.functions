@@ -307,7 +307,7 @@ cityDel:
 	rm cityDel
 
 cityAdd:
-	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o cityDel functions/cityAdd/main.go
+	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o cityAdd functions/cityAdd/main.go
 	mkdir -p bin
 	$(package_lambda) bin/cityAdd.zip cityAdd
 	rm cityAdd
