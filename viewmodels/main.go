@@ -11,6 +11,7 @@ type BaseResponse struct {
 	Code      int64       `json:"code"`
 	Errors    []es.Error  `json:"errors"`
 	Data      interface{} `json:"data"`
+	Groups    interface{} `json:"user_groups"`
 	RequestID string      `json:"request_id"`
 }
 

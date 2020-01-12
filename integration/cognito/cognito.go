@@ -269,6 +269,16 @@ func (c *Cognito) Profile(username string) (*cognitoidentityprovider.AdminGetUse
 	return output, err
 }
 
+// ListGroupsForUser returns user's affiliated groups based on username
+func (c *Cognito) ListGroupsForUser(username string) (*cognitoidentityprovider.AdminListGroupsForUserOutput, error) {
+	input := new(cognitoidentityprovider.AdminListGroupsForUserInput)
+	input.UserPoolId = aws.String(userPoolID)
+	input.Username = aws.String(username)
+
+	output, err := c.identityProvider.AdminListGroupsForUser(input)
+	return output, err
+}
+
 // SignIn login user based on his username and password
 func (c *Cognito) SignIn(username, password string) (*CognitoData, error) {
 	authInput := &cognitoidentityprovider.AdminInitiateAuthInput{

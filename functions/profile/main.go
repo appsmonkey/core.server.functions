@@ -36,8 +36,11 @@ func Handler(ctx context.Context, req events.APIGatewayProxyRequest) (interface{
 		return response, nil
 	}
 
+	usrGroups, err := cog.ListGroupsForUser(req.Body)
+
 	// TODO: check what data do we need from user's profile.
 	response.Data = data
+	response.Groups = usrGroups
 	return response, nil
 }
 
