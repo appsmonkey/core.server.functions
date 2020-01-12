@@ -30,7 +30,7 @@ all : register signup signup signin refresh profile general deviceList deviceLis
 	deviceDel map zoneUpdate validateEmail seeder schemaGet chartLiveDevice chartCache chartHour \
 	chartSave chartHourDevice chartHourAll chartCacheDay chartDay chartDayDevice chartDayAll chartHasData \
 	chartCacheSix chartSix chartSixDevice chartSixAll chartLiveAll forgotPasswordStart forgotPasswordEnd notifications \
-	cityList verifyAndRedirect customizeMessage
+	cityList cityDel cityAdd cityUpdate verifyAndRedirect customizeMessage
 
 vendor: Gopkg.toml
 		dep ensure -v
@@ -299,7 +299,25 @@ cityList:
 	mkdir -p bin
 	$(package_lambda) bin/cityList.zip cityList
 	rm cityList
-	
+
+cityDel:
+	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o cityDel functions/cityDel/main.go
+	mkdir -p bin
+	$(package_lambda) bin/cityDel.zip cityDel
+	rm cityDel
+
+cityAdd:
+	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o cityDel functions/cityAdd/main.go
+	mkdir -p bin
+	$(package_lambda) bin/cityAdd.zip cityAdd
+	rm cityAdd
+
+cityUpdate:
+	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o cityUpdate functions/cityUpdate/main.go
+	mkdir -p bin
+	$(package_lambda) bin/cityUpdate.zip cityUpdate
+	rm cityUpdate	
+
 .PHONY: deploy_swagger
 deploy_swagger:
 	aws s3 cp swagger.yaml s3://artifacts.cityo.io/CityOS/swagger.yaml

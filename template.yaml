@@ -938,6 +938,27 @@ Resources:
       Handler: 'cityList'
       Role: !GetAtt LambdaRole.Arn
 
+  cityAdd:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: 'bin/cityAdd.zip'
+      Handler: 'cityAdd'
+      Role: !GetAtt LambdaRole.Arn
+
+  cityDel:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: 'bin/cityDel.zip'
+      Handler: 'cityDel'
+      Role: !GetAtt LambdaRole.Arn
+
+  cityUpdate:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: 'bin/cityUpdate.zip'
+      Handler: 'cityUpdate'
+      Role: !GetAtt LambdaRole.Arn
+
   # test:
   #   Type: 'AWS::Serverless::Function'
   #   Properties:
