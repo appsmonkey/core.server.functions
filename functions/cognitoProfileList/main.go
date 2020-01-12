@@ -3,11 +3,16 @@ package main
 import (
 	"github.com/appsmonkey/core.server.functions/dal"
 	es "github.com/appsmonkey/core.server.functions/errorStatuses"
+	"github.com/appsmonkey/core.server.functions/integration/cognito"
 	m "github.com/appsmonkey/core.server.functions/models"
 	vm "github.com/appsmonkey/core.server.functions/viewmodels"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go/aws"
+)
+
+var (
+	cog *cognito.Cognito
 )
 
 // Handler will handle our request comming from the API gateway
@@ -36,6 +41,15 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
 	}
 
+	usrGroups, err := cog.ListGroupsForUser(email)
+	if err != nil {
+		errData := es.ErrProfileMissingEmail
+		errData.Data = err.Error()
+		response.Errors = append(response.Errors, errData)
+		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
+	}
+
+	response.Groups = usrGroups
 	response.Data = model.Profile
 
 	return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 200, Headers: response.Headers()}, nil
