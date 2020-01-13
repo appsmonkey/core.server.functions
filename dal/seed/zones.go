@@ -25,6 +25,7 @@ func loadZones() {
 			ld, ln := s.SensorReading("1", sk, 0)
 			zd := m.Zone{
 				ZoneID:   zk,
+				CityID:   "Sarajevo",
 				SensorID: sk,
 				Data: m.ZoneMeta{
 					SensorID:    sk,
