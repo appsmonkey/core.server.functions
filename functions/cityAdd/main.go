@@ -24,20 +24,22 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
 	}
 
+	fmt.Println("Cognito ID ::: ", cognitoID)
+
 	// FIXME: Only admin can CUD cities - check user cognito user pool when set up
-	type resToUser struct {
-		Success bool   `json:"success"`
-		Message string `json:"message"`
-	}
+	// type resToUser struct {
+	// 	Success bool   `json:"success"`
+	// 	Message string `json:"message"`
+	// }
 
-	r := resToUser{Success: true, Message: ""}
-	if cognitoID == h.CognitoIDZeroValue {
-		r.Success = false
-		r.Message = "no permissions to add new city"
+	// r := resToUser{Success: true, Message: ""}
+	// if cognitoID == h.CognitoIDZeroValue {
+	// 	r.Success = false
+	// 	r.Message = "no permissions to add new city"
 
-		response.Data = r
-		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 400, Headers: response.Headers()}, nil
-	}
+	// 	response.Data = r
+	// 	return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 400, Headers: response.Headers()}, nil
+	// }
 
 	city := m.City{}
 	city.CityID = request.CityID
