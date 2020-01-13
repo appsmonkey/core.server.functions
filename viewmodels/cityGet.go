@@ -36,7 +36,6 @@ type CityGetResponse struct {
 // CityGetData returned to user
 type CityGetData struct {
 	CityID    string   `json:"device_id"`
-	Name      string   `json:"name"`
 	Country   string   `json:"country"`
 	Zones     []m.Zone `json:"zones"`
 	Timestamp float64  `json:"timestamp"`
@@ -45,7 +44,6 @@ type CityGetData struct {
 // CityGetDataMinimal returned to user
 type CityGetDataMinimal struct {
 	CityID    string  `json:"device_id"`
-	Name      string  `json:"name"`
 	Country   string  `json:"country"`
 	Timestamp float64 `json:"timestamp"`
 }

@@ -51,7 +51,6 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 
 	data := vm.CityGetData{
 		CityID:    model.CityID,
-		Name:      model.Name,
 		Country:   model.Country,
 		Timestamp: model.Timestamp,
 	}
