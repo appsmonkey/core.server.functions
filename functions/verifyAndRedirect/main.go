@@ -46,6 +46,9 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	headers := response.Headers()
 
 	json, err := json.Marshal(assetLinks)
+
+	fmt.Println("assetLinks:::", assetLinks)
+	fmt.Println("JSON:::", json)
 	if err != nil {
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 400, Headers: response.Headers()}, nil
 	}
