@@ -54,7 +54,8 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 				S: aws.String(request.CityID),
 			},
 		})
-		if err == nil && existingCity != nil {
+		if err == nil {
+			fmt.Println("City already exists ::: ", existingCity)
 			errData := es.ErrCityAlreadyExists
 			errData.Data = err.Error()
 			response.Errors = append(response.Errors, errData)
