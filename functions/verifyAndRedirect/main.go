@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 
@@ -32,8 +31,9 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	}
 
 	// asset links for android
-	var assetLinks map[string]interface{}
-	json.Unmarshal([]byte(`[{
+
+	headers := response.Headers()
+	return events.APIGatewayProxyResponse{Body: `[{
 		"relation": ["delegate_permission/common.handle_all_urls"],
 		"target": {
 		  "namespace": "android_app",
@@ -41,18 +41,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		  "sha256_cert_fingerprints":
 		  ["66:6D:4F:2F:AA:94:E4:77:C1:57:EB:95:8E:58:DF:42:60:9D:92:34:3E:F8:B0:D9:7F:D6:25:2F:2A:95:9B:EC"]
 		}
-	  }]`), &assetLinks)
-
-	headers := response.Headers()
-
-	json, err := json.Marshal(assetLinks)
-
-	fmt.Println("assetLinks:::", assetLinks)
-	fmt.Println("JSON:::", json)
-	if err != nil {
-		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 400, Headers: response.Headers()}, nil
-	}
-	return events.APIGatewayProxyResponse{Body: string(json), StatusCode: 200, Headers: headers}, nil
+	  }]`, StatusCode: 200, Headers: headers}, nil
 
 	// // redired URL - default
 	// switch request.ClientID {
