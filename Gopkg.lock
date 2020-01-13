@@ -8,6 +8,12 @@
   version = "v0.50.0"
 
 [[projects]]
+  branch = "master"
+  name = "github.com/avct/uasurfer"
+  packages = ["."]
+  revision = "26b5daa857f1795200dec57c65df7dfec689e707"
+
+[[projects]]
   name = "github.com/aws/aws-lambda-go"
   packages = ["events","lambda","lambda/handlertrace","lambda/messages","lambdacontext"]
   revision = "b5b7267d297de263cc5b61f8c37543daa9c95ffd"
@@ -135,7 +141,7 @@
 [[projects]]
   branch = "master"
   name = "google.golang.org/genproto"
-  packages = ["googMessaleapis/rpc/status"]
+  packages = ["googleapis/rpc/status"]
   revision = "f3c370f40bfba3cb25c5c2f823a1a8031b5ad724"
 
 [[projects]]
@@ -147,6 +153,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "cda8b9e593bc1284c21f68d2732bb3e04fe5a96826b33361b8490363bfff51d7"
+  inputs-digest = "02ead2820fad0be721072ffd09f89a83f5ee68c0aea470a95195bd6935ecceb8"
   solver-name = "gps-cdcl"
   solver-version = 1

@@ -21,7 +21,6 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	response := request.Validate(req.Body)
 	if response.Code != 0 {
 		fmt.Printf("errors on request: %v, requestID: %v", response.Errors, response.RequestID)
-
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
 	}
 
@@ -75,7 +74,11 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 
 // CognitoData for user
 func CognitoData(in map[string]interface{}) string {
-	data := in["claims"].(map[string]interface{})
+	data, ok := in["claims"].(map[string]interface{})
+
+	if !ok {
+		return h.CognitoIDZeroValue
+	}
 
 	return data["sub"].(string)
 }

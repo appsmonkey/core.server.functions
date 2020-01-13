@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	vm "github.com/appsmonkey/core.server.functions/viewmodels"
+	"github.com/avct/uasurfer"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 )
@@ -19,6 +20,10 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 400, Headers: response.Headers()}, nil
 	}
+
+	fmt.Println("Req. Headers ::: ", req.Headers)
+	ua := uasurfer.Parse(req.Headers["User-Agent"])
+	fmt.Println("UA:", ua)
 
 	// create verification URL
 	verificationURL := "https://cityos.auth.us-east-1.amazoncognito.com/confirmUser?client_id=" + request.ClientID + "&user_name=" + request.UserName + "&response_type=code" + "&confirmation_code=" + request.ConfirmationCode
