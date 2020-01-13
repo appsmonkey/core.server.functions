@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"time"
 )
 
@@ -53,7 +54,7 @@ type MapMeta struct {
 	Unit        string  `json:"unit"`
 }
 
-// ToLiveData will convert the data into live data needsd for the live table
+// ToLiveData will convert the data into live data needed for the live table
 func (d *Device) ToLiveData() map[string]interface{} {
 	data := make(map[string]interface{}, 0)
 	then := time.Now()
@@ -71,6 +72,7 @@ func (d *Device) ToLiveData() map[string]interface{} {
 		data[k] = v
 	}
 
+	fmt.Println("DEVICE UPDATE DATA:::", data)
 	return data
 }
 
