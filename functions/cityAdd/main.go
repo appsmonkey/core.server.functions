@@ -55,9 +55,10 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 			},
 		})
 		if err == nil {
-			fmt.Println("City already exists ::: ", existingCity)
+			var c m.City
+			existingCity.Unmarshal(&c)
+			fmt.Println("City already exists ::: ", c)
 			errData := es.ErrCityAlreadyExists
-			errData.Data = err.Error()
 			response.Errors = append(response.Errors, errData)
 			return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 503, Headers: response.Headers()}, nil
 		}
