@@ -49,16 +49,17 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		city.CityID = request.CityID
 
 		// check if city exists
-		existingCity, err := dal.Get("cities", map[string]*dal.AttributeValue{
+		dbRes, err := dal.Get("cities", map[string]*dal.AttributeValue{
 			"city_id": {
 				S: aws.String(request.CityID),
 			},
 		})
 
-		if err == nil {
-			var c m.City
-			err = existingCity.Unmarshal(&c)
-			fmt.Println("City already exists ::: ", c, err)
+		var existingCity m.City
+		err = dbRes.Unmarshal(&existingCity)
+
+		if err == nil && len(existingCity.CityID) > 0 {
+			fmt.Println("City already exists ::: ", existingCity.CityID)
 			errData := es.ErrCityAlreadyExists
 			response.Errors = append(response.Errors, errData)
 			return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 503, Headers: response.Headers()}, nil
