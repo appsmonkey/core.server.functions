@@ -143,6 +143,24 @@ zoneUpdate:
 	$(package_lambda) bin/zoneUpdate.zip zoneUpdate
 	rm zoneUpdate
 
+zoneImport:
+	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o zoneImport functions/zoneImport/main.go
+	mkdir -p bin
+	$(package_lambda) bin/zoneImport.zip zoneImport
+	rm zoneUpdate
+
+zoneDel:
+	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o zoneDel functions/zoneDel/main.go
+	mkdir -p bin
+	$(package_lambda) bin/zoneDel.zip zoneDel
+	rm zoneDel
+
+zoneGet:
+	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o zoneGet functions/zoneGet/main.go
+	mkdir -p bin
+	$(package_lambda) bin/zoneGet.zip zoneGet
+	rm zoneGet
+
 validateEmail:
 	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o validateEmail functions/validateEmail/main.go
 	mkdir -p bin

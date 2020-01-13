@@ -959,6 +959,27 @@ Resources:
       Handler: 'cityUpdate'
       Role: !GetAtt LambdaRole.Arn
 
+  zoneDel:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: 'bin/zoneDel.zip'
+      Handler: 'zoneDel'
+      Role: !GetAtt LambdaRole.Arn
+
+  zoneImport:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: 'bin/zoneImport.zip'
+      Handler: 'zoneImport'
+      Role: !GetAtt LambdaRole.Arn
+
+  zoneGet:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: 'bin/zoneGet.zip'
+      Handler: 'zoneGet'
+      Role: !GetAtt LambdaRole.Arn
+
   # test:
   #   Type: 'AWS::Serverless::Function'
   #   Properties:
