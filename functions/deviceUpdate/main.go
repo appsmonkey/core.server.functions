@@ -81,11 +81,11 @@ func Handler(ctx context.Context, req interface{}) error {
 	device.DeviceID = deviceData.DeviceID
 	device.Timestamp = timestamp
 
-	if device.Meta.OldSchema != nil {
+	if len(deviceData.OldSchema) > 0 {
 		device.Meta.OldSchema = deviceData.OldSchema
 	}
 
-	if len(device.Meta.OldToken) > 0 {
+	if len(deviceData.OldToken) > 0 {
 		device.Meta.OldToken = deviceData.OldToken
 	}
 
