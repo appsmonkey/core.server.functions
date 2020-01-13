@@ -10,8 +10,7 @@ import (
 
 // CityAddRequest is the request from the client
 type CityAddRequest struct {
-	CityID  string `json:"id"`
-	Name    string `json:"name"`
+	CityID  string `json:"city_id"`
 	Country string `json:"country"` // FIXME: maybe we want to have country as an entity too ?
 }
 
@@ -31,22 +30,15 @@ func (r *CityAddRequest) Validate(body string) *CityAddResponse {
 		return response
 	}
 
-	if len(r.Name) == 0 {
-		response.Errors = append(response.Errors, es.ErrCityMissingName)
-		response.Code = es.StatusCityMissingName
+	if len(r.CityID) == 0 {
+		response.Errors = append(response.Errors, es.ErrMissingCityID)
+		response.Code = es.StatusCityMissingCountry
 	}
 
 	if len(r.Country) == 0 {
 		response.Errors = append(response.Errors, es.ErrCityMissingCountry)
 		response.Code = es.StatusCityMissingCountry
 	}
-
-	// fmt.Sprintln(r.Zones, "Zones")
-	// rt := reflect.TypeOf(r.Zones)
-	// if len(r.Zones) == 0 && rt.Kind() != reflect.Array && rt.Kind() != reflect.Slice {
-	// 	response.Errors = append(response.Errors, es.ErrCityMissingZones)
-	// 	response.Code = es.StatusCityMissingZones
-	// }
 
 	return response
 }

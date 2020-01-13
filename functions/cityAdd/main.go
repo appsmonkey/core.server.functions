@@ -9,7 +9,6 @@ import (
 	"github.com/appsmonkey/core.server.functions/dal"
 	es "github.com/appsmonkey/core.server.functions/errorStatuses"
 	m "github.com/appsmonkey/core.server.functions/models"
-	bg "github.com/appsmonkey/core.server.functions/tools/guid"
 	h "github.com/appsmonkey/core.server.functions/tools/helper"
 	vm "github.com/appsmonkey/core.server.functions/viewmodels"
 	"github.com/aws/aws-lambda-go/lambda"
@@ -43,22 +42,19 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 
 	city := m.City{}
 	city.CityID = request.CityID
-	if len(city.CityID) == 0 {
-		city.CityID = bg.New()
-	}
 
 	// if this is true we are updating existing city
 	if len(city.CityID) > 0 {
 		city.CityID = request.CityID
 
 		// check if city exists
-		_, err := dal.Get("cities", map[string]*dal.AttributeValue{
+		existingCity, err := dal.Get("cities", map[string]*dal.AttributeValue{
 			"city_id": {
 				S: aws.String(request.CityID),
 			},
 		})
-		if err != nil {
-			errData := es.ErrCityNotFound
+		if err == nil && existingCity != nil {
+			errData := es.ErrCityAlreadyExists
 			errData.Data = err.Error()
 			response.Errors = append(response.Errors, errData)
 			return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 503, Headers: response.Headers()}, nil
@@ -66,8 +62,6 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	}
 
 	city.Country = request.Country
-	city.Name = request.Name
-
 	response.Data = vm.CityAddData{CityID: city.CityID}
 
 	// insert data into the DB
