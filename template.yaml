@@ -952,12 +952,12 @@ Resources:
       Handler: 'cityDel'
       Role: !GetAtt LambdaRole.Arn
 
-  # cityUpdate:
-  #   Type: 'AWS::Serverless::Function'
-  #   Properties:
-  #     CodeUri: 'bin/cityUpdate.zip'
-  #     Handler: 'cityUpdate'
-  #     Role: !GetAtt LambdaRole.Arn
+  cityGet:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: 'bin/cityGet.zip'
+      Handler: 'cityUpdate'
+      Role: !GetAtt LambdaRole.Arn
 
   # test:
   #   Type: 'AWS::Serverless::Function'

@@ -30,7 +30,7 @@ all : register signup signup signin refresh profile general deviceList deviceLis
 	deviceDel map zoneUpdate validateEmail seeder schemaGet chartLiveDevice chartCache chartHour \
 	chartSave chartHourDevice chartHourAll chartCacheDay chartDay chartDayDevice chartDayAll chartHasData \
 	chartCacheSix chartSix chartSixDevice chartSixAll chartLiveAll forgotPasswordStart forgotPasswordEnd notifications \
-	cityList cityDel cityAdd verifyAndRedirect customizeMessage
+	cityList cityDel cityAdd cityGet verifyAndRedirect customizeMessage
 
 vendor: Gopkg.toml
 		dep ensure -v
@@ -312,11 +312,11 @@ cityAdd:
 	$(package_lambda) bin/cityAdd.zip cityAdd
 	rm cityAdd
 
-# cityUpdate:
-# 	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o cityUpdate functions/cityUpdate/main.go
-# 	mkdir -p bin
-# 	$(package_lambda) bin/cityUpdate.zip cityUpdate
-# 	rm cityUpdate	
+cityGet:
+	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o cityGet functions/cityGet/main.go
+	mkdir -p bin
+	$(package_lambda) bin/cityGet.zip cityGet
+	rm cityGet	
 
 .PHONY: deploy_swagger
 deploy_swagger:
