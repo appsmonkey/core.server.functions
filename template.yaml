@@ -956,7 +956,7 @@ Resources:
     Type: 'AWS::Serverless::Function'
     Properties:
       CodeUri: 'bin/cityGet.zip'
-      Handler: 'cityUpdate'
+      Handler: 'cityGet'
       Role: !GetAtt LambdaRole.Arn
 
   zoneDel:
