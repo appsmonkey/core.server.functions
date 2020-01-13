@@ -147,7 +147,7 @@ zoneImport:
 	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o zoneImport functions/zoneImport/main.go
 	mkdir -p bin
 	$(package_lambda) bin/zoneImport.zip zoneImport
-	rm zoneUpdate
+	rm zoneImport
 
 zoneDel:
 	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o zoneDel functions/zoneDel/main.go
