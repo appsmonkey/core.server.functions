@@ -6,7 +6,6 @@ import (
 	"github.com/appsmonkey/core.server.functions/dal"
 	es "github.com/appsmonkey/core.server.functions/errorStatuses"
 	m "github.com/appsmonkey/core.server.functions/models"
-	defaultDevice "github.com/appsmonkey/core.server.functions/tools/defaultDevice"
 	vm "github.com/appsmonkey/core.server.functions/viewmodels"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
@@ -24,8 +23,10 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	}
 
 	if len(request.CityID) == 0 {
-		response.Data = defaultDevice.Get("Sarajevo")
-		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 200, Headers: response.Headers()}, nil
+		errData := es.ErrMissingCityID
+		response.Errors = append(response.Errors, errData)
+		fmt.Printf("errors on request: %v, requestID: %v", response.Errors, response.RequestID)
+		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
 	}
 
 	res, err := dal.Get("cities", map[string]*dal.AttributeValue{
