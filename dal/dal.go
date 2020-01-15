@@ -142,7 +142,6 @@ func Insert(table string, data interface{}) error {
 	}
 
 	// Create Item in table and return
-	fmt.Println("Insert ::: ", av)
 	input := &dynamodb.PutItemInput{
 		Item:      av,
 		TableName: aws.String(table),
