@@ -127,11 +127,11 @@ func Handler(ctx context.Context, req interface{}) error {
 
 		// convert raw device value according to condition given in schema
 		// mv = fieldData.ConvertRawValue(mv)
-		
+
 		level := fieldData.Result(mv)
 
-		if mk === "AIR_AQI_RANGE" {
-			fmt.Println("AIR AQI UPDATE LEVEL ::: ",fieldData, mv, level)
+		if mk == "AIR_AQI_RANGE" {
+			fmt.Println("AIR AQI UPDATE LEVEL ::: ", fieldData, mv, level)
 		}
 		// level := m.Level(mk, mv)
 
