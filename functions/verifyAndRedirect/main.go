@@ -4,10 +4,13 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/appsmonkey/core.server.functions/dal"
+	m "github.com/appsmonkey/core.server.functions/models"
 	vm "github.com/appsmonkey/core.server.functions/viewmodels"
 	"github.com/avct/uasurfer"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/aws/aws-sdk-go/aws"
 )
 
 // Handler will handle our request comming from the API gateway
@@ -28,13 +31,29 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	verificationURL := "https://cityos.auth.us-east-1.amazoncognito.com/confirmUser?client_id=" + request.ClientID + "&user_name=" + request.UserName + "&response_type=code" + "&confirmation_code=" + request.ConfirmationCode
 	fmt.Println("VERIFICATION URL:", verificationURL)
 
-	_, err := http.Get(verificationURL)
+	verificationResponse, err := http.Get(verificationURL)
+	fmt.Println("Verification response ::: ", verificationResponse.StatusCode)
+
 	if err != nil {
 		fmt.Println("Verification error: ", err)
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 400, Headers: response.Headers()}, nil
 	}
 
-	// asset links for android
+	res, err := dal.Get("users", map[string]*dal.AttributeValue{
+		"email": {
+			S: aws.String(request.UserName),
+		},
+	})
+
+	if err != nil {
+		fmt.Println("User missing error: ", err)
+		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 400, Headers: response.Headers()}, nil
+	}
+
+	user := new(m.User)
+	res.Unmarshal(&user)
+
+	response.Data = user
 
 	headers := response.Headers()
 

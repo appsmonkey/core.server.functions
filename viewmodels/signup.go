@@ -41,6 +41,10 @@ func (r *SignupRequest) Validate(body string) *SignupResponse {
 		return response
 	}
 
+	if len(r.Gender) < 1 {
+		r.Gender = "male"
+	}
+
 	if !validateEmail(r.Email) {
 		response.Errors = append(response.Errors, es.ErrRegistrationMissingEmail)
 		response.Code = es.StatusRegistrationError
@@ -50,9 +54,11 @@ func (r *SignupRequest) Validate(body string) *SignupResponse {
 		if len(r.Password) < 1 {
 			r.Password = "@TempPass1" + h.RandSeq(5)
 			r.TempSecret = h.RandSeq(7)
+		} else {
+			response.Errors = append(response.Errors, es.ErrRegistrationMissingPass)
+			response.Code = es.StatusRegistrationError
 		}
-		// response.Errors = append(response.Errors, es.ErrRegistrationMissingPass)
-		// response.Code = es.StatusRegistrationError
+
 	}
 
 	return response
