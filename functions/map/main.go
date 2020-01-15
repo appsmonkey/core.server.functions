@@ -60,6 +60,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		fmt.Println("Fetching zone data for sensor: " + z)
 		zoneRes, err := dal.List("zones", dal.Name("sensor_id").Equal(dal.Value(z)), dal.Projection(dal.Name("zone_id"), dal.Name("data")))
 		zd := make([]m.Zone, 0)
+		fmt.Println("Zone Res ::: ", zoneRes)
 		err = zoneRes.Unmarshal(&zd)
 		if err != nil {
 			fmt.Println(err)
@@ -81,6 +82,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 
 	dbRes, err := dal.ListNoFilter("devices", dal.Projection(dal.Name("token"), dal.Name("device_id"), dal.Name("meta"), dal.Name("map_meta"), dal.Name("active"), dal.Name("measurements"), dal.Name("cognito_id"), dal.Name("timestamp"), dal.Name("zone_id")))
 
+	fmt.Println("DB RES ::: ", dbRes)
 	dbData := make([]m.Device, 0)
 	err = dbRes.Unmarshal(&dbData)
 	if err != nil {

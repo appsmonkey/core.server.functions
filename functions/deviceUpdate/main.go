@@ -129,6 +129,10 @@ func Handler(ctx context.Context, req interface{}) error {
 		// mv = fieldData.ConvertRawValue(mv)
 
 		level := fieldData.Result(mv)
+
+		if mk == "AIR_AQI_RANGE" {
+			fmt.Println("AIR AQI UPDATE LEVEL ::: ", fieldData, mv, level)
+		}
 		// level := m.Level(mk, mv)
 
 		mm := m.MapMeta{
