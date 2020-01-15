@@ -22,6 +22,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	}
 
 	ua := uasurfer.Parse(req.Headers["User-Agent"])
+	fmt.Println("REQUEST_TYPE ::: ", request.Type)
 
 	// create verification URL
 	verificationURL := "https://cityos.auth.us-east-1.amazoncognito.com/confirmUser?client_id=" + request.ClientID + "&user_name=" + request.UserName + "&response_type=code" + "&confirmation_code=" + request.ConfirmationCode

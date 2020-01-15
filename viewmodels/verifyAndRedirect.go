@@ -8,6 +8,7 @@ type VerifyRedirectRequest struct {
 	ClientID         string `json:"client_id"`
 	UserName         string `json:"user_name"`
 	ConfirmationCode string `json:"confirmation_code"`
+	Type             string `json:"type"`
 }
 
 // Validate the request sent from client
@@ -18,6 +19,11 @@ func (r *VerifyRedirectRequest) Validate(body map[string]string) *VerifyRedirect
 	url, ok := body["redirect_url"]
 	if ok {
 		r.RedirectURL = url
+	}
+
+	reqType, ok := body["type"]
+	if ok {
+		r.Type = reqType
 	}
 
 	cid, ok := body["client_id"]
