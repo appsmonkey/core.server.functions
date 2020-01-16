@@ -40,6 +40,9 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	}
 
 	res, err := dal.Get("users", map[string]*dal.AttributeValue{
+		"cognito_id": {
+			S: aws.String(request.CognitoID),
+		},
 		"email": {
 			S: aws.String(request.UserName),
 		},
