@@ -30,7 +30,7 @@ all : register signup signup signin refresh profile general deviceList deviceLis
 	deviceDel map zoneUpdate validateEmail seeder schemaGet chartLiveDevice chartCache chartHour \
 	chartSave chartHourDevice chartHourAll chartCacheDay chartDay chartDayDevice chartDayAll chartHasData \
 	chartCacheSix chartSix chartSixDevice chartSixAll chartLiveAll forgotPasswordStart forgotPasswordEnd notifications \
-	cityList cityDel cityAdd cityGet verifyAndRedirect customizeMessage zoneDel zoneImport zoneGet
+	cityList cityDel cityAdd cityGet verifyAndRedirect customizeMessage zoneDel zoneImport zoneGet registerFillUserData
 
 vendor: Gopkg.toml
 		dep ensure -v
@@ -335,6 +335,12 @@ cityGet:
 	mkdir -p bin
 	$(package_lambda) bin/cityGet.zip cityGet
 	rm cityGet	
+
+registerFillUserData:
+	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o registerFillUserData functions/cityGet/main.go
+	mkdir -p bin
+	$(package_lambda) bin/registerFillUserData.zip registerFillUserData
+	rm registerFillUserData	
 
 .PHONY: deploy_swagger
 deploy_swagger:

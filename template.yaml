@@ -979,6 +979,14 @@ Resources:
       CodeUri: 'bin/zoneGet.zip'
       Handler: 'zoneGet'
       Role: !GetAtt LambdaRole.Arn
+  
+  registerFillUserData:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: 'bin/registerFillUserData.zip'
+      Handler: 'registerFillUserData'
+      Role: !GetAtt LambdaRole.Arn
+
 
   # test:
   #   Type: 'AWS::Serverless::Function'
