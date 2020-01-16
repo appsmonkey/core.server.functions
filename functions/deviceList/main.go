@@ -25,9 +25,10 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	response := new(vm.DeviceListResponse)
 	response.Init()
 	cognitoID := h.CognitoIDZeroValue
+	userName := ""
 	authHdr := header("AccessToken", req.Headers)
 	if len(authHdr) > 0 {
-		c, _, isExpired, err := cog.ValidateToken(authHdr)
+		c, u, isExpired, err := cog.ValidateToken(authHdr)
 		if err != nil {
 			fmt.Println(err)
 			if isExpired {
@@ -35,6 +36,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 			}
 		} else {
 			cognitoID = c
+			userName = u
 		}
 	}
 
@@ -53,6 +55,17 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 
 		response.Data = rd
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 200, Headers: response.Headers()}, nil
+	}
+
+	if len(userName) > 0 {
+		userGroupsRes, err := cog.ListGroupsForUser(userName)
+
+		if err != nil {
+			fmt.Println("User groups error ::: ", err)
+			return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
+		}
+
+		fmt.Println(userGroupsRes)
 	}
 
 	res, err := dal.GetFromIndex("devices", "CognitoID-index", dal.Condition{

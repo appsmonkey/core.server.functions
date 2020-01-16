@@ -281,6 +281,20 @@ func (c *Cognito) ListGroupsForUser(username string) (*cognitoidentityprovider.A
 	return output, err
 }
 
+// SetUserPassword sets the password for user
+func (c *Cognito) SetUserPassword(username, password string, permanent bool) (*cognitoidentityprovider.AdminSetUserPasswordOutput, error) {
+	input := new(cognitoidentityprovider.AdminSetUserPasswordInput)
+	input.Username = aws.String(username)
+	input.UserPoolId = aws.String(userPoolID)
+	input.Password = aws.String(password)
+	input.Permanent = aws.Bool(permanent)
+
+	fmt.Println("SetUserPassword - INPUT :::", input)
+
+	output, err := c.identityProvider.AdminSetUserPassword(input)
+	return output, err
+}
+
 // SignIn login user based on his username and password
 func (c *Cognito) SignIn(username, password string) (*CognitoData, error) {
 	authInput := &cognitoidentityprovider.AdminInitiateAuthInput{

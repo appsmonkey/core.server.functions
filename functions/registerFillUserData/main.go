@@ -5,12 +5,17 @@ import (
 
 	"github.com/appsmonkey/core.server.functions/dal"
 	es "github.com/appsmonkey/core.server.functions/errorStatuses"
+	"github.com/appsmonkey/core.server.functions/integration/cognito"
 	m "github.com/appsmonkey/core.server.functions/models"
 	vm "github.com/appsmonkey/core.server.functions/viewmodels"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
+)
+
+var (
+	cog *cognito.Cognito
 )
 
 // Handler will handle our request comming from the API gateway
@@ -50,7 +55,15 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 
 	if user.Token != request.Token {
 		fmt.Println("Unauthorized request")
-		response.AddError(&es.Error{Message: err.Error(), Data: "Unauthorited request"})
+		response.AddError(&es.Error{Message: err.Error(), Data: "Unauthorized request"})
+		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 400, Headers: response.Headers()}, nil
+	}
+
+	_, err := cog.SetUserPassword(request.UserName, request.Password, true)
+	
+	err != nil {
+		fmt.Println("Unauthorized request")
+		response.AddError(&es.Error{Message: err.Error(), Data: "Set password error"})
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 400, Headers: response.Headers()}, nil
 	}
 
@@ -78,11 +91,8 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 200, Headers: response.Headers()}, nil
 }
 
-// CognitoData for user
-func CognitoData(in map[string]interface{}) (string, string) {
-	data := in["claims"].(map[string]interface{})
-
-	return data["sub"].(string), data["email"].(string)
+func init() {
+	cog = cognito.NewCognito()
 }
 
 func main() {

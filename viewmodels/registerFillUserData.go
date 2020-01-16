@@ -15,6 +15,7 @@ type RegisterFillUserDataRequest struct {
 	Token     string `json:"token"`
 	UserName  string `json:"user_name"`
 	CognitoID string `json:"cognito_id"`
+	Password  string `json:"password"`
 }
 
 // Validate the request sent from client

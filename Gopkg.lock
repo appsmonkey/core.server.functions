@@ -21,9 +21,9 @@
 
 [[projects]]
   name = "github.com/aws/aws-sdk-go"
-  packages = ["aws","aws/awserr","aws/awsutil","aws/client","aws/client/metadata","aws/corehandlers","aws/credentials","aws/credentials/ec2rolecreds","aws/credentials/endpointcreds","aws/credentials/processcreds","aws/credentials/stscreds","aws/crr","aws/csm","aws/defaults","aws/ec2metadata","aws/endpoints","aws/request","aws/session","aws/signer/v4","internal/ini","internal/sdkio","internal/sdkrand","internal/sdkuri","internal/shareddefaults","private/protocol","private/protocol/json/jsonutil","private/protocol/jsonrpc","private/protocol/query","private/protocol/query/queryutil","private/protocol/rest","private/protocol/restjson","private/protocol/xml/xmlutil","service/cognitoidentityprovider","service/dynamodb","service/dynamodb/dynamodbattribute","service/dynamodb/expression","service/lambda","service/sts"]
-  revision = "c1afd6c3340feedd0a2c1cd929dcb291d4bd09ba"
-  version = "v1.16.23"
+  packages = ["aws","aws/awserr","aws/awsutil","aws/client","aws/client/metadata","aws/corehandlers","aws/credentials","aws/credentials/ec2rolecreds","aws/credentials/endpointcreds","aws/credentials/processcreds","aws/credentials/stscreds","aws/crr","aws/csm","aws/defaults","aws/ec2metadata","aws/endpoints","aws/request","aws/session","aws/signer/v4","internal/ini","internal/sdkio","internal/sdkmath","internal/sdkrand","internal/sdkuri","internal/shareddefaults","internal/strings","private/protocol","private/protocol/json/jsonutil","private/protocol/jsonrpc","private/protocol/query","private/protocol/query/queryutil","private/protocol/rest","private/protocol/restjson","private/protocol/xml/xmlutil","service/cognitoidentityprovider","service/dynamodb","service/dynamodb/dynamodbattribute","service/dynamodb/expression","service/lambda","service/sts","service/sts/stsiface"]
+  revision = "10653500713c229d4ef93175510476c3cc385299"
+  version = "v1.28.3"
 
 [[projects]]
   name = "github.com/davecgh/go-spew"
@@ -153,6 +153,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "02ead2820fad0be721072ffd09f89a83f5ee68c0aea470a95195bd6935ecceb8"
+  inputs-digest = "56336f98f24dd19518b31395ac74c21277d6d8ce54bf965f082e0895c1145c17"
   solver-name = "gps-cdcl"
   solver-version = 1
