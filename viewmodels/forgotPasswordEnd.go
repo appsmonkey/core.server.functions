@@ -11,7 +11,6 @@ import (
 // ForgotPasswordEndRequest sent from the client
 type ForgotPasswordEndRequest struct {
 	Email    string `json:"email"`
-	Code     string `json:"code"`
 	Password string `json:"password"`
 }
 
@@ -38,11 +37,6 @@ func (r *ForgotPasswordEndRequest) Validate(body string) *ForgotPasswordEndRespo
 
 	if !validateEmail(r.Email) {
 		response.Errors = append(response.Errors, es.ErrRegistrationMissingEmail)
-		response.Code = es.StatusForgotPasswordError
-	}
-
-	if len(r.Code) == 0 {
-		response.Errors = append(response.Errors, es.ErrMissingCode)
 		response.Code = es.StatusForgotPasswordError
 	}
 

@@ -31,7 +31,7 @@ func Handler(ctx context.Context, req events.APIGatewayProxyRequest) (events.API
 	}
 
 	// Complete the forgot password flow
-	err := cog.ForgotPasswordEnd(request.Email, request.Code, request.Password)
+	err := cog.SetUserPassword(request.Email, request.Password, true)
 	if err != nil {
 		errData := es.ErrCouldNotInitiateForgottenPasswordFlow
 		errData.Data = err.Error()
