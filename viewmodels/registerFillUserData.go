@@ -12,10 +12,10 @@ import (
 // RegisterFillUserDataRequest sent from cognito
 type RegisterFillUserDataRequest struct {
 	UserProfile m.UserProfile `json:"user_profile"`
-	Token       string        `json:"token,omitempty"`
-	UserName    string        `json:"user_name,omitempty"`
-	CognitoID   string        `json:"cognito_id,omitempty"`
-	Password    string        `json:"password,omitempty"`
+	Token       string        `json:"token"`
+	UserName    string        `json:"user_name"`
+	CognitoID   string        `json:"cognito_id"`
+	Password    string        `json:"password"`
 }
 
 // Validate the request sent from client
