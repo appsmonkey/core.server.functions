@@ -47,6 +47,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 
 	if err != nil {
 		fmt.Println("User missing error: ", err)
+		response.AddError(&es.Error{Message: err.Error(), Data: "User not found"})
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 400, Headers: response.Headers()}, nil
 	}
 

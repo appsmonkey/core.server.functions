@@ -139,3 +139,12 @@ var ErrCityAlreadyExists = Error{Code: 1040, Message: "Duplicate, city already e
 
 // VerificationFailed [User verification failed]
 var VerificationFailed = Error{Code: 1041, Message: "User not confirmed, verification failed"}
+
+// UserCreationFailedNoToken [User verification failed]
+var UserCreationFailedNoToken = Error{Code: 1042, Message: "Registration not completed, no token supplied"}
+
+// UserCreationFailedNoID [User verification failed]
+var UserCreationFailedNoID = Error{Code: 1043, Message: "Registration not completed, cognito id not supplied"}
+
+// UserCreationFailedNoUserName [User verification failed]
+var UserCreationFailedNoUserName = Error{Code: 1044, Message: "Registration not completed, no username supplied"}

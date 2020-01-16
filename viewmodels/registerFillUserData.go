@@ -34,6 +34,33 @@ func (r *RegisterFillUserDataRequest) Validate(body string) *RegisterFillUserDat
 		return response
 	}
 
+	if len(r.CognitoID) == 0 {
+		errData := es.UserCreationFailedNoID
+		errData.Data = err.Error()
+		response.Errors = append(response.Errors, errData)
+
+		response.Code = 400
+		return response
+	}
+
+	if len(r.Token) == 0 {
+		errData := es.UserCreationFailedNoToken
+		errData.Data = err.Error()
+		response.Errors = append(response.Errors, errData)
+
+		response.Code = 400
+		return response
+	}
+
+	if len(r.UserName) == 0 {
+		errData := es.UserCreationFailedNoUserName
+		errData.Data = err.Error()
+		response.Errors = append(response.Errors, errData)
+
+		response.Code = 400
+		return response
+	}
+
 	return response
 }
 
