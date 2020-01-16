@@ -12,10 +12,10 @@ import (
 // RegisterFillUserDataRequest sent from cognito
 type RegisterFillUserDataRequest struct {
 	UserProfile m.UserProfile `json:"user_profile"`
-	Token       string        `json:"token"`
-	UserName    string        `json:"user_name"`
-	CognitoID   string        `json:"cognito_id"`
-	Password    string        `json:"password"`
+	Token       string        `json:"token,omitempty"`
+	UserName    string        `json:"user_name,omitempty"`
+	CognitoID   string        `json:"cognito_id,omitempty"`
+	Password    string        `json:"password,omitempty"`
 }
 
 // Validate the request sent from client
@@ -54,6 +54,15 @@ func (r *RegisterFillUserDataRequest) Validate(body string) *RegisterFillUserDat
 
 	if len(r.UserName) == 0 {
 		errData := es.UserCreationFailedNoUserName
+		errData.Data = err.Error()
+		response.Errors = append(response.Errors, errData)
+
+		response.Code = 400
+		return response
+	}
+
+	if len(r.Password) == 0 {
+		errData := es.UserCreationFailedNoPassword
 		errData.Data = err.Error()
 		response.Errors = append(response.Errors, errData)
 
