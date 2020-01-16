@@ -12,7 +12,6 @@ type User struct {
 	Devices    []string          `json:"devices"`
 	SocialID   string            `json:"social_id"`
 	SocialType string            `json:"social_type"`
-	TempSecret string            `json:"temp_secret"`
 }
 
 // UserProfile meta data

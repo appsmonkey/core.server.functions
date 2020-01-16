@@ -11,13 +11,12 @@ import (
 
 // SignupRequest sent from the client
 type SignupRequest struct {
-	FirstName  string `json:"first_name"`
-	LastName   string `json:"last_name"`
-	Gender     string `json:"gender"`
-	Email      string `json:"email"`
-	Password   string `json:"password"`
-	ClientID   string `json:"client_id"`
-	TempSecret string `json:"temp_secret"`
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+	Gender    string `json:"gender"`
+	Email     string `json:"email"`
+	Password  string `json:"password"`
+	ClientID  string `json:"client_id"`
 }
 
 // SignupResponse to the client
@@ -53,7 +52,6 @@ func (r *SignupRequest) Validate(body string) *SignupResponse {
 	if !validatePassword(r.Password) {
 		if len(r.Password) < 1 {
 			r.Password = "@TempPass1" + h.RandSeq(5)
-			r.TempSecret = h.RandSeq(7)
 		} else {
 			response.Errors = append(response.Errors, es.ErrRegistrationMissingPass)
 			response.Code = es.StatusRegistrationError
