@@ -32,14 +32,14 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	verificationURL := "https://cityos.auth.us-east-1.amazoncognito.com/confirmUser?client_id=" + request.ClientID + "&user_name=" + request.UserName + "&response_type=code" + "&confirmation_code=" + request.ConfirmationCode
 	fmt.Println("VERIFICATION URL:", verificationURL)
 
-	verificationResponse, err := http.Get(verificationURL)
-	fmt.Println("Verification response ::: ", verificationResponse.StatusCode)
+	_, err := http.Get(verificationURL)
 
 	if err != nil {
 		fmt.Println("Verification error: ", err)
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 400, Headers: response.Headers()}, nil
 	}
 
+	fmt.Println("Fetch User ::: ", request.UserName, request.CognitoID)
 	res, err := dal.Get("users", map[string]*dal.AttributeValue{
 		"cognito_id": {
 			S: aws.String(request.CognitoID),

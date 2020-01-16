@@ -59,12 +59,12 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 400, Headers: response.Headers()}, nil
 	}
 
-	_, err := cog.SetUserPassword(request.UserName, request.Password, true)
-	
-	err != nil {
-		fmt.Println("Unauthorized request")
+	_, err = cog.SetUserPassword(request.UserName, request.Password, true)
+
+	if err != nil {
+		fmt.Println("Set password error")
 		response.AddError(&es.Error{Message: err.Error(), Data: "Set password error"})
-		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 400, Headers: response.Headers()}, nil
+		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
 	}
 
 	err = dal.Update("users", "set profile = :p",
