@@ -13,9 +13,9 @@ import (
 type RegisterFillUserDataRequest struct {
 	UserProfile m.UserProfile `json:"user_profile"`
 	Token       string        `json:"token"`
-	UserName    string        `json:"user_name"`
-	CognitoID   string        `json:"cognito_id"`
-	Password    string        `json:"password"`
+	UserName    string        `json:"user_name,omitempty"`
+	CognitoID   string        `json:"cognito_id,omitempty"`
+	Password    string        `json:"password,omitempty"`
 }
 
 // Validate the request sent from client
@@ -33,13 +33,13 @@ func (r *RegisterFillUserDataRequest) Validate(body string) *RegisterFillUserDat
 		response.Code = es.StatusProfileUpdateError
 		return response
 	}
-
+	response.Code = 400
 	if len(r.CognitoID) == 0 {
 		errData := es.UserCreationFailedNoID
 		errData.Data = err.Error()
 		response.Errors = append(response.Errors, errData)
 
-		response.Code = 400
+		response.Code = es.StatusProfileUpdateError
 		return response
 	}
 
@@ -48,7 +48,7 @@ func (r *RegisterFillUserDataRequest) Validate(body string) *RegisterFillUserDat
 		errData.Data = err.Error()
 		response.Errors = append(response.Errors, errData)
 
-		response.Code = 400
+		response.Code = es.StatusProfileUpdateError
 		return response
 	}
 
@@ -57,7 +57,7 @@ func (r *RegisterFillUserDataRequest) Validate(body string) *RegisterFillUserDat
 		errData.Data = err.Error()
 		response.Errors = append(response.Errors, errData)
 
-		response.Code = 400
+		response.Code = es.StatusProfileUpdateError
 		return response
 	}
 
@@ -66,7 +66,7 @@ func (r *RegisterFillUserDataRequest) Validate(body string) *RegisterFillUserDat
 		errData.Data = err.Error()
 		response.Errors = append(response.Errors, errData)
 
-		response.Code = 400
+		response.Code = es.StatusProfileUpdateError
 		return response
 	}
 
