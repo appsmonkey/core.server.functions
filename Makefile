@@ -342,6 +342,14 @@ registerFillUserData:
 	$(package_lambda) bin/registerFillUserData.zip registerFillUserData
 	rm registerFillUserData	
 
+
+checkDeviceOnline:
+	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o checkDeviceOnline functions/checkDeviceOnline/main.go
+	mkdir -p bin
+	$(package_lambda) bin/checkDeviceOnline.zip checkDeviceOnline
+	rm checkDeviceOnline	
+
+
 .PHONY: deploy_swagger
 deploy_swagger:
 	aws s3 cp swagger.yaml s3://artifacts.cityo.io/CityOS/swagger.yaml

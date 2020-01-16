@@ -987,6 +987,13 @@ Resources:
       Handler: 'registerFillUserData'
       Role: !GetAtt LambdaRole.Arn
 
+  checkDeviceOnline:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: 'bin/checkDeviceOnline.zip'
+      Handler: 'checkDeviceOnline'
+      Role: !GetAtt LambdaRole.Arn
+
 
   # test:
   #   Type: 'AWS::Serverless::Function'
