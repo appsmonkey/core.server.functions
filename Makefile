@@ -337,7 +337,7 @@ cityGet:
 	rm cityGet	
 
 registerFillUserData:
-	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o registerFillUserData functions/cityGet/main.go
+	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o registerFillUserData functions/registerFillUserData/main.go
 	mkdir -p bin
 	$(package_lambda) bin/registerFillUserData.zip registerFillUserData
 	rm registerFillUserData	
