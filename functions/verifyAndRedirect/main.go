@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/appsmonkey/core.server.functions/dal"
+	es "github.com/appsmonkey/core.server.functions/errorStatuses"
 	m "github.com/appsmonkey/core.server.functions/models"
 	vm "github.com/appsmonkey/core.server.functions/viewmodels"
 	"github.com/avct/uasurfer"
@@ -57,6 +58,14 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	res.Unmarshal(&user)
 
 	fmt.Println("USER :::", user)
+	if user.Attributes["cognito:user_status"] != "CONFIRMED" {
+		fmt.Println("User not confirmed, verification failed.")
+		errData := es.VerificationFailed
+		errData.Data = err.Error()
+		response.Errors = append(response.Errors, errData)
+		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 403, Headers: response.Headers()}, nil
+	}
+
 	response.Data = user
 
 	headers := response.Headers()

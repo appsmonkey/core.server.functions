@@ -136,3 +136,6 @@ var ErrZoneNotFound = Error{Code: 1039, Message: "could not find the desired zon
 
 // ErrCityAlreadyExists [Cannot add city, missing country]
 var ErrCityAlreadyExists = Error{Code: 1040, Message: "Duplicate, city already exists"}
+
+// VerificationFailed [User verification failed]
+var VerificationFailed = Error{Code: 1041, Message: "User not confirmed, verification failed"}
