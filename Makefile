@@ -30,7 +30,7 @@ all : register signup signup signin refresh profile general deviceList deviceLis
 	deviceDel map zoneUpdate validateEmail seeder schemaGet chartLiveDevice chartCache chartHour \
 	chartSave chartHourDevice chartHourAll chartCacheDay chartDay chartDayDevice chartDayAll chartHasData \
 	chartCacheSix chartSix chartSixDevice chartSixAll chartLiveAll forgotPasswordStart forgotPasswordEnd notifications \
-	cityList cityDel cityAdd cityGet verifyAndRedirect customizeMessage zoneDel zoneImport zoneGet registerFillUserData
+	cityList cityDel cityAdd cityGet verifyAndRedirect customizeMessage zoneDel zoneImport zoneGet registerFillUserData checkDeviceOnline
 
 vendor: Gopkg.toml
 		dep ensure -v
@@ -341,7 +341,6 @@ registerFillUserData:
 	mkdir -p bin
 	$(package_lambda) bin/registerFillUserData.zip registerFillUserData
 	rm registerFillUserData	
-
 
 checkDeviceOnline:
 	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o checkDeviceOnline functions/checkDeviceOnline/main.go
