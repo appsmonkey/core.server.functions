@@ -31,7 +31,7 @@ func Handler(ctx context.Context, req events.APIGatewayProxyRequest) (events.API
 	}
 
 	// Complete the forgot password flow
-	err := cog.SetUserPassword(request.Email, request.Password, true)
+	_, err := cog.SetUserPassword(request.Email, request.Password, true)
 	if err != nil {
 		errData := es.ErrCouldNotInitiateForgottenPasswordFlow
 		errData.Data = err.Error()
@@ -61,7 +61,6 @@ func local() {
 	data, _ := json.Marshal(vm.ForgotPasswordEndRequest{
 		Email:    os.Getenv("USER_EMAIL"),
 		Password: os.Getenv("USER_PASS"),
-		Code:     os.Getenv("USER_CODE"),
 	})
 
 	resp, err := Handler(context.Background(), events.APIGatewayProxyRequest{
