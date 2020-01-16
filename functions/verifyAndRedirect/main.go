@@ -81,11 +81,11 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 			}
 		  }]`, StatusCode: 200, Headers: headers}, nil
 	} else if ua.OS.Name.String() == "OSiOS" {
-		headers["Location"] = "http://links.cityos.io/.well-known/apple-app-site-association"
-		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 302, Headers: headers}, nil
+		// headers["Location"] = "http://links.cityos.io/.well-known/apple-app-site-association"
+		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 200, Headers: headers}, nil
 	} else {
 		headers["Location"] = "https://dev.cityos.io"
-		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 302, Headers: headers}, nil
+		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 200, Headers: headers}, nil
 	}
 }
 

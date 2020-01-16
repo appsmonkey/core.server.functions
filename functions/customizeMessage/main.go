@@ -17,7 +17,7 @@ func Handler(event events.CognitoEventUserPoolsCustomMessage) (events.CognitoEve
 		event.Response.EmailMessage = "Welcome to CityOS, please click the following link to verify your email, this is a custom message"
 		event.Response.EmailMessage = fmt.Sprintf(
 			`Please click the link below to verify your email address.
-			https://links.cityos.io/auth/validate?client_id=%s&user_name=%s&confirmation_code=%s&type="verify"&cog_id=%s`,
+			https://links.cityos.io/auth/validate?client_id=%s&user_name=%s&confirmation_code=%s&type=verify&cog_id=%s`,
 			event.CallerContext.ClientID, event.UserName, event.Request.CodeParameter, userSub,
 		)
 	} else if event.TriggerSource == "CustomMessage_ForgotPassword" {
