@@ -53,6 +53,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	user := new(m.User)
 	res.Unmarshal(&user)
 
+	fmt.Println("USER :::", user)
 	response.Data = user
 
 	headers := response.Headers()
