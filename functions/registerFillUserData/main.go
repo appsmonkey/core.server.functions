@@ -22,6 +22,7 @@ var (
 func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	request := new(vm.RegisterFillUserDataRequest)
 	response := request.Validate(req.Body)
+
 	if response.Code != 0 {
 		fmt.Printf("errors on request: %v, requestID: %v", response.Errors, response.RequestID)
 
