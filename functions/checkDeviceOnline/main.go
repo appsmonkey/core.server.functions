@@ -35,7 +35,8 @@ func Handler(ctx context.Context, req interface{}) error {
 	}
 
 	// Fetch live data for defined period
-	liveRes, err := dal.ListNoProjection("live", dal.Name("timestamp").GreaterThanEqual(dal.Value(time.Now().Add(-time.Hour*2).Unix())))
+	from := time.Now().Add(-time.Hour * 2).Unix()
+	liveRes, err := dal.ListNoProjection("live", dal.Name("timestamp").GreaterThanEqual(dal.Value(from)))
 	if err != nil {
 		fmt.Println("could not retirieve data from live table")
 		return err
@@ -49,6 +50,11 @@ func Handler(ctx context.Context, req interface{}) error {
 	}
 
 	fmt.Println("LIVE DATA ::: ", dbLiveData)
+
+	data := make(map[string][]float64, 0)
+	for _, v := range dbData {
+		fmt.Println("LIVE TOKEN ::: ", v["token"])
+	}
 
 	return nil
 }
