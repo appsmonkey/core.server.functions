@@ -71,15 +71,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	headers := response.Headers()
 
 	if ua.OS.Name.String() == "OSAndroid" {
-		return events.APIGatewayProxyResponse{Body: `[{
-			"relation": ["delegate_permission/common.handle_all_urls"],
-			"target": {
-			  "namespace": "android_app",
-			  "package_name": "io.cityos.cityosair",
-			  "sha256_cert_fingerprints":
-			  ["66:6D:4F:2F:AA:94:E4:77:C1:57:EB:95:8E:58:DF:42:60:9D:92:34:3E:F8:B0:D9:7F:D6:25:2F:2A:95:9B:EC"]
-			}
-		  }]`, StatusCode: 200, Headers: headers}, nil
+		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 200, Headers: headers}, nil
 	} else if ua.OS.Name.String() == "OSiOS" {
 		// headers["Location"] = "http://links.cityos.io/.well-known/apple-app-site-association"
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 200, Headers: headers}, nil
