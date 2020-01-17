@@ -51,8 +51,8 @@ func Handler(ctx context.Context, req interface{}) error {
 
 	fmt.Println("LIVE DATA ::: ", dbLiveData)
 
-	data := make(map[string][]float64, 0)
-	for _, v := range dbData {
+	// data := make(map[string][]float64, 0)f
+	for _, v := range dbLiveData {
 		fmt.Println("LIVE TOKEN ::: ", v["token"])
 	}
 
