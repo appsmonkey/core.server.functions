@@ -2,6 +2,7 @@ package viewmodels
 
 import (
 	"encoding/json"
+	"fmt"
 	"strconv"
 	"time"
 
@@ -26,6 +27,7 @@ func (r *RegisterFillUserDataRequest) Validate(body string) *RegisterFillUserDat
 
 	err := json.Unmarshal([]byte(body), r)
 	if err != nil {
+		fmt.Println("Incorrect request error!")
 		errData := es.ErrRegistrationIncorrectRequest
 		errData.Data = err.Error()
 		response.Errors = append(response.Errors, errData)
@@ -33,14 +35,10 @@ func (r *RegisterFillUserDataRequest) Validate(body string) *RegisterFillUserDat
 		response.Code = es.StatusProfileUpdateError
 		return response
 	}
-	response.Code = 400
-	if len(r.CognitoID) == 0 {
-		errData := es.UserCreationFailedNoID
-		errData.Data = err.Error()
-		response.Errors = append(response.Errors, errData)
 
+	if len(r.CognitoID) == 0 {
+		response.Errors = append(response.Errors, es.UserCreationFailedNoID)
 		response.Code = es.StatusProfileUpdateError
-		return response
 	}
 
 	if len(r.Token) == 0 {
