@@ -76,6 +76,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		// headers["Location"] = "http://links.cityos.io/.well-known/apple-app-site-association"
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 200, Headers: headers}, nil
 	} else {
+		fmt.Println("Default response ::: ", ua.OS.Name.String())
 		headers["Location"] = "https://dev.cityos.io"
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 200, Headers: headers}, nil
 	}
