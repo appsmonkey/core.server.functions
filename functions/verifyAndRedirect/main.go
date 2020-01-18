@@ -72,7 +72,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 
 	if ua.OS.Name.String() == "OSAndroid" {
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 200, Headers: headers}, nil
-	} else if ua.OS.Name.String() == "OSiOS" || (ua.OS.Name.String() == "" && ua.DeviceType.String() == "DeviceUnknown") {
+	} else if ua.OS.Name.String() == "OSiOS" || (ua.OS.Name.String() == "OSUnknown" && ua.DeviceType.String() == "DeviceUnknown") {
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 200, Headers: headers}, nil
 	} else {
 		fmt.Println("Default response ::: ", ua.OS.Name.String(), ua.OS.Platform.String(), ua.DeviceType.String(), ua.Browser.Name.String())
