@@ -22,7 +22,7 @@ func Handler(event events.CognitoEventUserPoolsCustomMessage) (events.CognitoEve
 		link += "&user_name=" + event.UserName
 		link += "&confirmation_code=" + event.Request.CodeParameter
 		link += "&type=verify&cog_id=" + userSub.(string)
-		event.Response.EmailMessage = fmt.Sprintf(`<a href="%s">Verify email</a>`, link)
+		event.Response.EmailMessage += fmt.Sprintf(`<a href="%s">Verify email</a>`, link)
 
 	} else if event.TriggerSource == "CustomMessage_ForgotPassword" {
 		event.Response.EmailSubject = "Password reset requested"
