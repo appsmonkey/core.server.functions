@@ -43,10 +43,12 @@ func Handler(ctx context.Context, req interface{}) error {
 		return err
 	}
 
+	fmt.Println("LIVE RES", liveRes)
+
 	var dbLiveData []map[string]interface{}
 	err = liveRes.Unmarshal(&dbLiveData)
 	if err != nil {
-		fmt.Println("could not unmarshal data from the DB")
+		fmt.Println("could not unmarshal live data from the DB")
 		return err
 	}
 
