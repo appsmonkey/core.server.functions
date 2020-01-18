@@ -44,30 +44,18 @@ func (r *RegisterFillUserDataRequest) Validate(body string) *RegisterFillUserDat
 	}
 
 	if len(r.Token) == 0 {
-		errData := es.UserCreationFailedNoToken
-		errData.Data = err.Error()
-		response.Errors = append(response.Errors, errData)
-
+		response.Errors = append(response.Errors, es.UserCreationFailedNoToken)
 		response.Code = es.StatusProfileUpdateError
-		return response
 	}
 
 	if len(r.UserName) == 0 {
-		errData := es.UserCreationFailedNoUserName
-		errData.Data = err.Error()
-		response.Errors = append(response.Errors, errData)
-
+		response.Errors = append(response.Errors, es.UserCreationFailedNoUserName)
 		response.Code = es.StatusProfileUpdateError
-		return response
 	}
 
 	if len(r.Password) == 0 {
-		errData := es.UserCreationFailedNoPassword
-		errData.Data = err.Error()
-		response.Errors = append(response.Errors, errData)
-
+		response.Errors = append(response.Errors, es.UserCreationFailedNoPassword)
 		response.Code = es.StatusProfileUpdateError
-		return response
 	}
 
 	return response
