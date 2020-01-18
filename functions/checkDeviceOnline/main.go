@@ -36,6 +36,7 @@ func Handler(ctx context.Context, req interface{}) error {
 
 	// Fetch live data for defined period
 	from := time.Now().Add(-time.Hour * 2).Unix()
+	fmt.Println("Fetch live data from ::: ", from)
 	liveRes, err := dal.ListNoProjection("live", dal.Name("timestamp").GreaterThanEqual(dal.Value(from)))
 	if err != nil {
 		fmt.Println("could not retirieve data from live table")
