@@ -7,11 +7,14 @@ import (
 	"log"
 	"os"
 
+	"github.com/appsmonkey/core.server.functions/dal"
 	es "github.com/appsmonkey/core.server.functions/errorStatuses"
 	"github.com/appsmonkey/core.server.functions/integration/cognito"
+	m "github.com/appsmonkey/core.server.functions/models"
 	vm "github.com/appsmonkey/core.server.functions/viewmodels"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/aws/aws-sdk-go/aws"
 	"github.com/joho/godotenv"
 )
 
@@ -30,8 +33,32 @@ func Handler(ctx context.Context, req events.APIGatewayProxyRequest) (events.API
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 400, Headers: response.Headers()}, nil
 	}
 
+	res, err := dal.Get("users", map[string]*dal.AttributeValue{
+		"cognito_id": {
+			S: aws.String(request.CognitoID),
+		},
+		"email": {
+			S: aws.String(request.Email),
+		},
+	})
+
+	if err != nil {
+		fmt.Println("User missing error: ", err)
+		response.AddError(&es.Error{Message: err.Error(), Data: "User not found"})
+		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 400, Headers: response.Headers()}, nil
+	}
+
+	user := new(m.User)
+	res.Unmarshal(&user)
+
+	if user.Token != request.Token {
+		fmt.Println("Unauthorized request", user.Token, request.Token)
+		response.AddError(&es.Error{Message: err.Error(), Data: "Unauthorized request"})
+		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 400, Headers: response.Headers()}, nil
+	}
+
 	// Complete the forgot password flow
-	_, err := cog.SetUserPassword(request.Email, request.Password, true)
+	_, err = cog.SetUserPassword(request.Email, request.Password, true)
 	if err != nil {
 		errData := es.ErrCouldNotInitiateForgottenPasswordFlow
 		errData.Data = err.Error()

@@ -150,4 +150,10 @@ var UserCreationFailedNoID = Error{Code: 1043, Message: "Registration not comple
 var UserCreationFailedNoUserName = Error{Code: 1044, Message: "Registration not completed, no username supplied"}
 
 // UserCreationFailedNoPassword [User verification failed]
-var UserCreationFailedNoPassword = Error{Code: 1045, Message: "Registration not completed, no username supplied"}
+var UserCreationFailedNoPassword = Error{Code: 1045, Message: "Registration not completed, no password supplied"}
+
+// ForgotPasswordBadRequestNoToken [Forgot password failed failed]
+var ForgotPasswordBadRequestNoToken = Error{Code: 1046, Message: "Forgot password deinied, no token supplied"}
+
+// ForgotPasswordBadRequestNoID [User verification failed]
+var ForgotPasswordBadRequestNoID = Error{Code: 1047, Message: "Registration not completed, no id supplied"}

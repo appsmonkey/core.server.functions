@@ -10,8 +10,10 @@ import (
 
 // ForgotPasswordEndRequest sent from the client
 type ForgotPasswordEndRequest struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	Email     string `json:"email"`
+	Password  string `json:"password"`
+	Token     string `json:"token"`
+	CognitoID string `json:"cognito_id"`
 }
 
 // ForgotPasswordEndResponse to the client
@@ -35,6 +37,16 @@ func (r *ForgotPasswordEndRequest) Validate(body string) *ForgotPasswordEndRespo
 		return response
 	}
 
+	if !validateEmail(r.Token) {
+		response.Errors = append(response.Errors, es.ForgotPasswordBadRequestNoToken)
+		response.Code = es.StatusForgotPasswordError
+	}
+
+	if !validateEmail(r.CognitoID) {
+		response.Errors = append(response.Errors, es.ForgotPasswordBadRequestNoID)
+		response.Code = es.StatusForgotPasswordError
+	}
+
 	if !validateEmail(r.Email) {
 		response.Errors = append(response.Errors, es.ErrRegistrationMissingEmail)
 		response.Code = es.StatusForgotPasswordError
@@ -46,6 +58,11 @@ func (r *ForgotPasswordEndRequest) Validate(body string) *ForgotPasswordEndRespo
 	}
 
 	return response
+}
+
+// AddError to the response object
+func (r *RegisterFillUserDataResponse) AddError(err *es.Error) {
+	r.Errors = append(r.Errors, *err)
 }
 
 // Marshal the response object

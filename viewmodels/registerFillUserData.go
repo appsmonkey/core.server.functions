@@ -73,7 +73,7 @@ func (r *RegisterFillUserDataResponse) Marshal() string {
 }
 
 // AddError to the response object
-func (r *RegisterFillUserDataResponse) AddError(err *es.Error) {
+func (r *ForgotPasswordEndResponse) AddError(err *es.Error) {
 	r.Errors = append(r.Errors, *err)
 }
 
