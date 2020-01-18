@@ -60,9 +60,21 @@ func GetFrom(from int64, city string) (result vm.DeviceGetData) {
 
 	data := make(map[string][]float64, 0)
 	for _, v := range dbData {
+		if v["indoor"] == true || v["indoor"] == "true" {
+			fmt.Println("Indoor device skipping sensor values")
+			continue
+		}
+
 		for ki, vi := range v {
 			if ki != "timestamp" && ki != "token" && ki != "timestamp_sort" && ki != "ttl" && ki != "city" && ki != "cognito_id" && ki != "indoor" {
-				fmt.Println(ki, vi)
+
+				// if ki == "AIR_TEMPERATURE" || ki == "AIR_TEMPERATURE_FEEL" {
+				// if v["indoor"] == true || v["indoor"] == "true" {
+				// 	fmt.Println("Indoor device skipping sensor: ki")
+				// 	continue
+				// }
+				// }
+
 				data[ki] = append(data[ki], vi.(float64))
 			}
 		}
@@ -100,6 +112,7 @@ func Get(city string) (result vm.DeviceGetData) {
 
 	// Since we did not get any data, get the last successfull state
 	if len(result.Latest) == 0 {
+		fmt.Println("We didn't get any data, calling get state.")
 		result = getState()
 	} else {
 		// We have data, update the state
