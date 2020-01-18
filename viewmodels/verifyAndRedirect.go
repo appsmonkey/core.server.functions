@@ -1,6 +1,10 @@
 package viewmodels
 
-import "encoding/json"
+import (
+	"encoding/json"
+
+	es "github.com/appsmonkey/core.server.functions/errorStatuses"
+)
 
 // VerifyRedirectRequest sent from the client
 type VerifyRedirectRequest struct {
@@ -53,6 +57,11 @@ func (r *VerifyRedirectRequest) Validate(body map[string]string) *VerifyRedirect
 // VerifyRedirectResponse to the client
 type VerifyRedirectResponse struct {
 	BaseResponse
+}
+
+// AddError to the response object
+func (r *VerifyRedirectResponse) AddError(err *es.Error) {
+	r.Errors = append(r.Errors, *err)
 }
 
 // Marshal the response object

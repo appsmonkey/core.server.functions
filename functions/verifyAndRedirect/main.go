@@ -25,18 +25,20 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 400, Headers: response.Headers()}, nil
 	}
 
+	fmt.Println("User agent :::", req.Headers["User-Agent"])
 	ua := uasurfer.Parse(req.Headers["User-Agent"])
-	fmt.Println("REQUEST_TYPE ::: ", request.Type)
 
-	// create verification URL
-	verificationURL := "https://cityos.auth.us-east-1.amazoncognito.com/confirmUser?client_id=" + request.ClientID + "&user_name=" + request.UserName + "&response_type=code" + "&confirmation_code=" + request.ConfirmationCode
-	fmt.Println("VERIFICATION URL:", verificationURL)
+	if request.Type == "verify" {
+		// create verification URL
+		verificationURL := "https://cityos.auth.us-east-1.amazoncognito.com/confirmUser?client_id=" + request.ClientID + "&user_name=" + request.UserName + "&response_type=code" + "&confirmation_code=" + request.ConfirmationCode
+		fmt.Println("Verification URL:", verificationURL)
 
-	_, err := http.Get(verificationURL)
+		_, err := http.Get(verificationURL)
 
-	if err != nil {
-		fmt.Println("Verification error: ", err)
-		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 400, Headers: response.Headers()}, nil
+		if err != nil {
+			fmt.Println("Verification error: ", err)
+			return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 400, Headers: response.Headers()}, nil
+		}
 	}
 
 	fmt.Println("Fetch User ::: ", request.UserName, request.CognitoID)
@@ -60,9 +62,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	fmt.Println("USER :::", user)
 	if user.Attributes["cognito:user_status"] != "CONFIRMED" {
 		fmt.Println("User not confirmed, verification failed.")
-		errData := es.VerificationFailed
-		errData.Data = err.Error()
-		response.Errors = append(response.Errors, errData)
+		response.AddError(&es.Error{Message: err.Error(), Data: "User not confirmed, verification failed or not attempted."})
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 403, Headers: response.Headers()}, nil
 	}
 
@@ -72,13 +72,12 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 
 	if ua.OS.Name.String() == "OSAndroid" {
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 200, Headers: headers}, nil
-	} else if ua.OS.Name.String() == "OSiOS" {
-		// headers["Location"] = "http://links.cityos.io/.well-known/apple-app-site-association"
+	} else if ua.OS.Name.String() == "OSiOS" || (ua.OS.Name.String() == "" && ua.DeviceType.String() == "DeviceUnknown") {
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 200, Headers: headers}, nil
 	} else {
 		fmt.Println("Default response ::: ", ua.OS.Name.String(), ua.OS.Platform.String(), ua.DeviceType.String(), ua.Browser.Name.String())
 		headers["Location"] = "https://dev.cityos.io"
-		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 200, Headers: headers}, nil
+		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 302, Headers: headers}, nil
 	}
 }
 
