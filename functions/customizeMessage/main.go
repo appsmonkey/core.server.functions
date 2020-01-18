@@ -18,15 +18,11 @@ func Handler(event events.CognitoEventUserPoolsCustomMessage) (events.CognitoEve
 		event.Response.EmailMessage = "Please click the link below to verify your email address."
 		event.Response.EmailMessage += "<br/>"
 		event.Response.EmailMessage += "<br/>"
-		event.Response.EmailMessage += "<a>https://links.cityos.io/auth/validate?client_id=" + event.CallerContext.ClientID
-		event.Response.EmailMessage += "&user_name=" + event.UserName
-		event.Response.EmailMessage += "&confirmation_code=" + event.Request.CodeParameter
-		event.Response.EmailMessage += "&type=verify&cog_id=" + userSub.(string) + "</a>"
-
-		// fmt.Sprintf(
-		// 	`https://links.cityos.io/auth/validate?client_id=%s&user_name=%s&confirmation_code=%s&type=verify&cog_id=%s`,
-		// 	event.CallerContext.ClientID, event.UserName, event.Request.CodeParameter, userSub,
-		// )
+		link := "https://links.cityos.io/auth/validate?client_id=" + event.CallerContext.ClientID
+		link += "&user_name=" + event.UserName
+		link += "&confirmation_code=" + event.Request.CodeParameter
+		link += "&type=verify&cog_id=" + userSub.(string)
+		event.Response.EmailMessage = fmt.Sprintf(`<a href="%s">Verify email</a>`, link)
 
 	} else if event.TriggerSource == "CustomMessage_ForgotPassword" {
 		event.Response.EmailSubject = "Password reset requested"
@@ -38,11 +34,6 @@ func Handler(event events.CognitoEventUserPoolsCustomMessage) (events.CognitoEve
 		link += "&confirmation_code=" + event.Request.CodeParameter
 		link += "&type=pwreset&cog_id=" + userSub.(string)
 		event.Response.EmailMessage += fmt.Sprintf(`<a href="%s">Reset password</a>`, link)
-
-		// event.Response.EmailMessage = "Password reset request, if this was you please go to the link below.\n\n" + fmt.Sprintf(
-		// 	`https://links.cityos.io/auth/validate?client_id=%s&user_name=%s&confirmation_code=%s&type=pwreset&cog_id=%s`,
-		// 	event.CallerContext.ClientID, event.UserName, event.Request.CodeParameter, userSub,
-		// )
 	}
 
 	return event, nil
