@@ -62,6 +62,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	}
 
 	_, err = cog.SetUserPassword(request.UserName, request.Password, true)
+	fmt.Println("Password set ::: ", request.Password, err)
 
 	if err != nil {
 		fmt.Println("Set password error")
