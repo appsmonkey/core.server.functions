@@ -45,7 +45,7 @@ func GetFrom(from int64, city string) (result vm.DeviceGetData) {
 	result.Model = "BOXY"
 	result.Timestamp = float64(time.Now().Unix())
 
-	res, err := dal.ListNoProjection("live", dal.Name("timestamp").GreaterThanEqual(dal.Value(from)))
+	res, err := dal.ListNoProjection("live", dal.Name("timestamp").GreaterThanEqual(dal.Value(float64(from))))
 	if err != nil {
 		fmt.Println("could not retirieve data")
 		return
@@ -62,6 +62,7 @@ func GetFrom(from int64, city string) (result vm.DeviceGetData) {
 
 	data := make(map[string][]float64, 0)
 	for _, v := range dbData {
+		fmt.Println("City avg sensor val", v)
 		if v["indoor"] == true || v["indoor"] == "true" {
 			fmt.Println("Indoor device skipping sensor values")
 			continue
