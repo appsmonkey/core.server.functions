@@ -16,7 +16,7 @@ import (
 var lambdaClient *sl.Lambda
 
 // Handler will handle our request comming from the API gateway
-func Handler(ctx context.Context, req interface{}) error {
+func Handler(ctx context.Context, req interface{}) {
 
 	// Fetch active devices
 	projBuilder := dal.Projection(dal.Name("token"), dal.Name("active"), dal.Name("timestamp"))
@@ -24,27 +24,27 @@ func Handler(ctx context.Context, req interface{}) error {
 
 	if err != nil {
 		fmt.Println("Fetching devices from device table failed", err)
-		return err
+		return
 	}
 
 	activeDevices := make([]m.Device, 0)
 	err = res.Unmarshal(&activeDevices)
 	if err != nil {
 		fmt.Println("Falied to unmarshal devices", err)
-		return err
+		return
 	}
 
 	// activeState, err := dynamodbattribute.Marshal(false)
 
 	if err != nil {
 		fmt.Println("Failed to marshal active state")
-		return nil
+		return
 	}
 
 	type schemaData struct {
-		Version   string
-		Heartbeat int `json:"heartbeat"`
-		Data      m.Schema
+		Version   string   `json:"version"`
+		Heartbeat int      `json:"heartbeat"`
+		Data      m.Schema `json:"data"`
 	}
 
 	schemaRes, err := dal.Get("schema", map[string]*dal.AttributeValue{
@@ -54,13 +54,14 @@ func Handler(ctx context.Context, req interface{}) error {
 	})
 	if err != nil {
 		fmt.Println("Error fetching schema from db", err)
-		return err
+		return
 	}
 
 	schema := new(schemaData)
 	err = schemaRes.Unmarshal(&schemaRes)
 	if err != nil {
 		fmt.Println("Error unmarshaling schema ::. ", err)
+		return
 	}
 
 	fmt.Println("SCHEMA :: ", schema)
@@ -92,7 +93,7 @@ func Handler(ctx context.Context, req interface{}) error {
 		}
 	}
 
-	return nil
+	return
 }
 
 func main() {

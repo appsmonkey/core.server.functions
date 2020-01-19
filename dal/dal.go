@@ -45,6 +45,7 @@ type GetResult struct {
 func (r *GetResult) Unmarshal(out interface{}) error {
 	// if no data returned we will not try to do anything, `out` will remain unchanged
 	if r.item == nil || len(r.item.Item) == 0 {
+		fmt.Println("Can't unmarshal no data")
 		return nil
 	}
 
