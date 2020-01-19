@@ -61,7 +61,7 @@ func (r *ForgotPasswordEndRequest) Validate(body string) *ForgotPasswordEndRespo
 }
 
 // AddError to the response object
-func (r *RegisterFillUserDataResponse) AddError(err *es.Error) {
+func (r *ForgotPasswordEndResponse) AddError(err *es.Error) {
 	r.Errors = append(r.Errors, *err)
 }
 
