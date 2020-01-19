@@ -58,7 +58,7 @@ func Handler(ctx context.Context, req interface{}) error {
 	}
 
 	schema := new(schemaData)
-	err = schemaRes.Unmarshal(schemaRes)
+	err = schemaRes.Unmarshal(&schemaRes)
 	if err != nil {
 		fmt.Println("Error unmarshaling schema ::. ", err)
 	}
