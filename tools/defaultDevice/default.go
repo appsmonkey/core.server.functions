@@ -45,7 +45,8 @@ func GetFrom(from int64, city string) (result vm.DeviceGetData) {
 	result.Model = "BOXY"
 	result.Timestamp = float64(time.Now().Unix())
 
-	res, err := dal.ListNoProjection("live", dal.Name("timestamp").GreaterThanEqual(dal.Value(float64(from))))
+	fmt.Println("TIMESTAMP CONDITION PASSED ::: ", from)
+	res, err := dal.ListNoProjection("live", dal.Name("timestamp").GreaterThanEqual(dal.Value(from)))
 	if err != nil {
 		fmt.Println("could not retirieve data")
 		return
