@@ -158,15 +158,17 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 				owner = ""
 			}
 
-			user := new(m.User)
-			err = res.Unmarshal(&user)
+			owners := make([]m.User, 0)
+			err = res.Unmarshal(&owners)
 
 			if err != nil {
 				fmt.Println("Failed to unmarshal user: ", err, d.CognitoID)
 				owner = ""
 			}
 
-			owner = user.Email
+			if len(owners) > 0 {
+				owner = owners[0].Email
+			}
 		}
 
 		data := vm.DeviceGetData{
