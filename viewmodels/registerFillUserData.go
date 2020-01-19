@@ -72,6 +72,11 @@ func (r *RegisterFillUserDataResponse) Marshal() string {
 	return string(res)
 }
 
+// AddError to the response
+func (r *RegisterFillUserDataResponse) AddError(err *es.Error) {
+	r.Errors = append(r.Errors, *err)
+}
+
 // Marshal the response object
 func (r *RegisterFillUserDataRequest) Marshal() string {
 	res, _ := json.Marshal(r)
