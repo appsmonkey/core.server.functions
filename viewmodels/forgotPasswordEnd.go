@@ -37,12 +37,12 @@ func (r *ForgotPasswordEndRequest) Validate(body string) *ForgotPasswordEndRespo
 		return response
 	}
 
-	if !validateEmail(r.Token) {
+	if len(r.Token) == 0 {
 		response.Errors = append(response.Errors, es.ForgotPasswordBadRequestNoToken)
 		response.Code = es.StatusForgotPasswordError
 	}
 
-	if !validateEmail(r.CognitoID) {
+	if len(r.CognitoID) == 0 {
 		response.Errors = append(response.Errors, es.ForgotPasswordBadRequestNoID)
 		response.Code = es.StatusForgotPasswordError
 	}

@@ -14,6 +14,7 @@ import (
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/service/cognitoidentityprovider"
 )
 
 var (
@@ -56,7 +57,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		response.Data = rd
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 200, Headers: response.Headers()}, nil
 	}
-
+	var userGroupsRes cognitoidentityprovider.AdminListGroupsForUserOutput
 	if len(userName) > 0 {
 		userGroupsRes, err := cog.ListGroupsForUser(userName)
 
@@ -66,6 +67,41 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		}
 
 		fmt.Println(userGroupsRes)
+	}
+
+	isAdmin := false
+	for _, g := range userGroupsRes.Groups {
+		if g.GroupName != nil && (*g.GroupName == "AdminGroup" || *g.GroupName == "SuperAdminGroup") {
+			isAdmin = true
+		}
+	}
+
+	if isAdmin {
+		res, err := dal.ListNoFilter("devices", dal.Projection(
+			dal.Name("device_id"),
+			dal.Name("name"),
+			dal.Name("active"),
+			dal.Name("model"),
+			dal.Name("indoor"),
+			dal.Name("default_device"),
+			dal.Name("mine"),
+			dal.Name("location"),
+			dal.Name("map_meta"),
+			dal.Name("latest"),
+			dal.Name("timestamp"),
+			dal.Name("zone_id"),
+		))
+
+		if err != nil {
+			fmt.Println(err)
+			response.AddError(&es.Error{Message: err.Error(), Data: "could not unmarshal data from the DB"})
+			return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
+		}
+
+		dbData := make([]m.Device, 0)
+		err = res.Unmarshal(&dbData)
+
+		fmt.Println("ADMIN CALL ::: ", dbData)
 	}
 
 	res, err := dal.GetFromIndex("devices", "CognitoID-index", dal.Condition{
@@ -80,7 +116,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	})
 	if err != nil {
 		fmt.Println(err)
-		response.AddError(&es.Error{Message: err.Error(), Data: "could not unmarshal data from the DB"})
+		response.AddError(&es.Error{Message: err.Error(), Data: "could not fetch data from the DB"})
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
 	}
 
