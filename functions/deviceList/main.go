@@ -57,16 +57,15 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		response.Data = rd
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 200, Headers: response.Headers()}, nil
 	}
-	var userGroupsRes cognitoidentityprovider.AdminListGroupsForUserOutput
+	var userGroupsRes *cognitoidentityprovider.AdminListGroupsForUserOutput
 	if len(userName) > 0 {
-		userGroupsRes, err := cog.ListGroupsForUser(userName)
+		groupRes, err := cog.ListGroupsForUser(userName)
 
 		if err != nil {
 			fmt.Println("User groups error ::: ", err)
 			return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
 		}
-
-		fmt.Println(userGroupsRes)
+		userGroupsRes = groupRes
 	}
 
 	isAdmin := false
