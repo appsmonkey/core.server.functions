@@ -49,7 +49,7 @@ func GetFrom(from int64, city string) (result vm.DeviceGetData) {
 	// res, err := dal.ListNoProjection("live", dal.Name("timestamp").GreaterThanEqual(dal.Value(from)))
 
 	projBuilder := dal.Projection(dal.Name("timestamp_sort"), dal.Name("AIR_PM10"), dal.Name("AIR_PM2P5"), dal.Name("indoor"), dal.Name("city"))
-	res, err := dal.List("live", dal.Name("timestamp").GreaterThanEqual(dal.Value(from)), projBuilder)
+	res, err := dal.ListNoFilter("live", projBuilder)
 	if err != nil {
 		fmt.Println("could not retirieve data")
 		return
