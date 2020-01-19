@@ -10,6 +10,7 @@ import (
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 	sl "github.com/aws/aws-sdk-go/service/lambda"
 )
 
@@ -34,14 +35,31 @@ func Handler(ctx context.Context, req interface{}) error {
 		return err
 	}
 
+	activeState, err := dynamodbattribute.MarshalMap(false)
+
+	if err != nil {
+		fmt.Println("Failed to marshal active state")
+		return nil
+	}
+
 	// Fetch live data for defined period
 	from := time.Now().Add(-time.Hour * 2).Unix()
-	fmt.Println(from)
-	// for _, d := range activeDevices {
-	// 	if int64(d.Timestamp) < from {
-	// 		d.Active = false
-	// 	}
-	// }
+	for _, d := range activeDevices {
+		if d.Timestamp < float64(from) {
+			fmt.Println("Changing state of: ", d.Token, " - to offline")
+
+			err = dal.Update("devices", "set active = :a",
+				map[string]*dal.AttributeValue{
+					"token": {
+						S: aws.String(d.Token),
+					},
+				}, map[string]*dal.AttributeValue{
+					":a": {
+						M: activeState,
+					},
+				})
+		}
+	}
 
 	return nil
 }
