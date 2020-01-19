@@ -43,7 +43,7 @@ func Handler(ctx context.Context, req interface{}) error {
 
 	type schemaData struct {
 		Version   string
-		Heartbeat int
+		Heartbeat int `json:"heartbeat"`
 		Data      m.Schema
 	}
 
