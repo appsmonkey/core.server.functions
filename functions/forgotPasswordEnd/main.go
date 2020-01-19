@@ -43,8 +43,8 @@ func Handler(ctx context.Context, req events.APIGatewayProxyRequest) (events.API
 	})
 
 	if err != nil {
-		fmt.Println("User missing error: ", err)
-		response.AddError(&es.Error{Message: err.Error(), Data: "User not found"})
+		fmt.Println("Failed to fetch user error: ", err)
+		response.AddError(&es.Error{Message: err.Error(), Data: "Falid to fetch user"})
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 400, Headers: response.Headers()}, nil
 	}
 
@@ -53,7 +53,7 @@ func Handler(ctx context.Context, req events.APIGatewayProxyRequest) (events.API
 
 	if user.Token != request.Token {
 		fmt.Println("Unauthorized request", user.Token, request.Token)
-		response.AddError(&es.Error{Message: err.Error(), Data: "Unauthorized request"})
+		response.AddError(&es.Error{Message: "Error, check provided cognitoID and token", Data: "Unauthorized request"})
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 400, Headers: response.Headers()}, nil
 	}
 

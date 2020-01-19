@@ -47,6 +47,7 @@ type DeviceGetData struct {
 	Latest        map[string]interface{} `json:"latest"`
 	Timestamp     float64                `json:"timestamp"`
 	ZoneID        string                 `json:"zone_id"`
+	Owner         string                 `json:"owner"`
 }
 
 // DeviceGetDataMinimal returned to user

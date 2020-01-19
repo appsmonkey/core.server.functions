@@ -76,10 +76,15 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		}
 	}
 
+	fmt.Println("IS ADMIN ::: ", isAdmin)
+
+	dbData := make([]m.Device, 0)
+
 	if isAdmin {
 		res, err := dal.ListNoFilter("devices", dal.Projection(
 			dal.Name("device_id"),
 			dal.Name("name"),
+			dal.Name("cognito_id"),
 			dal.Name("active"),
 			dal.Name("model"),
 			dal.Name("indoor"),
@@ -98,34 +103,36 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 			return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
 		}
 
-		dbData := make([]m.Device, 0)
 		err = res.Unmarshal(&dbData)
+		if err != nil {
+			fmt.Println(err)
+			response.AddError(&es.Error{Message: err.Error(), Data: "could not unmarshal data from the DB"})
+			return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
+		}
 
-		fmt.Println("ADMIN CALL ::: ", dbData)
-	}
-
-	res, err := dal.GetFromIndex("devices", "CognitoID-index", dal.Condition{
-		"cognito_id": {
-			ComparisonOperator: aws.String("EQ"),
-			AttributeValueList: []*dal.AttributeValue{
-				{
-					S: aws.String(cognitoID),
+	} else {
+		res, err := dal.GetFromIndex("devices", "CognitoID-index", dal.Condition{
+			"cognito_id": {
+				ComparisonOperator: aws.String("EQ"),
+				AttributeValueList: []*dal.AttributeValue{
+					{
+						S: aws.String(cognitoID),
+					},
 				},
 			},
-		},
-	})
-	if err != nil {
-		fmt.Println(err)
-		response.AddError(&es.Error{Message: err.Error(), Data: "could not fetch data from the DB"})
-		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
-	}
+		})
+		if err != nil {
+			fmt.Println(err)
+			response.AddError(&es.Error{Message: err.Error(), Data: "could not fetch data from the DB"})
+			return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
+		}
 
-	dbData := make([]m.Device, 0)
-	err = res.Unmarshal(&dbData)
-	if err != nil {
-		fmt.Println(err)
-		response.AddError(&es.Error{Message: err.Error(), Data: "could not unmarshal data from the DB"})
-		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
+		err = res.Unmarshal(&dbData)
+		if err != nil {
+			fmt.Println(err)
+			response.AddError(&es.Error{Message: err.Error(), Data: "could not unmarshal data from the DB"})
+			return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
+		}
 	}
 
 	rd := make([]*vm.DeviceGetData, 0)
@@ -135,6 +142,25 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	rd = append(rd, &dd)
 
 	for _, d := range dbData {
+		owner := userName
+		if isAdmin {
+			res, err := dal.Get("users", map[string]*dal.AttributeValue{
+				"cognito_id": {
+					S: aws.String(d.CognitoID),
+				},
+			})
+
+			if err != nil {
+				fmt.Println("Failed to fetch user: ", err)
+				owner = ""
+			}
+
+			user := new(m.User)
+			res.Unmarshal(&user)
+
+			owner = user.Email
+		}
+
 		data := vm.DeviceGetData{
 			DeviceID:  d.Token,
 			Name:      d.Meta.Name,
@@ -145,6 +171,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 			Location:  d.Meta.Coordinates,
 			MapMeta:   d.MapMeta,
 			Timestamp: d.Timestamp,
+			Owner:     owner,
 		}
 		rd = append(rd, &data)
 	}
