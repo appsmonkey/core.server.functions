@@ -140,7 +140,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	rd = append(rd, &dd)
 
 	for _, d := range dbData {
-		owner := userName
+		owner := ""
 		if isAdmin {
 			res, err := dal.GetFromIndex("users", "CognitoID-index", dal.Condition{
 				"cognito_id": {
@@ -169,6 +169,8 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 			if len(owners) > 0 {
 				owner = owners[0].Email
 			}
+		} else {
+			owner = userName
 		}
 
 		data := vm.DeviceGetData{
