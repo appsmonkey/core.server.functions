@@ -82,15 +82,13 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 
 	if isAdmin {
 		res, err := dal.ListNoFilter("devices", dal.Projection(
-			dal.Name("device_id"),
-			dal.Name("name"),
+			dal.Name("token"),
+			dal.Name("meta"),
 			dal.Name("cognito_id"),
 			dal.Name("active"),
 			dal.Name("model"),
 			dal.Name("indoor"),
 			dal.Name("default_device"),
-			dal.Name("mine"),
-			dal.Name("location"),
 			dal.Name("map_meta"),
 			dal.Name("latest"),
 			dal.Name("timestamp"),
@@ -156,7 +154,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 			})
 
 			if err != nil {
-				fmt.Println("Failed to fetch user: ", err)
+				fmt.Println("Failed to fetch user: ", err, d.CognitoID)
 				owner = ""
 			}
 
@@ -164,7 +162,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 			err = res.Unmarshal(&user)
 
 			if err != nil {
-				fmt.Println("Failed to fetch user: ", err)
+				fmt.Println("Failed to unmarshal user: ", err, d.CognitoID)
 				owner = ""
 			}
 
