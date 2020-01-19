@@ -10,8 +10,9 @@ import (
 func init() {
 	defaultData = make(map[string]*Data, 0)
 	type schemaData struct {
-		Data    map[string]*Data
-		Version string
+		Data      map[string]*Data
+		Version   string
+		Heartbeat int
 	}
 
 	schemaRes, err := dal.Get("schema", map[string]*dal.AttributeValue{
@@ -26,7 +27,7 @@ func init() {
 	schema := new(schemaData)
 	err = schemaRes.Unmarshal(schema)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("Error unmarshaling schema ::. ", err)
 	}
 
 	defaultData = schema.Data
