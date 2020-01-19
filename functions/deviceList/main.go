@@ -70,12 +70,10 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 
 	isAdmin := false
 	for _, g := range userGroupsRes.Groups {
-		fmt.Println(g.GroupName, "User group name")
 		if g.GroupName != nil && (*g.GroupName == "AdminGroup" || *g.GroupName == "SuperAdminGroup") {
 			isAdmin = true
 		}
 	}
-
 	fmt.Println("IS ADMIN ::: ", isAdmin)
 
 	dbData := make([]m.Device, 0)
