@@ -309,6 +309,8 @@ func ListNoProjection(table string, filter ConditionBuilder) (*ListResult, error
 		return nil, err
 	}
 
+	fmt.Println("query res ::: ", result)
+
 	return &ListResult{items: result}, nil
 }
 

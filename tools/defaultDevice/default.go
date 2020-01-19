@@ -60,6 +60,8 @@ func GetFrom(from int64, city string) (result vm.DeviceGetData) {
 		return
 	}
 
+	fmt.Println("Fetched db data ::: ", dbData)
+
 	data := make(map[string][]float64, 0)
 	for _, v := range dbData {
 		fmt.Println("City avg sensor val", v)
