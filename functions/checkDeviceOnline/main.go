@@ -63,6 +63,8 @@ func Handler(ctx context.Context, req interface{}) error {
 		fmt.Println("Error unmarshaling schema ::. ", err)
 	}
 
+	fmt.Println("SCHEMA :: ", schema)
+
 	// 120 is deafult allowed timeout
 	heartbeat := 120
 	if schema.Heartbeat != 0 {
