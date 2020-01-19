@@ -144,9 +144,14 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	for _, d := range dbData {
 		owner := userName
 		if isAdmin {
-			res, err := dal.Get("users", map[string]*dal.AttributeValue{
+			res, err := dal.GetFromIndex("users", "CognitoID-index", dal.Condition{
 				"cognito_id": {
-					S: aws.String(d.CognitoID),
+					ComparisonOperator: aws.String("EQ"),
+					AttributeValueList: []*dal.AttributeValue{
+						{
+							S: aws.String(d.CognitoID),
+						},
+					},
 				},
 			})
 
@@ -156,7 +161,12 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 			}
 
 			user := new(m.User)
-			res.Unmarshal(&user)
+			err = res.Unmarshal(&user)
+
+			if err != nil {
+				fmt.Println("Failed to fetch user: ", err)
+				owner = ""
+			}
 
 			owner = user.Email
 		}
