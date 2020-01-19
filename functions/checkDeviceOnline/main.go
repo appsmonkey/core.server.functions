@@ -7,7 +7,6 @@ import (
 
 	"github.com/appsmonkey/core.server.functions/dal"
 	m "github.com/appsmonkey/core.server.functions/models"
-	s "github.com/appsmonkey/core.server.functions/models/schema"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -42,10 +41,37 @@ func Handler(ctx context.Context, req interface{}) error {
 		return nil
 	}
 
-	schema := s.ExtractVersion("1")
-	fmt.Println("SCHEMA ::: ", schema)
+	type schemaData struct {
+		Version   string
+		Heartbeat int
+		Data      m.Schema
+	}
+
+	schemaRes, err := dal.Get("schema", map[string]*dal.AttributeValue{
+		"version": {
+			S: aws.String("1"),
+		},
+	})
+	if err != nil {
+		fmt.Println("Error fetching schema from db", err)
+		return err
+	}
+
+	schema := new(schemaData)
+	err = schemaRes.Unmarshal(schemaRes)
+	if err != nil {
+		fmt.Println("Error unmarshaling schema ::. ", err)
+	}
+
+	// 120 is deafult allowed timeout
+	heartbeat := 120
+	if schema.Heartbeat != 0 {
+		fmt.Println("Setting heartbeat from schema", schema.Heartbeat)
+		heartbeat = schema.Heartbeat
+	}
+
 	// Fetch live data for defined period
-	from := time.Now().Add(-time.Minute * 120).Unix()
+	from := time.Now().Add(-time.Minute * time.Duration(heartbeat)).Unix()
 	for _, d := range activeDevices {
 		if d.Timestamp < float64(from) {
 			fmt.Println("Changing state of: ", d.Token, " - to offline")
