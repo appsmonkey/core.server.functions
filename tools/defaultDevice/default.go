@@ -51,6 +51,8 @@ func GetFrom(from int64, city string) (result vm.DeviceGetData) {
 		return
 	}
 
+	fmt.Println("Defualt data res :::", res)
+
 	var dbData []map[string]interface{}
 	err = res.Unmarshal(&dbData)
 	if err != nil {

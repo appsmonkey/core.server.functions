@@ -291,6 +291,8 @@ func ListNoProjection(table string, filter ConditionBuilder) (*ListResult, error
 		return nil, err
 	}
 
+	fmt.Println("FILER ::: ", filter, expr.Filter())
+
 	// Build the query input parameters
 	params := &dynamodb.ScanInput{
 		ExpressionAttributeNames:  expr.Names(),
@@ -299,8 +301,6 @@ func ListNoProjection(table string, filter ConditionBuilder) (*ListResult, error
 		TableName:                 aws.String(table),
 	}
 
-	fmt.Println("query params :::: ", params)
-
 	// Make the DynamoDB Query API call
 	result, err := svc.Scan(params)
 	if err != nil {
@@ -308,8 +308,6 @@ func ListNoProjection(table string, filter ConditionBuilder) (*ListResult, error
 		fmt.Println((err.Error()))
 		return nil, err
 	}
-
-	fmt.Println("query result ::: ", result)
 
 	return &ListResult{items: result}, nil
 }
