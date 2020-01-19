@@ -19,7 +19,7 @@ var lambdaClient *sl.Lambda
 func Handler(ctx context.Context, req interface{}) error {
 
 	// Fetch active devices
-	projBuilder := dal.Projection(dal.Name("token"), dal.Name("active"))
+	projBuilder := dal.Projection(dal.Name("token"), dal.Name("active"), dal.Name("timestamp"))
 	res, err := dal.List("devices", dal.Name("active").Equal(dal.Value(true)), projBuilder)
 
 	if err != nil {
@@ -36,28 +36,12 @@ func Handler(ctx context.Context, req interface{}) error {
 
 	// Fetch live data for defined period
 	from := time.Now().Add(-time.Hour * 2).Unix()
-	fmt.Println("Fetch live data from ::: ", from)
-	liveRes, err := dal.ListNoProjection("live", dal.Name("timestamp").GreaterThanEqual(dal.Value(from)))
-	if err != nil {
-		fmt.Println("could not retirieve data from live table")
-		return err
-	}
-
-	fmt.Println("LIVE RES", liveRes)
-
-	var dbLiveData []map[string]interface{}
-	err = liveRes.Unmarshal(&dbLiveData)
-	if err != nil {
-		fmt.Println("could not unmarshal live data from the DB")
-		return err
-	}
-
-	fmt.Println("LIVE DATA ::: ", dbLiveData)
-
-	// data := make(map[string][]float64, 0)f
-	for _, v := range dbLiveData {
-		fmt.Println("LIVE TOKEN ::: ", v["token"])
-	}
+	fmt.Println(from)
+	// for _, d := range activeDevices {
+	// 	if int64(d.Timestamp) < from {
+	// 		d.Active = false
+	// 	}
+	// }
 
 	return nil
 }

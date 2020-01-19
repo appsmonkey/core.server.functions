@@ -57,7 +57,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 
 	if user.Token != request.Token {
 		fmt.Println("Unauthorized request", user.Token, request.Token)
-		response.AddError(&es.Error{Message: err.Error(), Data: "Unauthorized request"})
+		response.AddError(&es.Error{Message: "Token invalid, unauthorized", Data: "Unauthorized request"})
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 400, Headers: response.Headers()}, nil
 	}
 
