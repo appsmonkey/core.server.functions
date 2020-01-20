@@ -45,8 +45,8 @@ func GetFrom(from int64, city string) (result vm.DeviceGetData) {
 	result.Model = "BOXY"
 	result.Timestamp = float64(time.Now().Unix())
 
-	fmt.Println("TIMESTAMP CONDITION PASSED ::: ", from)
-	res, err := dal.ListNoProjection("live", dal.Name("timestamp").GreaterThanEqual(dal.Value(from)))
+	fmt.Println("TIMESTAMP CONDITION PASSED ::: ", from, city)
+	res, err := dal.ListNoProjection("live", dal.Name("city").Equal(dal.Value(city)))
 
 	// projBuilder := dal.Projection(dal.Name("timestamp_sort"), dal.Name("AIR_PM10"), dal.Name("AIR_PM2P5"), dal.Name("indoor"), dal.Name("city"))
 	// res, err := dal.ListNoFilter("live", projBuilder)

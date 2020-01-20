@@ -292,8 +292,6 @@ func ListNoProjection(table string, filter ConditionBuilder) (*ListResult, error
 		return nil, err
 	}
 
-	fmt.Println("FILER ::: ", filter, expr.Filter())
-
 	// Build the query input parameters
 	params := &dynamodb.ScanInput{
 		ExpressionAttributeNames:  expr.Names(),
