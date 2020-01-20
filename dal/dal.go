@@ -223,6 +223,35 @@ func QueryMultiple(table string, condition Condition, projection ProjectionBuild
 	return &QueryResult{items: result}, err
 }
 
+// QueryMultipleNoProjection data from the table
+func QueryMultipleNoProjection(table string, condition Condition, ascending bool) (*QueryResult, error) {
+	expr, err := expression.NewBuilder().Build()
+	if err != nil {
+		fmt.Print("Got error building expression: ")
+		fmt.Println(err.Error())
+
+		return nil, err
+	}
+
+	// Perform the query
+	var queryInput = &dynamodb.QueryInput{
+		TableName:                 aws.String(table),
+		KeyConditions:             condition,
+		ExpressionAttributeNames:  expr.Names(),
+		ExpressionAttributeValues: expr.Values(),
+		ScanIndexForward:          aws.Bool(ascending),
+	}
+
+	result, err := svc.Query(queryInput)
+	if err != nil {
+		fmt.Print("QueryMultiple API call failed: ")
+		fmt.Println(err.Error())
+		return nil, err
+	}
+
+	return &QueryResult{items: result}, err
+}
+
 // List data (returns possible multiple values)
 func List(table string, filter ConditionBuilder, projection ProjectionBuilder) (*ListResult, error) {
 	expr, err := expression.NewBuilder().WithFilter(filter).WithProjection(projection).Build()
@@ -308,7 +337,7 @@ func ListNoProjection(table string, filter ConditionBuilder) (*ListResult, error
 		return nil, err
 	}
 
-	fmt.Println("query res count ::: ", result.Count)
+	fmt.Println("query res count ::: ", &result.Count)
 
 	return &ListResult{items: result}, nil
 }
