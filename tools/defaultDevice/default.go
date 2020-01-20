@@ -55,8 +55,6 @@ func GetFrom(from int64, city string) (result vm.DeviceGetData) {
 		return
 	}
 
-	fmt.Println("Defualt data res :::", res)
-
 	var dbData []map[string]interface{}
 	err = res.Unmarshal(&dbData)
 	if err != nil {
@@ -64,11 +62,10 @@ func GetFrom(from int64, city string) (result vm.DeviceGetData) {
 		return
 	}
 
-	fmt.Println("Fetched db data ::: ", dbData)
+	fmt.Println("Fetched db data ::: ", dbData, "Count: ", len(dbData))
 
 	data := make(map[string][]float64, 0)
 	for _, v := range dbData {
-		fmt.Println("City avg sensor val", v)
 		if v["indoor"] == true || v["indoor"] == "true" {
 			fmt.Println("Indoor device skipping sensor values")
 			continue
