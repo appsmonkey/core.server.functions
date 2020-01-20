@@ -76,8 +76,18 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 200, Headers: headers}, nil
 	} else {
 		fmt.Println("Default response ::: ", ua.OS.Name.String(), ua.OS.Platform.String(), ua.DeviceType.String(), ua.Browser.Name.String())
-		headers["Location"] = "https://dev.cityos.io"
-		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 302, Headers: headers}, nil
+
+		route := "complete-registration"
+		if request.Type == "verify" {
+			route = "complete-registration"
+		} else if request.Type == "pwreset" {
+			route = "reset-password"
+		} else if request.Type == "info" {
+			return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 200, Headers: headers}, nil
+		}
+
+		headers["Location"] = "https://dev.cityos.io/" + route + "?username=" + user.Email + "&token=" + user.Token + "&id" + user.CognitoID
+		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 303, Headers: headers}, nil
 	}
 }
 
