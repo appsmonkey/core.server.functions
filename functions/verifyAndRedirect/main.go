@@ -70,10 +70,14 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 
 	headers := response.Headers()
 
+	if req.Headers["User-Agent"] == " Amazon CloudFront" {
+		fmt.Println("This is a CLOUD FRONT CLIENT")
+	}
+
 	if ua.OS.Name.String() == "OSAndroid" {
 		fmt.Println("Android response ::: ", ua.OS.Name.String(), ua.OS.Platform.String(), ua.DeviceType.String(), ua.Browser.Name.String())
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 200, Headers: headers}, nil
-	} else if req.Headers["User-Agent"] != "Amazon CloudFront" && ua.OS.Name.String() == "OSiOS" || (ua.OS.Name.String() == "OSUnknown" && ua.DeviceType.String() == "DeviceUnknown") {
+	} else if req.Headers["User-Agent"] != " Amazon CloudFront" && ua.OS.Name.String() == "OSiOS" || (ua.OS.Name.String() == "OSUnknown" && ua.DeviceType.String() == "DeviceUnknown") {
 		fmt.Println("IOS response ::: ", ua.OS.Name.String(), ua.OS.Platform.String(), ua.DeviceType.String(), ua.Browser.Name.String())
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 200, Headers: headers}, nil
 	} else {
