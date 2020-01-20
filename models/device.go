@@ -60,7 +60,7 @@ func (d *Device) ToLiveData() map[string]interface{} {
 	then := time.Now()
 	data["token"] = d.Token
 	data["city"] = d.City
-	data["indoor"] = d.Meta.Indoor
+	// data["indoor"] = d.Meta.Indoor
 	// Sarajevo is the def. city
 	if len(d.City) < 1 {
 		data["city"] = "Sarajevo"
