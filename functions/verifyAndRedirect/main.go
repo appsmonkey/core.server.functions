@@ -72,21 +72,23 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 
 	if ua.OS.Name.String() == "OSAndroid" {
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 200, Headers: headers}, nil
-	} else if ua.OS.Name.String() == "OSiOS" || (ua.OS.Name.String() == "OSUnknown" && ua.DeviceType.String() == "DeviceUnknown") {
+	} else if req.Headers["User-Agent"] != "Amazon CloudFront" && ua.OS.Name.String() == "OSiOS" || (ua.OS.Name.String() == "OSUnknown" && ua.DeviceType.String() == "DeviceUnknown") {
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 200, Headers: headers}, nil
 	} else {
 		fmt.Println("Default response ::: ", ua.OS.Name.String(), ua.OS.Platform.String(), ua.DeviceType.String(), ua.Browser.Name.String())
 
 		route := "complete-registration"
+		fmt.Println("TYPE ::: ", request.Type)
 		if request.Type == "verify" {
 			route = "complete-registration"
 		} else if request.Type == "pwreset" {
 			route = "reset-password"
 		} else if request.Type == "info" {
+			fmt.Println("Entered info codnition")
 			return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 200, Headers: headers}, nil
 		}
 
-		headers["Location"] = "https://dev.cityos.io/" + route + "?username=" + user.Email + "&token=" + user.Token + "&id" + user.CognitoID
+		headers["Location"] = "https://dev.cityos.io/" + route + "?username=" + user.Email + "&token=" + user.Token + "&id=" + user.CognitoID + "&status=" + user.Attributes["cognito:user_status"]
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 303, Headers: headers}, nil
 	}
 }
