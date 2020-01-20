@@ -42,8 +42,9 @@ func Handler(ctx context.Context, req interface{}) {
 	}
 
 	type schemaData struct {
-		Version string   `json:"version"`
-		Data    m.Schema `json:"data"`
+		Version   string   `json:"version"`
+		Data      m.Schema `json:"data"`
+		Heartbeat int      `json:"heartbeat"`
 	}
 
 	schemaRes, err := dal.Get("schema", map[string]*dal.AttributeValue{
@@ -57,7 +58,7 @@ func Handler(ctx context.Context, req interface{}) {
 	}
 
 	schema := new(schemaData)
-	err = schemaRes.Unmarshal(&schemaRes)
+	err = schemaRes.Unmarshal(schema)
 	if err != nil {
 		fmt.Println("Error unmarshaling schema ::. ", err)
 		return
@@ -67,10 +68,10 @@ func Handler(ctx context.Context, req interface{}) {
 
 	// 120 is deafult allowed timeout
 	heartbeat := 120
-	// if schema.Heartbeat != 0 {
-	// 	fmt.Println("Setting heartbeat from schema", schema.Heartbeat)
-	// 	heartbeat = schema.Heartbeat
-	// }
+	if schema.Heartbeat != 0 {
+		fmt.Println("Setting heartbeat from schema", schema.Heartbeat)
+		heartbeat = schema.Heartbeat
+	}
 
 	// Fetch live data for defined period
 	from := time.Now().Add(-time.Minute * time.Duration(heartbeat)).Unix()

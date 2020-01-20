@@ -10,9 +10,8 @@ import (
 func init() {
 	defaultData = make(map[string]*Data, 0)
 	type schemaData struct {
-		Data      map[string]*Data
-		Version   string
-		Heartbeat int
+		Data    map[string]*Data
+		Version string
 	}
 
 	schemaRes, err := dal.Get("schema", map[string]*dal.AttributeValue{
