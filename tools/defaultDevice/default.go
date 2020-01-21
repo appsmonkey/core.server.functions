@@ -49,7 +49,7 @@ func GetFrom(from int64, city string) (result vm.DeviceGetData) {
 	fmt.Println("TIMESTAMP CONDITION PASSED ::: ", from, city)
 	// res, err := dal.ListNoProjection("live", dal.Name("timestamp").GreaterThanEqual(dal.Value(from)))
 
-	res, err := dal.QueryMultipleNoProjection("live",
+	res, err := dal.QueryMultiple("live",
 		dal.Condition{
 			"city": {
 				ComparisonOperator: aws.String("EQ"),
@@ -68,6 +68,7 @@ func GetFrom(from int64, city string) (result vm.DeviceGetData) {
 				},
 			},
 		},
+		dal.Projection(dal.Name("token"), dal.Name("AIR_PM10"), dal.Name("AIR_PM2P5"), dal.Name("indoor"), dal.Name("city")),
 		true)
 
 	// projBuilder := dal.Projection(dal.Name("timestamp_sort"), dal.Name("AIR_PM10"), dal.Name("AIR_PM2P5"), dal.Name("indoor"), dal.Name("city"))
