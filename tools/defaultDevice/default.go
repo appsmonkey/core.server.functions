@@ -7,6 +7,7 @@ import (
 	"github.com/appsmonkey/core.server.functions/dal"
 	m "github.com/appsmonkey/core.server.functions/models"
 	vm "github.com/appsmonkey/core.server.functions/viewmodels"
+	"github.com/aws/aws-sdk-go/aws"
 )
 
 // GetMinimal default device data with minimal data
@@ -46,28 +47,28 @@ func GetFrom(from int64, city string) (result vm.DeviceGetData) {
 	result.Timestamp = float64(time.Now().Unix())
 
 	fmt.Println("TIMESTAMP CONDITION PASSED ::: ", from, city)
-	res, err := dal.ListNoProjection("live", dal.Name("timestamp").GreaterThan(dal.Value(float64(from))))
+	// res, err := dal.ListNoProjection("live", dal.Name("timestamp").GreaterThanEqual(dal.Value(from)))
 
-	// res, err := dal.QueryMultipleNoProjection("chart_device_hour",
-	// 	dal.Condition{
-	// 		"city": {
-	// 			ComparisonOperator: aws.String("EQ"),
-	// 			AttributeValueList: []*dal.AttributeValue{
-	// 				{
-	// 					S: aws.String(city),
-	// 				},
-	// 			},
-	// 		},
-	// 		"date": {
-	// 			ComparisonOperator: aws.String("GT"),
-	// 			AttributeValueList: []*dal.AttributeValue{
-	// 				{
-	// 					N: aws.String(string(from)),
-	// 				},
-	// 			},
-	// 		},
-	// 	},
-	// 	true)
+	res, err := dal.QueryMultipleNoProjection("live",
+		dal.Condition{
+			"city": {
+				ComparisonOperator: aws.String("EQ"),
+				AttributeValueList: []*dal.AttributeValue{
+					{
+						S: aws.String(city),
+					},
+				},
+			},
+			"date": {
+				ComparisonOperator: aws.String("GT"),
+				AttributeValueList: []*dal.AttributeValue{
+					{
+						N: aws.String(string(from)),
+					},
+				},
+			},
+		},
+		true)
 
 	// projBuilder := dal.Projection(dal.Name("timestamp_sort"), dal.Name("AIR_PM10"), dal.Name("AIR_PM2P5"), dal.Name("indoor"), dal.Name("city"))
 	// res, err := dal.ListNoFilter("live", projBuilder)
