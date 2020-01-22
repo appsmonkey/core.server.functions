@@ -40,6 +40,12 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	existingDevice := m.Device{}
 	err = res.Unmarshal(&existingDevice)
 
+	if err != nil {
+		fmt.Println(err)
+		response.AddError(&es.Error{Message: err.Error(), Data: "could not unmarshal data from the DB"})
+		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
+	}
+
 	device := m.Device{}
 
 	if len(existingDevice.Token) > 0 {
