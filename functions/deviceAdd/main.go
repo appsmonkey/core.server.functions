@@ -6,9 +6,11 @@ import (
 	"github.com/aws/aws-lambda-go/events"
 
 	"github.com/appsmonkey/core.server.functions/dal"
+	es "github.com/appsmonkey/core.server.functions/errorStatuses"
 	m "github.com/appsmonkey/core.server.functions/models"
 	bg "github.com/appsmonkey/core.server.functions/tools/guid"
 	vm "github.com/appsmonkey/core.server.functions/viewmodels"
+	"github.com/aws/aws-sdk-go/aws"
 
 	// Loading the sarajevo map
 	z "github.com/appsmonkey/core.server.functions/tools/zones"
@@ -27,7 +29,27 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
 	}
 
+	res, err := dal.Get("devices", map[string]*dal.AttributeValue{
+		"token": {
+			S: aws.String(request.Token),
+		},
+	})
+	if err != nil {
+		errData := es.ErrDeviceNotFound
+		errData.Data = err.Error()
+		response.Errors = append(response.Errors, errData)
+		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
+	}
+
+	existingDevice := m.Device{}
+	err = res.Unmarshal(&existingDevice)
+
 	device := m.Device{}
+
+	if len(existingDevice.Token) > 0 {
+		device = existingDevice
+	}
+
 	device.Token = request.Token
 	if len(device.Token) == 0 {
 		device.Token = bg.New()
