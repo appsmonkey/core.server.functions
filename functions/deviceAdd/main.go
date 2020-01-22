@@ -6,7 +6,6 @@ import (
 	"github.com/aws/aws-lambda-go/events"
 
 	"github.com/appsmonkey/core.server.functions/dal"
-	es "github.com/appsmonkey/core.server.functions/errorStatuses"
 	m "github.com/appsmonkey/core.server.functions/models"
 	bg "github.com/appsmonkey/core.server.functions/tools/guid"
 	vm "github.com/appsmonkey/core.server.functions/viewmodels"
@@ -35,10 +34,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		},
 	})
 	if err != nil {
-		errData := es.ErrDeviceNotFound
-		errData.Data = err.Error()
-		response.Errors = append(response.Errors, errData)
-		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
+		fmt.Println("Existing device not found ::: ", request.Token)
 	}
 
 	existingDevice := m.Device{}
