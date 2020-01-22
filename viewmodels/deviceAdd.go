@@ -56,6 +56,11 @@ type DeviceAddResponse struct {
 	BaseResponse
 }
 
+// AddError to the response object
+func (r *DeviceAddResponse) AddError(err *es.Error) {
+	r.Errors = append(r.Errors, *err)
+}
+
 // DeviceAddData holds the data to be sent to the client for *Device Add*
 type DeviceAddData struct {
 	Token string `json:"token"`
