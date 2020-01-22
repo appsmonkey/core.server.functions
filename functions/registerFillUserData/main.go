@@ -91,6 +91,17 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
 	}
 
+	//login user after successful profile update
+	loginRes, err := cog.SignIn(request.UserName, request.Password)
+	if err != nil {
+		fmt.Println(err)
+		response.AddError(&es.Error{Message: err.Error(), Code: 0, Data: "login error, profile update is succesful"})
+		response.Code = es.StatusProfileUpdateError
+		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
+	}
+
+	response.Data = loginRes
+
 	return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 200, Headers: response.Headers()}, nil
 }
 
