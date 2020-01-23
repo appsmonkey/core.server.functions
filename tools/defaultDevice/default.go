@@ -92,7 +92,7 @@ func GetFrom(from int64, city string) (result vm.DeviceGetData) {
 		}
 
 		for ki, vi := range v {
-			if ki != "timestamp" && ki != "token" && ki != "timestamp_sort" && ki != "ttl" && ki != "city" && ki != "cognito_id" && ki != "indoor" {
+			if ki != "timestamp" && ki != "token" && ki != "timestamp_sort" && ki != "ttl" && ki != "city" && ki != "cognito_id" && ki != "indoor" && ki != "zone_id" {
 
 				// if ki == "AIR_TEMPERATURE" || ki == "AIR_TEMPERATURE_FEEL" {
 				// if v["indoor"] == true || v["indoor"] == "true" {
