@@ -112,7 +112,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 
 		for _, d := range dbData {
 			mine := d.CognitoID != h.CognitoIDZeroValue && cognitoID != h.CognitoIDZeroValue && d.CognitoID == cognitoID
-			if (!mine && !d.Active) || d.Meta.Coordinates.IsEmpty() {
+			if (!d.Active) || d.Meta.Coordinates.IsEmpty() {
 				continue
 			} else if request.Filter == "mine" && !mine {
 				continue
