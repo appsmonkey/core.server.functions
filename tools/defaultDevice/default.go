@@ -2,6 +2,7 @@ package defaultDevice
 
 import (
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/appsmonkey/core.server.functions/dal"
@@ -63,7 +64,7 @@ func GetFrom(from int64, city string) (result vm.DeviceGetData) {
 				ComparisonOperator: aws.String("GT"),
 				AttributeValueList: []*dal.AttributeValue{
 					{
-						N: aws.Int64(from),
+						N: aws.String(strconv.FormatInt(from, 10)),
 					},
 				},
 			},
