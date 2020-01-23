@@ -2,13 +2,11 @@ package defaultDevice
 
 import (
 	"fmt"
-	"strconv"
 	"time"
 
 	"github.com/appsmonkey/core.server.functions/dal"
 	m "github.com/appsmonkey/core.server.functions/models"
 	vm "github.com/appsmonkey/core.server.functions/viewmodels"
-	"github.com/aws/aws-sdk-go/aws"
 )
 
 // GetMinimal default device data with minimal data
@@ -48,29 +46,29 @@ func GetFrom(from int64, city string) (result vm.DeviceGetData) {
 	result.Timestamp = float64(time.Now().Unix())
 
 	fmt.Println("TIMESTAMP CONDITION PASSED ::: ", from, city)
-	// res, err := dal.ListNoProjection("live", dal.Name("timestamp").GreaterThanEqual(dal.Value(from)))
+	res, err := dal.ListNoProjection("live", dal.Name("timestamp").GreaterThanEqual(dal.Value(from)))
 
-	res, err := dal.QueryMultiple("live",
-		dal.Condition{
-			"city": {
-				ComparisonOperator: aws.String("EQ"),
-				AttributeValueList: []*dal.AttributeValue{
-					{
-						S: aws.String(city),
-					},
-				},
-			},
-			"timestamp": {
-				ComparisonOperator: aws.String("GT"),
-				AttributeValueList: []*dal.AttributeValue{
-					{
-						N: aws.String(strconv.FormatInt(from, 10)),
-					},
-				},
-			},
-		},
-		dal.Projection(dal.Name("token"), dal.Name("AIR_PM10"), dal.Name("AIR_PM2P5"), dal.Name("indoor"), dal.Name("city")),
-		true)
+	// res, err := dal.QueryMultiple("live",
+	// 	dal.Condition{
+	// 		"city": {
+	// 			ComparisonOperator: aws.String("EQ"),
+	// 			AttributeValueList: []*dal.AttributeValue{
+	// 				{
+	// 					S: aws.String(city),
+	// 				},
+	// 			},
+	// 		},
+	// 		"timestamp": {
+	// 			ComparisonOperator: aws.String("GT"),
+	// 			AttributeValueList: []*dal.AttributeValue{
+	// 				{
+	// 					N: aws.String(strconv.FormatInt(from, 10)),
+	// 				},
+	// 			},
+	// 		},
+	// 	},
+	// 	dal.Projection(dal.Name("token"), dal.Name("AIR_PM10"), dal.Name("AIR_PM2P5"), dal.Name("indoor"), dal.Name("city")),
+	// 	true)
 
 	if err != nil {
 		fmt.Println("could not retirieve data")
