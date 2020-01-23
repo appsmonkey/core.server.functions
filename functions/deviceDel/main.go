@@ -60,9 +60,11 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	userGroups, err := cog.ListGroupsForUserFromID(CognitoData(req.RequestContext.Authorizer))
 
 	isAdmin := false
-	for _, g := range userGroups.Groups {
-		if g.GroupName != nil && (*g.GroupName == "AdminGroup" || *g.GroupName == "SuperAdminGroup") {
-			isAdmin = true
+	if err == nil {
+		for _, g := range userGroups.Groups {
+			if g.GroupName != nil && (*g.GroupName == "AdminGroup" || *g.GroupName == "SuperAdminGroup") {
+				isAdmin = true
+			}
 		}
 	}
 	fmt.Println("Is Admin ::: ", isAdmin)

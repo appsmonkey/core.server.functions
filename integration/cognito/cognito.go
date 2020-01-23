@@ -1,6 +1,7 @@
 package cognito
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -310,6 +311,9 @@ func (c *Cognito) ListGroupsForUserFromID(cognitoID string) (*cognitoidentitypro
 		return nil, err
 	}
 
+	if len(users) == 0 {
+		return nil, errors.New("Cloudn't fetch user gropus")
+	}
 	username := users[0].Email
 
 	input := new(cognitoidentityprovider.AdminListGroupsForUserInput)
