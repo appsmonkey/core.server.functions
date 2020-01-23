@@ -65,6 +65,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 			isAdmin = true
 		}
 	}
+	fmt.Println("Is Admin ::: ", isAdmin)
 
 	if !isAdmin && cognitoID != model.CognitoID {
 		r.Success = false

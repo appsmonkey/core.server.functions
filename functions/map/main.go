@@ -48,6 +48,17 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
 	}
 
+	userGroups, err := cog.ListGroupsForUserFromID(cognitoID)
+
+	isAdmin := false
+	for _, g := range userGroups.Groups {
+		if g.GroupName != nil && (*g.GroupName == "AdminGroup" || *g.GroupName == "SuperAdminGroup") {
+			isAdmin = true
+		}
+	}
+
+	fmt.Println("Is Admin ::: ", isAdmin)
+
 	// Get the polygon data
 	type zoneResult struct {
 		ZoneID string       `json:"zone_id"`
@@ -164,7 +175,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 
 	for _, d := range dbData {
 		mine := d.CognitoID != h.CognitoIDZeroValue && cognitoID != h.CognitoIDZeroValue && d.CognitoID == cognitoID
-		if (!mine && !d.Active) || d.Meta.Coordinates.IsEmpty() {
+		if (!mine && !d.Active && !isAdmin) || d.Meta.Coordinates.IsEmpty() {
 			continue
 		}
 

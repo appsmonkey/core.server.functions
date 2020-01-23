@@ -69,6 +69,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 			isAdmin = true
 		}
 	}
+	fmt.Println("Is Admin ::: ", isAdmin)
 
 	if h.IsCognitoIDEmpty(device.CognitoID) {
 		// TODO: Add so that only the admin user can do this
