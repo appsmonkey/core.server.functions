@@ -45,30 +45,7 @@ func GetFrom(from int64, city string) (result vm.DeviceGetData) {
 	result.Model = "BOXY"
 	result.Timestamp = float64(time.Now().Unix())
 
-	fmt.Println("TIMESTAMP CONDITION PASSED ::: ", from, city)
 	res, err := dal.ListNoProjection("live", dal.Name("timestamp").GreaterThanEqual(dal.Value(from)))
-
-	// res, err := dal.QueryMultiple("live",
-	// 	dal.Condition{
-	// 		"city": {
-	// 			ComparisonOperator: aws.String("EQ"),
-	// 			AttributeValueList: []*dal.AttributeValue{
-	// 				{
-	// 					S: aws.String(city),
-	// 				},
-	// 			},
-	// 		},
-	// 		"timestamp": {
-	// 			ComparisonOperator: aws.String("GT"),
-	// 			AttributeValueList: []*dal.AttributeValue{
-	// 				{
-	// 					N: aws.String(strconv.FormatInt(from, 10)),
-	// 				},
-	// 			},
-	// 		},
-	// 	},
-	// 	dal.Projection(dal.Name("token"), dal.Name("AIR_PM10"), dal.Name("AIR_PM2P5"), dal.Name("indoor"), dal.Name("city")),
-	// 	true)
 
 	if err != nil {
 		fmt.Println("could not retirieve data")
@@ -86,7 +63,7 @@ func GetFrom(from int64, city string) (result vm.DeviceGetData) {
 
 	data := make(map[string][]float64, 0)
 	for _, v := range dbData {
-		if v["indoor"] == true || v["indoor"] == "true" {
+		if v["indoor"] == true || v["indoor"] == "true" || v["city"] != city {
 			fmt.Println("Indoor device skipping sensor values")
 			continue
 		}
