@@ -5,11 +5,16 @@ import (
 
 	"github.com/appsmonkey/core.server.functions/dal"
 	es "github.com/appsmonkey/core.server.functions/errorStatuses"
+	"github.com/appsmonkey/core.server.functions/integration/cognito"
 	m "github.com/appsmonkey/core.server.functions/models"
 	vm "github.com/appsmonkey/core.server.functions/viewmodels"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go/aws"
+)
+
+var (
+	cog *cognito.Cognito
 )
 
 // Handler will handle our request comming from the API gateway
@@ -52,7 +57,16 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 
 	r := resToUser{Success: true, Message: ""}
 
-	if cognitoID != model.CognitoID {
+	userGroups, err := cog.ListGroupsForUserFromID(CognitoData(req.RequestContext.Authorizer))
+
+	isAdmin := false
+	for _, g := range userGroups.Groups {
+		if g.GroupName != nil && (*g.GroupName == "AdminGroup" || *g.GroupName == "SuperAdminGroup") {
+			isAdmin = true
+		}
+	}
+
+	if !isAdmin && cognitoID != model.CognitoID {
 		r.Success = false
 		r.Message = "this device does not belong to you"
 
@@ -80,6 +94,10 @@ func CognitoData(in map[string]interface{}) string {
 	data := in["claims"].(map[string]interface{})
 
 	return data["sub"].(string)
+}
+
+func init() {
+	cog = cognito.NewCognito()
 }
 
 func main() {

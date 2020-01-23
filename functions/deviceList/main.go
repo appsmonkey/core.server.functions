@@ -74,7 +74,6 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 			isAdmin = true
 		}
 	}
-	fmt.Println("IS ADMIN ::: ", isAdmin)
 
 	dbData := make([]m.Device, 0)
 

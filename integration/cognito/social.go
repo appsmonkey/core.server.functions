@@ -139,7 +139,7 @@ func (c *Cognito) Facebook(id, token, inEmail string) (*CognitoData, error) {
 		r.Profile = m.UserProfile{}
 		r.Token = bg.New()
 		r.SocialID = id
-		r.SocialType = "G"
+		r.SocialType = "F"
 
 		for _, uav := range p.UserAttributes {
 			switch *uav.Name {

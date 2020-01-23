@@ -9,6 +9,7 @@ import (
 
 	"github.com/appsmonkey/core.server.functions/dal"
 	es "github.com/appsmonkey/core.server.functions/errorStatuses"
+	"github.com/appsmonkey/core.server.functions/integration/cognito"
 	m "github.com/appsmonkey/core.server.functions/models"
 	vm "github.com/appsmonkey/core.server.functions/viewmodels"
 
@@ -23,6 +24,9 @@ import (
 )
 
 var lambdaClient *sl.Lambda
+var (
+	cog *cognito.Cognito
+)
 
 // Handler will handle our request comming from the API gateway
 func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
@@ -57,11 +61,20 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
 	}
 
+	userGroups, err := cog.ListGroupsForUserFromID(CognitoData(req.RequestContext.Authorizer))
+
+	isAdmin := false
+	for _, g := range userGroups.Groups {
+		if g.GroupName != nil && (*g.GroupName == "AdminGroup" || *g.GroupName == "SuperAdminGroup") {
+			isAdmin = true
+		}
+	}
+
 	if h.IsCognitoIDEmpty(device.CognitoID) {
 		// TODO: Add so that only the admin user can do this
 		// right now we are assigning the dvice to loged in user if it was not assigned before
 		device.CognitoID = CognitoData(req.RequestContext.Authorizer)
-	} else if device.CognitoID != CognitoData(req.RequestContext.Authorizer) {
+	} else if !isAdmin && device.CognitoID != CognitoData(req.RequestContext.Authorizer) {
 		response.Data = resData
 		response.AddError(&es.Error{Message: "", Data: "device does not belong to you"})
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 400, Headers: response.Headers()}, nil
@@ -133,4 +146,5 @@ func init() {
 	}))
 
 	lambdaClient = sl.New(sess, &aws.Config{Region: aws.String("us-east-1")})
+	cog = cognito.NewCognito()
 }

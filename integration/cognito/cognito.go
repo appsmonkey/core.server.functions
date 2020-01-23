@@ -5,6 +5,9 @@ import (
 	"log"
 	"os"
 
+	"github.com/appsmonkey/core.server.functions/dal"
+	m "github.com/appsmonkey/core.server.functions/models"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -271,6 +274,44 @@ func (c *Cognito) Profile(username string) (*cognitoidentityprovider.AdminGetUse
 
 // ListGroupsForUser returns user's affiliated groups based on username
 func (c *Cognito) ListGroupsForUser(username string) (*cognitoidentityprovider.AdminListGroupsForUserOutput, error) {
+	input := new(cognitoidentityprovider.AdminListGroupsForUserInput)
+	input.Username = aws.String(username)
+	input.UserPoolId = aws.String(userPoolID)
+
+	fmt.Println("ListGroupsForUser - INPUT :::", input)
+
+	output, err := c.identityProvider.AdminListGroupsForUser(input)
+	return output, err
+}
+
+// ListGroupsForUserFromID returns user's affiliated groups based on username
+func (c *Cognito) ListGroupsForUserFromID(cognitoID string) (*cognitoidentityprovider.AdminListGroupsForUserOutput, error) {
+	res, err := dal.GetFromIndex("users", "CognitoID-index", dal.Condition{
+		"cognito_id": {
+			ComparisonOperator: aws.String("EQ"),
+			AttributeValueList: []*dal.AttributeValue{
+				{
+					S: aws.String(cognitoID),
+				},
+			},
+		},
+	})
+
+	if err != nil {
+		fmt.Println("List groups failed, fetch user from db failure")
+		return nil, err
+	}
+
+	users := make([]m.User, 0)
+	err = res.Unmarshal(&users)
+
+	if err != nil {
+		fmt.Println("Failed to unmarshal in list groups")
+		return nil, err
+	}
+
+	username := users[0].Email
+
 	input := new(cognitoidentityprovider.AdminListGroupsForUserInput)
 	input.Username = aws.String(username)
 	input.UserPoolId = aws.String(userPoolID)
