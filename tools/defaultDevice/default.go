@@ -64,7 +64,6 @@ func GetFrom(from int64, city string) (result vm.DeviceGetData) {
 	data := make(map[string][]float64, 0)
 	for _, v := range dbData {
 		if v["indoor"] == true || v["indoor"] == "true" || v["city"] != city {
-			fmt.Println("Indoor device skipping sensor values")
 			continue
 		}
 
