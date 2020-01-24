@@ -60,10 +60,19 @@ func GetFrom(from int64, city string) (result vm.DeviceGetData) {
 		return
 	}
 
-	fmt.Println("Fetched db data ::: ", dbData, "Count: ", len(dbData))
+	// make data distinc
+	var distinctData []map[string]interface{}
+	var keyList map[string]bool
+	for _, v := range dbData {
+		if _, ok := keyList[v["token"].(string)]; ok {
+			continue
+		} else {
+			keyList[v["token"].(string)] = true
+		}
+	}
 
 	data := make(map[string][]float64, 0)
-	for _, v := range dbData {
+	for _, v := range distinctData {
 		if v["indoor"] == true || v["indoor"] == "true" || v["city"] != city {
 			continue
 		}
@@ -105,14 +114,14 @@ func GetFrom(from int64, city string) (result vm.DeviceGetData) {
 
 // Get default device data
 func Get(city string) (result vm.DeviceGetData) {
-	result = GetFrom(time.Now().Add(-time.Hour*3).Unix(), city)
+	result = GetFrom(time.Now().Add(-time.Hour*1).Unix(), city)
 
 	if len(result.Latest) == 0 {
-		result = GetFrom(time.Now().Add(-time.Hour*6).Unix(), city)
+		result = GetFrom(time.Now().Add(-time.Hour*2).Unix(), city)
 	}
 
 	if len(result.Latest) == 0 {
-		result = GetFrom(time.Now().Add(-time.Hour*24).Unix(), city)
+		result = GetFrom(time.Now().Add(-time.Hour*12).Unix(), city)
 	}
 
 	// Since we did not get any data, get the last successfull state
