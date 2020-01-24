@@ -60,6 +60,8 @@ func GetFrom(from int64, city string) (result vm.DeviceGetData) {
 		return
 	}
 
+	// TODO: sort by timestamp so we take only the newst data -
+
 	// make data distinc
 	var distinctData []map[string]interface{}
 	var keyList = make(map[string]bool)
@@ -71,6 +73,7 @@ func GetFrom(from int64, city string) (result vm.DeviceGetData) {
 			distinctData = append(distinctData, v)
 		}
 	}
+	fmt.Println("Distinct key list ::: ", keyList)
 
 	data := make(map[string][]float64, 0)
 	for _, v := range distinctData {
