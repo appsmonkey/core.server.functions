@@ -96,6 +96,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	device.Meta.Name = request.Name
 	device.Meta.Model = request.Model
 	device.Meta.Indoor = request.Indoor
+	device.Active = true
 
 	resData.Success = true
 	response.Data = resData

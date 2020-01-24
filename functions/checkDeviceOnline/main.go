@@ -67,14 +67,14 @@ func Handler(ctx context.Context, req interface{}) {
 	fmt.Println("SCHEMA :: ", schema)
 
 	// 120 is deafult allowed timeout
-	heartbeat := 120
+	heartbeat := 60
 	if schema.Heartbeat != 0 {
 		fmt.Println("Setting heartbeat from schema", schema.Heartbeat)
 		heartbeat = schema.Heartbeat
 	}
 
 	// Fetch live data for defined period
-	from := time.Now().Add(-time.Minute * time.Duration(heartbeat)).Unix()
+	from := time.Now().Add(-time.Minute * time.Duration(heartbeat*2)).Unix()
 	for _, d := range activeDevices {
 		if d.Timestamp < float64(from) {
 			fmt.Println("Changing state of: ", d.Token, " - to offline")
