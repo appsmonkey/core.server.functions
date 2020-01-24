@@ -77,11 +77,15 @@ func GetFrom(from int64, city string) (result vm.DeviceGetData) {
 
 	data := make(map[string][]float64, 0)
 	for _, v := range distinctData {
+		result.ActiveCount++
+
+		if v[city] == city {
+			result.ActiveCount++
+		}
+
 		if v["indoor"] == true || v["indoor"] == "true" || v["city"] != city {
 			continue
 		}
-
-		result.ActiveCount++
 
 		for ki, vi := range v {
 			if ki != "timestamp" && ki != "token" && ki != "timestamp_sort" && ki != "ttl" && ki != "city" && ki != "cognito_id" && ki != "indoor" && ki != "zone_id" {
