@@ -44,6 +44,7 @@ func GetFrom(from int64, city string) (result vm.DeviceGetData) {
 	result.Mine = true
 	result.Model = "BOXY"
 	result.Timestamp = float64(time.Now().Unix())
+	result.ActiveCount = 0
 
 	res, err := dal.ListNoProjection("live", dal.Name("timestamp").GreaterThanEqual(dal.Value(from)))
 
@@ -66,6 +67,8 @@ func GetFrom(from int64, city string) (result vm.DeviceGetData) {
 		if v["indoor"] == true || v["indoor"] == "true" || v["city"] != city {
 			continue
 		}
+
+		result.ActiveCount++
 
 		for ki, vi := range v {
 			if ki != "timestamp" && ki != "token" && ki != "timestamp_sort" && ki != "ttl" && ki != "city" && ki != "cognito_id" && ki != "indoor" && ki != "zone_id" {

@@ -48,6 +48,7 @@ type DeviceGetData struct {
 	Timestamp     float64                `json:"timestamp"`
 	ZoneID        string                 `json:"zone_id"`
 	Owner         string                 `json:"owner"`
+	ActiveCount   int                    `json:"activeCount,omitempty"`
 }
 
 // DeviceGetDataMinimal returned to user
