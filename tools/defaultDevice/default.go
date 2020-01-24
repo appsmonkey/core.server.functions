@@ -77,8 +77,6 @@ func GetFrom(from int64, city string) (result vm.DeviceGetData) {
 
 	data := make(map[string][]float64, 0)
 	for _, v := range distinctData {
-		result.ActiveCount++
-
 		if v[city] == city {
 			result.ActiveCount++
 		}
