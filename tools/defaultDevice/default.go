@@ -61,18 +61,19 @@ func GetFrom(from int64, city string) (result vm.DeviceGetData) {
 	}
 
 	// make data distinc
-	// var distinctData []map[string]interface{}
-	// var keyList map[string]bool
-	// for _, v := range dbData {
-	// 	if _, ok := keyList[v["token"].(string)]; ok {
-	// 		continue
-	// 	} else {
-	// 		keyList[v["token"].(string)] = true
-	// 	}
-	// }
+	var distinctData []map[string]interface{}
+	var keyList = make(map[string]bool)
+	for _, v := range dbData {
+		if _, ok := keyList[v["token"].(string)]; ok {
+			continue
+		} else {
+			keyList[v["token"].(string)] = true
+			distinctData = append(distinctData, v)
+		}
+	}
 
 	data := make(map[string][]float64, 0)
-	for _, v := range dbData {
+	for _, v := range distinctData {
 		if v["indoor"] == true || v["indoor"] == "true" || v["city"] != city {
 			continue
 		}
