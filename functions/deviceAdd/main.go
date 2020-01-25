@@ -61,7 +61,6 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	// FIXME: If cognito id is bad ??
 	device.CognitoID = CognitoData(req.RequestContext.Authorizer)
 	device.Meta = request.Metadata
-	device.Active = false
 	device.ZoneID = "none"
 
 	// We can add manually or we can check with lat lon
