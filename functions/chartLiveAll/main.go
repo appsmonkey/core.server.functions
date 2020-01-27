@@ -50,7 +50,6 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 
 	var dbData []map[string]float64
 	err = res.Unmarshal(&dbData)
-	fmt.Println("CHART LIVE DB DATA ::: ", dbData)
 	if err != nil {
 		response.AddError(&es.Error{Message: err.Error(), Data: "could not unmarshal data from the DB"})
 		fmt.Printf("errors on request: %v, requestID: %v", response.Errors, response.RequestID)
@@ -82,6 +81,9 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 
 			result = append(result, rd)
 		}
+
+		// sort data according to timestamp
+		result = qsort(result)
 
 		response.Data = result
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 200, Headers: response.Headers()}, nil
