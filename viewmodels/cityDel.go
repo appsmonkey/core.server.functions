@@ -14,19 +14,14 @@ type CityDelRequest struct {
 }
 
 // Validate the request sent from client
-func (r *CityDelRequest) Validate(body string) *CityDelResponse {
+func (r *CityDelRequest) Validate(body map[string]string) *CityDelResponse {
 	response := new(CityDelResponse)
 	response.Code = 0
 	response.RequestID = strconv.FormatInt(time.Now().Unix(), 10)
 
-	err := json.Unmarshal([]byte(body), r)
-	if err != nil {
-		errData := es.ErrIncorrectRequest
-		errData.Data = err.Error()
-		response.Errors = append(response.Errors, errData)
-
-		response.Code = es.StatusDeleteCityError
-		return response
+	cid, ok := body["city_id"]
+	if ok {
+		r.CityID = cid
 	}
 
 	if len(r.CityID) == 0 {

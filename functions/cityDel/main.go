@@ -17,7 +17,7 @@ import (
 func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	cognitoID := CognitoData(req.RequestContext.Authorizer)
 	request := new(vm.CityDelRequest)
-	response := request.Validate(req.Body)
+	response := request.Validate(req.QueryStringParameters)
 	if response.Code != 0 {
 		fmt.Printf("errors on request: %v, requestID: %v", response.Errors, response.RequestID)
 
@@ -52,7 +52,6 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 
 	r := resToUser{Success: true, Message: ""}
 
-	// FIXME: only admin can CUD cities - check user cognito user pool when set up
 	if cognitoID == h.CognitoIDZeroValue {
 		r.Success = false
 		r.Message = "no permissions to delete the city"
