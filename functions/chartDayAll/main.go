@@ -105,6 +105,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	}
 
 	sort.Float64s(resultRawIndex)
+	sort.Sort(sort.Reverse(sort.Float64Slice(resultRawIndex)))
 	maxValues := make(map[string]float64, 0)
 
 	for _, ri := range resultRawIndex {

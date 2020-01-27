@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/rand"
 	"fmt"
 
 	"github.com/appsmonkey/core.server.functions/dal"
@@ -70,9 +71,42 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		})
 	}
 
+	result = qsort(result)
 	response.Data = result
 
 	return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 200, Headers: response.Headers()}, nil
+}
+
+// qsort is a quicksort implmentation for sorting chart data
+func qsort(a []*resultData) []*resultData {
+	if len(a) < 2 {
+		return a
+	}
+
+	left, right := 0, len(a)-1
+
+	// Pick a pivot
+	pivotIndex := rand.Int() % len(a)
+
+	// Move the pivot to the right
+	a[pivotIndex], a[right] = a[right], a[pivotIndex]
+
+	// Pile elements smaller than the pivot on the left
+	for i := range a {
+		if a[i].Date > a[right].Date {
+			a[i], a[left] = a[left], a[i]
+			left++
+		}
+	}
+
+	// Place the pivot after the last smaller element
+	a[left], a[right] = a[right], a[left]
+
+	// Go down the rabbit hole
+	qsort(a[:left])
+	qsort(a[left+1:])
+
+	return a
 }
 
 func main() {
