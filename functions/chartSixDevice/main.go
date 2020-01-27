@@ -1,8 +1,8 @@
 package main
 
 import (
-	"crypto/rand"
 	"fmt"
+	"math/rand"
 
 	"github.com/appsmonkey/core.server.functions/dal"
 	es "github.com/appsmonkey/core.server.functions/errorStatuses"

@@ -107,6 +107,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	}
 
 	sort.Float64s(resultRawIndex)
+	sort.Sort(sort.Reverse(sort.Float64Slice(resultRawIndex)))
 	maxValues := make(map[string]float64, 0)
 
 	for _, ri := range resultRawIndex {
@@ -132,7 +133,6 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		result = append(result, rd)
 	}
 
-	result = qsortMulti(result)
 	response.Data = resultDataMulti{Chart: result, Max: maxValues}
 	return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 200, Headers: response.Headers()}, nil
 }
@@ -165,38 +165,6 @@ func qsort(a []*resultData) []*resultData {
 	// Go down the rabbit hole
 	qsort(a[:left])
 	qsort(a[left+1:])
-
-	return a
-}
-
-// qsort is a quicksort implmentation for sorting chart data
-func qsortMulti(a []map[string]float64) []map[string]float64 {
-	if len(a) < 2 {
-		return a
-	}
-
-	left, right := 0, len(a)-1
-
-	// Pick a pivot
-	pivotIndex := rand.Int() % len(a)
-
-	// Move the pivot to the right
-	a[pivotIndex], a[right] = a[right], a[pivotIndex]
-
-	// Pile elements smaller than the pivot on the left
-	for i := range a {
-		if a[i]["date"] > a[right]["date"] {
-			a[i], a[left] = a[left], a[i]
-			left++
-		}
-	}
-
-	// Place the pivot after the last smaller element
-	a[left], a[right] = a[right], a[left]
-
-	// Go down the rabbit hole
-	qsortMulti(a[:left])
-	qsortMulti(a[left+1:])
 
 	return a
 }
