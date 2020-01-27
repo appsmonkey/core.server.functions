@@ -2,6 +2,7 @@ package defaultDevice
 
 import (
 	"fmt"
+	"math/rand"
 	"time"
 
 	"github.com/appsmonkey/core.server.functions/dal"
@@ -60,7 +61,8 @@ func GetFrom(from int64, city string) (result vm.DeviceGetData) {
 		return
 	}
 
-	// TODO: sort by timestamp so we take only the newst data -
+	// sort data by timestamp
+	dbData = Qsort(dbData)
 
 	// make data distinc
 	var distinctData []map[string]interface{}
@@ -88,13 +90,6 @@ func GetFrom(from int64, city string) (result vm.DeviceGetData) {
 		for ki, vi := range v {
 			if ki != "timestamp" && ki != "token" && ki != "timestamp_sort" && ki != "ttl" && ki != "city" && ki != "cognito_id" && ki != "indoor" && ki != "zone_id" {
 
-				// if ki == "AIR_TEMPERATURE" || ki == "AIR_TEMPERATURE_FEEL" {
-				// if v["indoor"] == true || v["indoor"] == "true" {
-				// 	fmt.Println("Indoor device skipping sensor: ki")
-				// 	continue
-				// }
-				// }
-
 				data[ki] = append(data[ki], vi.(float64))
 			}
 		}
@@ -116,6 +111,38 @@ func GetFrom(from int64, city string) (result vm.DeviceGetData) {
 	}
 
 	return
+}
+
+// Qsort impl. for sorting by timestamp
+func Qsort(a []map[string]interface{}) []map[string]interface{} {
+	if len(a) < 2 {
+		return a
+	}
+
+	left, right := 0, len(a)-1
+
+	// Pick a pivot
+	pivotIndex := rand.Int() % len(a)
+
+	// Move the pivot to the right
+	a[pivotIndex], a[right] = a[right], a[pivotIndex]
+
+	// Pile elements smaller than the pivot on the left
+	for i := range a {
+		if a[i]["timestamp"].(float64) > a[right]["timestamp"].(float64) {
+			a[i], a[left] = a[left], a[i]
+			left++
+		}
+	}
+
+	// Place the pivot after the last smaller element
+	a[left], a[right] = a[right], a[left]
+
+	// Go down the rabbit hole
+	Qsort(a[:left])
+	Qsort(a[left+1:])
+
+	return a
 }
 
 // Get default device data
