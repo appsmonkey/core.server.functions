@@ -161,7 +161,7 @@ func qsort(a []*resultData) []*resultData {
 
 	// Pile elements smaller than the pivot on the left
 	for i := range a {
-		if a[i].Date < a[right].Date {
+		if a[i].Date > a[right].Date {
 			a[i], a[left] = a[left], a[i]
 			left++
 		}
@@ -193,7 +193,7 @@ func qsortMulti(a []map[string]float64) []map[string]float64 {
 
 	// Pile elements smaller than the pivot on the left
 	for i := range a {
-		if a[i]["date"] < a[right]["date"] {
+		if a[i]["date"] > a[right]["date"] {
 			a[i], a[left] = a[left], a[i]
 			left++
 		}
