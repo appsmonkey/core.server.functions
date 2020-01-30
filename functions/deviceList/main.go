@@ -28,6 +28,10 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	cognitoID := h.CognitoIDZeroValue
 	userName := ""
 	authHdr := header("AccessToken", req.Headers)
+	adminShowAll := false
+	if len(req.QueryStringParameters["adminShowAll"]) > 0 && req.QueryStringParameters["adminShowAll"] == "true" {
+		adminShowAll = true
+	}
 	if len(authHdr) > 0 {
 		c, u, isExpired, err := cog.ValidateToken(authHdr)
 		if err != nil {
@@ -77,7 +81,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 
 	dbData := make([]m.Device, 0)
 
-	if isAdmin {
+	if isAdmin && adminShowAll {
 		res, err := dal.ListNoFilter("devices", dal.Projection(
 			dal.Name("token"),
 			dal.Name("meta"),
