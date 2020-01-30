@@ -34,15 +34,19 @@ func (h *Hour) Save(last *int64) {
 
 	fmt.Println("DATA :::", h.Date, h.Sensor, h.Value, h.Token)
 	fmt.Println("DATA :::", data)
-
-	err := access.SaveHourChart(table, &data)
-	errString := ""
-	if err != nil {
-		errString = err.Error()
-		fmt.Printf("Could not Save data [table: %v || err: %v || data: %v]\n", table, errString, h)
-	} else if h.Date > *last {
-		*last = h.Date
+	if data["date"] != 0 {
+		err := access.SaveHourChart(table, &data)
+		errString := ""
+		if err != nil {
+			errString = err.Error()
+			fmt.Printf("Could not Save data [table: %v || err: %v || data: %v]\n", table, errString, h)
+		} else if h.Date > *last {
+			*last = h.Date
+		}
+	} else {
+		fmt.Println("Insert req. ignored ::: malicious data")
 	}
+
 }
 
 type empty struct{}
