@@ -70,7 +70,7 @@ func GetFrom(from int64, city string) (result vm.DeviceGetData) {
 			ComparisonOperator: aws.String("GE"),
 			AttributeValueList: []*dal.AttributeValue{
 				{
-					N: aws.String(strconv.FormatInt(from, 64)),
+					N: aws.String(strconv.FormatInt(from, 10)),
 				},
 			},
 		},
