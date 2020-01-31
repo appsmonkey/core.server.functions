@@ -3,11 +3,13 @@ package defaultDevice
 import (
 	"fmt"
 	"math/rand"
+	"strconv"
 	"time"
 
 	"github.com/appsmonkey/core.server.functions/dal"
 	m "github.com/appsmonkey/core.server.functions/models"
 	vm "github.com/appsmonkey/core.server.functions/viewmodels"
+	"github.com/aws/aws-sdk-go/aws"
 )
 
 // GetMinimal default device data with minimal data
@@ -48,7 +50,31 @@ func GetFrom(from int64, city string) (result vm.DeviceGetData) {
 	result.ActiveCount = 0
 
 	fmt.Println("From time ::: ", from)
-	res, err := dal.ListNoProjection("live", dal.Name("timestamp").GreaterThanEqual(dal.Value(from)))
+	// res, err := dal.ListNoProjection("live", dal.Name("timestamp").GreaterThanEqual(dal.Value(from)), true)
+	// res, err := dal.QueryMultiple("live",
+	// 	dal.Condition{
+	// 		"timestamp": {
+	// 			ComparisonOperator: aws.String("GT"),
+	// 			AttributeValueList: []*dal.AttributeValue{
+	// 				{
+	// 					N: aws.String(fmt.Sprintf("%v", from)),
+	// 				},
+	// 			},
+	// 		},
+	// 	},
+	// 	dal.Projection(dal.Name("date"), dal.Name("value")),
+	// 	true)
+
+	res, err := dal.GetFromIndex("live", "TS-Index", dal.Condition{
+		"live": {
+			ComparisonOperator: aws.String("GE"),
+			AttributeValueList: []*dal.AttributeValue{
+				{
+					N: aws.String(strconv.FormatInt(from, 64)),
+				},
+			},
+		},
+	})
 
 	if err != nil {
 		fmt.Println("could not retirieve data")
