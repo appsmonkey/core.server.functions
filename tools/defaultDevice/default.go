@@ -66,7 +66,7 @@ func GetFrom(from int64, city string) (result vm.DeviceGetData) {
 	// 	true)
 
 	res, err := dal.GetFromIndex("live", "TS-Index", dal.Condition{
-		"live": {
+		"timestamp": {
 			ComparisonOperator: aws.String("GE"),
 			AttributeValueList: []*dal.AttributeValue{
 				{
