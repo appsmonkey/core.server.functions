@@ -56,7 +56,7 @@ func Handler() error {
 		from = float64(0)
 	}
 
-	data := access.ChartHourInput(from)
+	data := access.ChartInput(from, "chart_six_input")
 	n := len(data)
 	sem := make(chan empty, n) // Using semaphore for efficiency
 
