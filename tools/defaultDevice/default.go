@@ -60,11 +60,11 @@ func GetFrom(from int64, city string) (result vm.DeviceGetData) {
 		fmt.Println("could not unmarshal data from the DB")
 		return
 	}
+	fmt.Println(dbData, "DB DATA")
 
 	// sort data by timestamp
 	dbData = Qsort(dbData)
 
-	fmt.Println(dbData, "DB DATA")
 	// make data distinc
 	var distinctData []map[string]interface{}
 	var keyList = make(map[string]bool)
