@@ -3,7 +3,6 @@ package defaultDevice
 import (
 	"fmt"
 	"math/rand"
-	"strconv"
 	"time"
 
 	"github.com/appsmonkey/core.server.functions/dal"
@@ -51,30 +50,30 @@ func GetFrom(from int64, city string) (result vm.DeviceGetData) {
 
 	fmt.Println("From time ::: ", from)
 	// res, err := dal.ListNoProjection("live", dal.Name("timestamp").GreaterThanEqual(dal.Value(from)), true)
-	// res, err := dal.QueryMultiple("live",
-	// 	dal.Condition{
-	// 		"timestamp": {
-	// 			ComparisonOperator: aws.String("GT"),
-	// 			AttributeValueList: []*dal.AttributeValue{
-	// 				{
-	// 					N: aws.String(fmt.Sprintf("%v", from)),
-	// 				},
-	// 			},
-	// 		},
-	// 	},
-	// 	dal.Projection(dal.Name("date"), dal.Name("value")),
-	// 	true)
-
-	res, err := dal.GetFromIndex("live", "TS-Index", dal.Condition{
-		"timestamp": {
-			ComparisonOperator: aws.String("GE"),
-			AttributeValueList: []*dal.AttributeValue{
-				{
-					N: aws.String(strconv.FormatInt(from, 10)),
+	res, err := dal.QueryMultiple("live",
+		dal.Condition{
+			"timestamp": {
+				ComparisonOperator: aws.String("GT"),
+				AttributeValueList: []*dal.AttributeValue{
+					{
+						N: aws.String(fmt.Sprintf("%v", from)),
+					},
 				},
 			},
 		},
-	})
+		dal.Projection(dal.Name("date"), dal.Name("value")),
+		true)
+
+	// res, err := dal.GetFromIndex("live", "TS-Index", dal.Condition{
+	// 	"timestamp": {
+	// 		ComparisonOperator: aws.String("GE"),
+	// 		AttributeValueList: []*dal.AttributeValue{
+	// 			{
+	// 				N: aws.String(strconv.FormatInt(from, 10)),
+	// 			},
+	// 		},
+	// 	},
+	// })
 
 	if err != nil {
 		fmt.Println("could not retirieve data")
