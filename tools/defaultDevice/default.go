@@ -8,7 +8,6 @@ import (
 	"github.com/appsmonkey/core.server.functions/dal"
 	m "github.com/appsmonkey/core.server.functions/models"
 	vm "github.com/appsmonkey/core.server.functions/viewmodels"
-	"github.com/aws/aws-sdk-go/aws"
 )
 
 // GetMinimal default device data with minimal data
@@ -49,19 +48,20 @@ func GetFrom(from int64, city string) (result vm.DeviceGetData) {
 	result.ActiveCount = 0
 
 	fmt.Println("From time ::: ", from)
-	// res, err := dal.ListNoProjection("live", dal.Name("timestamp").GreaterThanEqual(dal.Value(from)), true)
-	res, err := dal.QueryMultipleNoProjection("live",
-		dal.Condition{
-			"timestamp": {
-				ComparisonOperator: aws.String("GT"),
-				AttributeValueList: []*dal.AttributeValue{
-					{
-						N: aws.String(fmt.Sprintf("%v", from)),
-					},
-				},
-			},
-		},
-		true)
+	res, err := dal.ListNoProjection("live", dal.Name("timestamp").GreaterThanEqual(dal.Value(from)))
+	// cond := dal.cond
+	// res, err := dal.QueryMultipleNoProjection("live",
+	// 	dal.Condition{
+	// 		"timestamp": {
+	// 			ComparisonOperator: aws.String("GT"),
+	// 			AttributeValueList: []*dal.AttributeValue{
+	// 				{
+	// 					N: aws.String(fmt.Sprintf("%v", from)),
+	// 				},
+	// 			},
+	// 		},
+	// 	},
+	// 	true)
 
 	// res, err := dal.GetFromIndex("live", "TS-Index", dal.Condition{
 	// 	"timestamp": {
