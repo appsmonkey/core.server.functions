@@ -30,7 +30,8 @@ all : register signup signup signin refresh profile general deviceList deviceLis
 	deviceDel map zoneUpdate validateEmail seeder schemaGet chartLiveDevice chartCache chartHour \
 	chartSave chartHourDevice chartHourAll chartCacheDay chartDay chartDayDevice chartDayAll chartHasData \
 	chartCacheSix chartSix chartSixDevice chartSixAll chartLiveAll forgotPasswordStart forgotPasswordEnd notifications \
-	cityList cityDel cityAdd cityGet verifyAndRedirect customizeMessage zoneDel zoneImport zoneGet registerFillUserData checkDeviceOnline
+	cityList cityDel cityAdd cityGet verifyAndRedirect customizeMessage zoneDel zoneImport zoneGet registerFillUserData \
+	checkDeviceOnline chartCacheMonth chartMonth chartMonthDevice chartMonthAll
 
 vendor: Gopkg.toml
 		dep ensure -v
@@ -348,6 +349,29 @@ checkDeviceOnline:
 	$(package_lambda) bin/checkDeviceOnline.zip checkDeviceOnline
 	rm checkDeviceOnline	
 
+chartCacheMonth:
+	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o chartCacheMonth functions/chartCacheMonth/main.go
+	mkdir -p bin
+	$(package_lambda) bin/chartCacheMonth.zip chartCacheMonth
+	rm chartCacheMonth
+
+chartMonth:
+	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o chartMonth functions/chartMonth/main.go
+	mkdir -p bin
+	$(package_lambda) bin/chartMonth.zip chartMonth
+	rm chartMonth
+
+chartMonthDevice:
+	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o chartMonthDevice functions/chartMonthDevice/main.go
+	mkdir -p bin
+	$(package_lambda) bin/chartMonthDevice.zip chartMonthDevice
+	rm chartMonthDevice
+
+chartMonthAll:
+	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o chartMonthAll functions/chartMonthAll/main.go
+	mkdir -p bin
+	$(package_lambda) bin/chartMonthAll.zip chartMonthAll
+	rm chartMonthAll
 
 .PHONY: deploy_swagger
 deploy_swagger:
