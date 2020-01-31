@@ -47,6 +47,7 @@ func GetFrom(from int64, city string) (result vm.DeviceGetData) {
 	result.Timestamp = float64(time.Now().Unix())
 	result.ActiveCount = 0
 
+	fmt.Println("From time ::: ", from)
 	res, err := dal.ListNoProjection("live", dal.Name("timestamp").GreaterThanEqual(dal.Value(from)))
 
 	if err != nil {
