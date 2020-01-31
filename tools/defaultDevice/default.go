@@ -50,7 +50,7 @@ func GetFrom(from int64, city string) (result vm.DeviceGetData) {
 
 	fmt.Println("From time ::: ", from)
 	// res, err := dal.ListNoProjection("live", dal.Name("timestamp").GreaterThanEqual(dal.Value(from)), true)
-	res, err := dal.QueryMultiple("live",
+	res, err := dal.QueryMultipleNoProjection("live",
 		dal.Condition{
 			"timestamp": {
 				ComparisonOperator: aws.String("GT"),
@@ -61,7 +61,6 @@ func GetFrom(from int64, city string) (result vm.DeviceGetData) {
 				},
 			},
 		},
-		dal.Projection(dal.Name("date"), dal.Name("value")),
 		true)
 
 	// res, err := dal.GetFromIndex("live", "TS-Index", dal.Condition{
