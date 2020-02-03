@@ -17,18 +17,18 @@ Parameters:
     Default: apigw.cityos.io
 
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
-Globals:
-  Api:
-    Cors:
-      AllowMethods: "'*'"
-      AllowHeaders: "'*'"
-      AllowOrigin: "'*'"
-  Function:
-    Timeout: 5
-    Runtime: 'go1.x'
-    AutoPublishAlias: live
-    Tags:
-      project: CityOS
+# Globals:
+#   Api:
+#     Cors:
+#       AllowMethods: "'*'"
+#       AllowHeaders: "'*'"
+#       AllowOrigin: "'*'"
+#   Function:
+#     Timeout: 5
+#     Runtime: 'go1.x'
+#     AutoPublishAlias: live
+#     Tags:
+#       project: CityOS
 
 Resources:
   CognitoUserPool:
