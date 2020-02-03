@@ -103,6 +103,7 @@ func formulateKey(key access.ChartHourData) *Hour {
 	d := strings.Split(key.Hash, ":")
 	res := new(Hour)
 	n := len(d)
+	fmt.Println("key: ", key, "len: ", n, "split", d)
 	switch n {
 	case 3:
 		t, err := strconv.ParseInt(d[1], 10, 64)
