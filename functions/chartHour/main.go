@@ -65,7 +65,6 @@ func Handler() error {
 	sem := make(chan empty, n) // Using semaphore for efficiency
 
 	for _, key := range data {
-		fmt.Println("DATA KEY", key)
 		go func(key access.ChartHourData) {
 			h := processKey(key)
 			if h != nil {
