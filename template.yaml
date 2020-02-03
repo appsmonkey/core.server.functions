@@ -200,7 +200,59 @@ Resources:
                   - "ec2:DeleteNetworkInterface"
                 Resource:
                   - "*"
-      
+  ChartMonthTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: chart_month
+      AttributeDefinitions: 
+        - AttributeName: sensor
+          AttributeType: S
+        - AttributeName: date
+          AttributeType: N
+      KeySchema:
+        - AttributeName: sensor
+          KeyType: HASH
+        - AttributeName: date
+          KeyType: RANGE
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+  
+  ChartMonthInputTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: chart_month_input
+      AttributeDefinitions: 
+        - AttributeName: hash
+          AttributeType: S
+      KeySchema:
+        - AttributeName: hash
+          KeyType: HASH
+      TimeToLiveSpecification: 
+        AttributeName: time_to_live
+        Enabled: True
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+  
+  ChartDeviceMonthTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: chart_device_month
+      AttributeDefinitions: 
+        - AttributeName: hash
+          AttributeType: S
+        - AttributeName: date
+          AttributeType: N
+      KeySchema:
+        - AttributeName: hash
+          KeyType: HASH
+        - AttributeName: date
+          KeyType: RANGE
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+
   ChartDayTable:
     Type: AWS::DynamoDB::Table
     Properties:
