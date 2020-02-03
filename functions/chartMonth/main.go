@@ -19,10 +19,10 @@ type Hour struct {
 
 // Save the data into the DB
 func (h *Hour) Save(last *int64) {
-	table := "chart_device_day"
+	table := "chart_device_month"
 	data := make(map[string]interface{}, 0)
 	if len(h.Token) == 0 {
-		table = "chart_day"
+		table = "chart_month"
 		data["sensor"] = h.Sensor
 		data["date"] = h.Date
 		data["value"] = h.Value
@@ -50,13 +50,13 @@ type empty struct{}
 // Handler will handle our request comming from the API gateway
 func Handler() error {
 	last := int64(0)
-	from, ok := access.State("day_Last", "time_stamp").(float64)
+	from, ok := access.State("month_Last", "time_stamp").(float64)
 	if !ok {
 		fmt.Println("NOT FLOAT64")
 		from = float64(0)
 	}
 
-	data := access.ChartInput(from, "chart_day_input")
+	data := access.ChartInput(from, "chart_month_input")
 	n := len(data)
 	sem := make(chan empty, n) // Using semaphore for efficiency
 

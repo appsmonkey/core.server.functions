@@ -1,9 +1,11 @@
+// Chart aggregation every 5 minutes
 package main
 
 import (
 	"context"
 	"errors"
 	"fmt"
+	"math"
 	"strconv"
 	"time"
 
@@ -12,6 +14,7 @@ import (
 )
 
 var seconds string
+var timeSteps map[int]int
 
 // Handler will handle our request comming from the API gateway
 func Handler(ctx context.Context, req interface{}) error {
@@ -46,6 +49,7 @@ func Handler(ctx context.Context, req interface{}) error {
 
 func main() {
 	seconds = fmt.Sprint(time.Now().Add(time.Second * 2592000 * 3).Unix()) // One Month * 3 in seconds
+	timeSteps = formulateTimeSteps(5)
 	lambda.Start(Handler)
 }
 
@@ -82,5 +86,33 @@ func calculateHash(timestamp float64, token, sensor string) (devToken, generalTo
 
 func formulateTimestamp(in int64) time.Time {
 	then := time.Unix(in, 0)
-	return time.Date(then.Year(), then.Month(), then.Day(), then.Hour(), 0, 0, 0, time.UTC)
+	minute := timeSteps[then.Minute()]
+	return time.Date(then.Year(), then.Month(), then.Day(), then.Hour(), minute, 0, 0, time.UTC)
+}
+
+func formulateTimeSteps(step int) map[int]int {
+	res := make(map[int]int, 0)
+
+	s := 0
+	d := -1
+	for h := 0; h < 60; h++ {
+		if s < step {
+			if d < 0 {
+				p := 0
+				if h > 0 {
+					p = res[h-1]
+				}
+				d = int(math.Round(float64(h+step+p) / 2))
+			}
+			res[h] = d
+		}
+
+		s++
+		if s == step {
+			s = 0
+			d = -1
+		}
+	}
+
+	return res
 }

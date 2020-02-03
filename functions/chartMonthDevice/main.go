@@ -1,0 +1,114 @@
+package main
+
+import (
+	"fmt"
+	"math/rand"
+
+	"github.com/appsmonkey/core.server.functions/dal"
+	es "github.com/appsmonkey/core.server.functions/errorStatuses"
+	vm "github.com/appsmonkey/core.server.functions/viewmodels"
+	"github.com/aws/aws-lambda-go/events"
+	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/aws/aws-sdk-go/aws"
+)
+
+type resultData struct {
+	Date  float64 `json:"date"`
+	Value float64 `json:"value"`
+}
+
+// Handler will handle our request comming from the API gateway
+func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+	request := new(vm.ChartHourDeviceRequest)
+	response := request.Validate(req.QueryStringParameters)
+	if response.Code != 0 {
+		fmt.Printf("errors on request: %v, requestID: %v", response.Errors, response.RequestID)
+
+		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 400, Headers: response.Headers()}, nil
+	}
+
+	res, err := dal.QueryMultiple("chart_device_month",
+		dal.Condition{
+			"hash": {
+				ComparisonOperator: aws.String("EQ"),
+				AttributeValueList: []*dal.AttributeValue{
+					{
+						S: aws.String(fmt.Sprintf("%v:%v", request.Token, request.Sensor)),
+					},
+				},
+			},
+			"date": {
+				ComparisonOperator: aws.String("GT"),
+				AttributeValueList: []*dal.AttributeValue{
+					{
+						N: aws.String(request.From),
+					},
+				},
+			},
+		},
+		dal.Projection(dal.Name("date"), dal.Name("value")),
+		true)
+
+	if err != nil {
+		response.AddError(&es.Error{Message: err.Error(), Data: "could not unmarshal data from the DB"})
+		fmt.Printf("errors on request: %v, requestID: %v", response.Errors, response.RequestID)
+		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
+	}
+
+	var dbData []map[string]float64
+	err = res.Unmarshal(&dbData)
+	if err != nil {
+		response.AddError(&es.Error{Message: err.Error(), Data: "could not unmarshal data from the DB"})
+		fmt.Printf("errors on request: %v, requestID: %v", response.Errors, response.RequestID)
+		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
+	}
+
+	result := make([]*resultData, 0)
+	for _, v := range dbData {
+		result = append(result, &resultData{
+			Date:  v["date"],
+			Value: v["value"],
+		})
+	}
+
+	result = qsort(result)
+	response.Data = result
+
+	return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 200, Headers: response.Headers()}, nil
+}
+
+// qsort is a quicksort implmentation for sorting chart data
+func qsort(a []*resultData) []*resultData {
+	if len(a) < 2 {
+		return a
+	}
+
+	left, right := 0, len(a)-1
+
+	// Pick a pivot
+	pivotIndex := rand.Int() % len(a)
+
+	// Move the pivot to the right
+	a[pivotIndex], a[right] = a[right], a[pivotIndex]
+
+	// Pile elements smaller than the pivot on the left
+	for i := range a {
+		if a[i].Date > a[right].Date {
+			a[i], a[left] = a[left], a[i]
+			left++
+		}
+	}
+
+	// Place the pivot after the last smaller element
+	a[left], a[right] = a[right], a[left]
+
+	// Go down the rabbit hole
+	qsort(a[:left])
+	qsort(a[left+1:])
+
+	return a
+}
+
+func main() {
+	lambda.Start(Handler)
+}
