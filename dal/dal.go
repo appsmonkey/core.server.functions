@@ -312,7 +312,7 @@ func ListNoFilter(table string, projection ProjectionBuilder) (*ListResult, erro
 }
 
 // ListNoProjection data (returns possible multiple values)
-func ListNoProjection(table string, filter ConditionBuilder) (*ListResult, error) {
+func ListNoProjection(table string, filter ConditionBuilder, fullScan bool) (*ListResult, error) {
 	expr, err := expression.NewBuilder().WithFilter(filter).Build()
 	if err != nil {
 		fmt.Println("Got error building expression:")
@@ -337,9 +337,43 @@ func ListNoProjection(table string, filter ConditionBuilder) (*ListResult, error
 		return nil, err
 	}
 
+	scanRes := &ListResult{items: result}
+
+	lek := result.LastEvaluatedKey
+	if len(lek) > 0 && fullScan {
+		// use lek to do full scan of the table
+
+		for len(lek) > 0 {
+			// Build the query input parameters
+			params := &dynamodb.ScanInput{
+				ExpressionAttributeNames:  expr.Names(),
+				ExpressionAttributeValues: expr.Values(),
+				FilterExpression:          expr.Filter(),
+				TableName:                 aws.String(table),
+				ExclusiveStartKey:         lek,
+			}
+
+			// Make the DynamoDB Query API call
+			result, err := svc.Scan(params)
+			if err != nil {
+				fmt.Print("ListNoProjection API call failed: ")
+				fmt.Println((err.Error()))
+				return nil, err
+			}
+
+			lek = result.LastEvaluatedKey
+
+			// append scan outputs and return the whole thing
+			for _, v := range result.Items {
+				scanRes.items.Items = append(scanRes.items.Items, v)
+			}
+
+		}
+	}
+
 	fmt.Println("query res count ::: ", &result.Count)
 
-	return &ListResult{items: result}, nil
+	return scanRes, nil
 }
 
 // HasItems returns if the table has items in it

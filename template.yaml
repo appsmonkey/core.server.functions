@@ -994,6 +994,33 @@ Resources:
       Handler: 'checkDeviceOnline'
       Role: !GetAtt LambdaRole.Arn
 
+  chartCacheMonth:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: 'bin/chartCacheMonth.zip'
+      Handler: 'chartCacheMonth'
+      Role: !GetAtt LambdaRole.Arn
+
+  chartMonth:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: 'bin/chartMonth.zip'
+      Handler: 'chartMonth'
+      Role: !GetAtt LambdaRole.Arn
+  
+  chartMonthAll:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: 'bin/chartMonthAll.zip'
+      Handler: 'chartMonthAll'
+      Role: !GetAtt LambdaRole.Arn
+
+  chartMonthDevice:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: 'bin/chartMonthDevice.zip'
+      Handler: 'chartMonthDevice'
+      Role: !GetAtt LambdaRole.Arn
 
   # test:
   #   Type: 'AWS::Serverless::Function'
