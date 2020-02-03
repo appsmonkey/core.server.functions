@@ -174,14 +174,14 @@ func Qsort(a []map[string]interface{}) []map[string]interface{} {
 
 // Get default device data
 func Get(city string) (result vm.DeviceGetData) {
-	result = GetFrom(time.Now().Add(-time.Hour*2).Unix(), city)
+	result = GetFrom(time.Now().Add(-time.Hour*1).Unix(), city)
 
 	if len(result.Latest) == 0 {
-		result = GetFrom(time.Now().Add(-time.Hour*4).Unix(), city)
+		result = GetFrom(time.Now().Add(-time.Hour*2).Unix(), city)
 	}
 
 	if len(result.Latest) == 0 {
-		result = GetFrom(time.Now().Add(-time.Hour*12).Unix(), city)
+		result = GetFrom(time.Now().Add(-time.Hour*6).Unix(), city)
 	}
 
 	// Since we did not get any data, get the last successfull state
