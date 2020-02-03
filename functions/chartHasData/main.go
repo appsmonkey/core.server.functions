@@ -42,7 +42,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 
 	var qry dal.ConditionBuilder
 	if request.Device {
-		qry = dal.Name("hash").Equal(dal.Value(request.Token + ":" + request.Sensor)).And(dal.Name("date").GreaterThanEqual(dal.Value(request.From)))
+		qry = dal.Name("hash").Equal(dal.Value(request.Token + "<->" + request.Sensor)).And(dal.Name("date").GreaterThanEqual(dal.Value(request.From)))
 	} else {
 		qry = dal.Name("sensor").Equal(dal.Value(request.Sensor)).And(dal.Name("date").GreaterThanEqual(dal.Value(request.From)))
 	}

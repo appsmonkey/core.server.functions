@@ -67,7 +67,7 @@ func Handler() error {
 	for _, key := range data {
 		go func(key access.ChartHourData) {
 			h := processKey(key)
-			if h != nil {
+			if h != nil && h.Date != 0 {
 				h.Save(&last)
 			}
 			sem <- empty{}
@@ -100,7 +100,7 @@ func processKey(key access.ChartHourData) *Hour {
 }
 
 func formulateKey(key access.ChartHourData) *Hour {
-	d := strings.Split(key.Hash, ":")
+	d := strings.Split(key.Hash, "<->")
 	res := new(Hour)
 	n := len(d)
 	fmt.Println("key: ", key, "len: ", n, "split", d)
@@ -120,6 +120,8 @@ func formulateKey(key access.ChartHourData) *Hour {
 		res.Date = t
 		res.Token = d[2]
 		res.Sensor = d[3]
+	default:
+		fmt.Println("FORMAT KEY ERROR! LEN :: ", n, "DATA ::", d)
 	}
 
 	return res

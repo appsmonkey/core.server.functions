@@ -78,8 +78,8 @@ func incrementData(hash, timestamp, key1, value1, key2, value2 string) *access.I
 func calculateHash(timestamp float64, token, sensor string) (devToken, generalToken string) {
 	t := formulateTimestamp(int64(timestamp))
 
-	devToken = fmt.Sprintf("hour:%v:%v:%v", t.Unix(), token, sensor)
-	generalToken = fmt.Sprintf("hour:%v:%v", t.Unix(), sensor)
+	devToken = fmt.Sprintf("hour<->%v<->%v<->%v", t.Unix(), token, sensor)
+	generalToken = fmt.Sprintf("hour<->%v<->%v", t.Unix(), sensor)
 
 	return
 }
