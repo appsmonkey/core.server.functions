@@ -31,7 +31,7 @@ all : register signup signup signin refresh profile general deviceList deviceLis
 	chartSave chartHourDevice chartHourAll chartCacheDay chartDay chartDayDevice chartDayAll chartHasData \
 	chartCacheSix chartSix chartSixDevice chartSixAll chartLiveAll forgotPasswordStart forgotPasswordEnd notifications \
 	cityList cityDel cityAdd cityGet verifyAndRedirect customizeMessage zoneDel zoneImport zoneGet registerFillUserData \
-	checkDeviceOnline chartCacheMonth chartMonth chartMonthDevice chartMonthAll
+	checkDeviceOnline chartCacheMonth chartMonth chartMonthDevice chartMonthAll langBundle
 
 vendor: Gopkg.toml
 		dep ensure -v
@@ -372,6 +372,12 @@ chartMonthAll:
 	mkdir -p bin
 	$(package_lambda) bin/chartMonthAll.zip chartMonthAll
 	rm chartMonthAll
+
+langBundle:
+	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o langBundle functions/langBundle/main.go
+	mkdir -p bin
+	$(package_lambda) bin/langBundle.zip langBundle
+	rm langBundle
 
 .PHONY: deploy_swagger
 deploy_swagger:

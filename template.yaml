@@ -539,10 +539,14 @@ Resources:
           AttributeType: S
         - AttributeName: sensor_id
           AttributeType: S
+        - AttributeName: city
+          AttributeType: S
       KeySchema:
         - AttributeName: zone_id
           KeyType: HASH
         - AttributeName: sensor_id
+          KeyType: RANGE
+        - AttributeName: city
           KeyType: RANGE
       ProvisionedThroughput:
         ReadCapacityUnits: 5
@@ -1072,6 +1076,13 @@ Resources:
     Properties:
       CodeUri: 'bin/chartMonthDevice.zip'
       Handler: 'chartMonthDevice'
+      Role: !GetAtt LambdaRole.Arn
+
+  langBundle:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: 'bin/langBundle.zip'
+      Handler: 'langBundle'
       Role: !GetAtt LambdaRole.Arn
 
   # test:
