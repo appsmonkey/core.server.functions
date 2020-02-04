@@ -2,9 +2,11 @@ package main
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/appsmonkey/core.server.functions/dal"
 	es "github.com/appsmonkey/core.server.functions/errorStatuses"
+	"github.com/appsmonkey/core.server.functions/integration/cognito"
 	m "github.com/appsmonkey/core.server.functions/models"
 	defaultDevice "github.com/appsmonkey/core.server.functions/tools/defaultDevice"
 	h "github.com/appsmonkey/core.server.functions/tools/helper"
@@ -14,15 +16,32 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 )
 
+var (
+	cog *cognito.Cognito
+)
+
 // Handler will handle our request comming from the API gateway
 func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-	cognitoID := CognitoData(req.RequestContext.Authorizer)
+	cognitoID := h.CognitoIDZeroValue
+	authHdr := header("AccessToken", req.Headers)
 	request := new(vm.DeviceGetRequest)
 	response := request.Validate(req.QueryStringParameters)
 	if response.Code != 0 {
 		fmt.Printf("errors on request: %v, requestID: %v", response.Errors, response.RequestID)
 
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
+	}
+
+	if len(authHdr) > 0 {
+		c, _, isExpired, err := cog.ValidateToken(authHdr)
+		if err != nil {
+			fmt.Println(err)
+			if isExpired {
+				return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 401, Headers: response.Headers()}, nil
+			}
+		} else {
+			cognitoID = c
+		}
 	}
 
 	if len(request.Token) == 0 {
@@ -79,6 +98,16 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 200, Headers: response.Headers()}, nil
 }
 
+func header(hdr string, in map[string]string) string {
+	result, ok := in[hdr]
+	if !ok {
+		lwr := strings.ToLower(hdr)
+		result = in[lwr]
+	}
+
+	return result
+}
+
 // CognitoData for user
 func CognitoData(in map[string]interface{}) string {
 	data, ok := in["claims"].(map[string]interface{})
@@ -88,6 +117,10 @@ func CognitoData(in map[string]interface{}) string {
 	}
 
 	return data["sub"].(string)
+}
+
+func init() {
+	cog = cognito.NewCognito()
 }
 
 func main() {
