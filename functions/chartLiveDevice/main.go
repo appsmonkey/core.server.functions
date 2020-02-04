@@ -124,6 +124,7 @@ func smooth(in []*resultData) []*resultData {
 
 		j := i + 1
 		if j == lenIN {
+			fmt.Println("SMOOTH1")
 			break
 		}
 
@@ -164,6 +165,7 @@ func smoothPoints(it, jt time.Time, iv, jv float64) []*resultData {
 
 			// if we overshot, stop
 			if t.Before(jt) {
+				fmt.Println("OVERSHOT")
 				break
 			}
 
@@ -193,6 +195,7 @@ func smoothPoints(it, jt time.Time, iv, jv float64) []*resultData {
 
 			// if we overshot, stop
 			if t.Before(jt) {
+				fmt.Println("OVERSHOT2")
 				break
 			}
 
@@ -230,6 +233,7 @@ func smoothPoints(it, jt time.Time, iv, jv float64) []*resultData {
 
 			// if we overshot, stop
 			if t.Before(jt) {
+				fmt.Println("OVERSHOT3")
 				break
 			}
 
