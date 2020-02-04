@@ -87,6 +87,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 
 		// sort data according to timestamp
 		result = qsort(result)
+		result = smooth(result)
 
 		response.Data = result
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 200, Headers: response.Headers()}, nil
@@ -141,6 +142,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	}
 
 	resultChart = qsortMulti(resultChart)
+	resultChart = smoothMulti(resultChart)
 
 	response.Data = resultDataMulti{Chart: resultChart, Max: maxValues}
 
@@ -211,7 +213,33 @@ func qsortMulti(a []map[string]float64) []map[string]float64 {
 	return a
 }
 
-func smooth(in []map[string]float64) []map[string]float64 {
+func smooth(in []*resultData) []*resultData {
+	result := make([]*resultData, 0)
+	lenIN := len(in)
+
+	for i := 0; i < lenIN; i++ {
+		result = append(result, in[i])
+
+		j := i + 1
+		if j == lenIN {
+			break
+		}
+
+		iDate := time.Unix(int64(in[i].Date), 0)
+		jDate := time.Unix(int64(in[j].Date), 0)
+		iValue := in[i].Value
+		jValue := in[j].Value
+
+		res := smoothPoints(iDate, jDate, iValue, jValue)
+		for _, dp := range res {
+			result = append(result, dp)
+		}
+	}
+
+	return result
+}
+
+func smoothMulti(in []map[string]float64) []map[string]float64 {
 	result := make([]map[string]float64, 0)
 	lenIN := len(in)
 
@@ -228,7 +256,7 @@ func smooth(in []map[string]float64) []map[string]float64 {
 		iValue := in[i]["value"]
 		jValue := in[j]["value"]
 
-		res := smoothPoints(iDate, jDate, iValue, jValue)
+		res := smoothPointsMulti(iDate, jDate, iValue, jValue)
 		for _, dp := range res {
 			result = append(result, dp)
 		}
@@ -237,7 +265,7 @@ func smooth(in []map[string]float64) []map[string]float64 {
 	return result
 }
 
-func smoothPoints(it, jt time.Time, iv, jv float64) []map[string]float64 {
+func smoothPointsMulti(it, jt time.Time, iv, jv float64) []map[string]float64 {
 	year, month, day, hour, min, _ := diff(it, jt)
 	minutes := float64(year*525600 + month*43800 + day*1440 + hour*60 + min)
 	res := make([]map[string]float64, 0)
@@ -332,6 +360,110 @@ func smoothPoints(it, jt time.Time, iv, jv float64) []map[string]float64 {
 			res = append(res, map[string]float64{
 				"date":  float64(t.Unix()),
 				"value": v,
+			})
+		}
+
+		return res
+	}
+
+	return res
+}
+
+func smoothPoints(it, jt time.Time, iv, jv float64) []*resultData {
+	year, month, day, hour, min, _ := diff(it, jt)
+	minutes := float64(year*525600 + month*43800 + day*1440 + hour*60 + min)
+	res := make([]*resultData, 0)
+
+	// for large differences we can just add a simple curve
+	if year > 0 || month > 0 || day > 0 {
+		mod := float64(10)
+		v := iv
+		for {
+			// Get the time for the new data point (substract 10%)
+			m := time.Duration(minutes / mod)
+			t := it.Add(time.Minute * m * -1)
+
+			// Get the value for the new data point (substract 10%) of the difference between the two points
+			if iv > jv {
+				v -= (iv - jv) / mod
+			} else if iv < jv {
+				v += (iv - jv) / mod
+			}
+
+			// if we overshot, stop
+			if t.Before(jt) {
+				break
+			}
+
+			res = append(res, &resultData{
+				Date:  float64(t.Unix()),
+				Value: v,
+			})
+		}
+
+		return res
+	}
+
+	if hour > 0 {
+		mod := float64(5)
+		v := iv
+		for {
+			// Get the time for the new data point (substract 10%)
+			m := time.Duration(minutes / mod)
+			t := it.Add(time.Minute * m * -1)
+
+			// Get the value for the new data point (substract 10%) of the difference between the two points
+			if iv > jv {
+				v -= (iv - jv) / mod
+			} else if iv < jv {
+				v += (iv - jv) / mod
+			}
+
+			// if we overshot, stop
+			if t.Before(jt) {
+				break
+			}
+
+			res = append(res, &resultData{
+				Date:  float64(t.Unix()),
+				Value: v,
+			})
+		}
+
+		return res
+	}
+
+	// if we have three minutes missing, just do nothing
+	if min <= 3 {
+		return res
+	}
+
+	// we have a minutes chart so we need to figure out the amount of data point
+	// to put between the two existing points
+	// we base it on the minimum value jump in our dataset
+	if min > 3 {
+		mod := float64(min)
+		v := iv
+		for {
+			// Get the time for the new data point (substract 10%)
+			m := time.Duration(minutes / mod)
+			t := it.Add(time.Minute * m * -1)
+
+			// Get the value for the new data point (substract 10%) of the difference between the two points
+			if iv > jv {
+				v -= (iv - jv) / mod
+			} else if iv < jv {
+				v += (iv - jv) / mod
+			}
+
+			// if we overshot, stop
+			if t.Before(jt) {
+				break
+			}
+
+			res = append(res, &resultData{
+				Date:  float64(t.Unix()),
+				Value: v,
 			})
 		}
 
