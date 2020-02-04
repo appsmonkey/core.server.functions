@@ -53,11 +53,11 @@ func GetFrom(from int64, city string) (result vm.DeviceGetData) {
 	// res, err := dal.ListNoProjection("live", dal.Name("timestamp").GreaterThanEqual(dal.Value(from)), true)
 	res, err := dal.QueryMultipleNoProjection("live",
 		dal.Condition{
-			"token": {
-				ComparisonOperator: aws.String("CONTAINS"),
+			"indoor": {
+				ComparisonOperator: aws.String("EQ"),
 				AttributeValueList: []*dal.AttributeValue{
 					{
-						S: aws.String("Boxy"),
+						BOOL: aws.Bool(false),
 					},
 				},
 			},
@@ -112,8 +112,27 @@ func GetFrom(from int64, city string) (result vm.DeviceGetData) {
 			continue
 		}
 
+		toIgnore := map[string]bool{
+			"timestamp":          true,
+			"WATER_LEVEL_SWITCH": true,
+			"SOIL_MOISTURE":      true,
+			"LIGHT_INTENSITY":    true,
+			"token":              true,
+			"BATTERY_VOLTAGE":    true,
+			"MOTION":             true,
+			"DEVICE_TEMPERATURE": true,
+			"timestamp_sort":     true,
+			"ttl":                true,
+			"city":               true,
+			"cognito_id":         true,
+			"indoor":             true,
+			"zone_id":            true,
+			"SOIL_TEMPERATURE":   true,
+		}
+
 		for ki, vi := range v {
-			if ki != "timestamp" && ki != "SOIL_MOISTURE" && ki != "WATER_LEVEL_SWITCH" && ki != "LIGHT_INTENSITY" && ki != "token" && ki != "BATTERY_VOLTAGE" && ki != "MOTION" && ki != "DEVICE_TEMPERATURE" && ki != "timestamp_sort" && ki != "ttl" && ki != "city" && ki != "cognito_id" && ki != "indoor" && ki != "zone_id" {
+			_, ok := toIgnore[ki]
+			if !ok {
 
 				data[ki] = append(data[ki], vi.(float64))
 			}
