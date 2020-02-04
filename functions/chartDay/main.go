@@ -27,7 +27,7 @@ func (h *Hour) Save(last *int64) {
 		data["date"] = h.Date
 		data["value"] = h.Value
 	} else {
-		data["hash"] = fmt.Sprintf("%v:%v", h.Token, h.Sensor)
+		data["hash"] = fmt.Sprintf("%v<->%v", h.Token, h.Sensor)
 		data["date"] = h.Date
 		data["value"] = h.Value
 	}

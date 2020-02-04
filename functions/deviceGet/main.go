@@ -81,7 +81,6 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 
 // CognitoData for user
 func CognitoData(in map[string]interface{}) string {
-	fmt.Println("IN ::: ", in)
 	data, ok := in["claims"].(map[string]interface{})
 
 	if !ok {

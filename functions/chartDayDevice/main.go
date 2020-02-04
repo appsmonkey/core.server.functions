@@ -33,7 +33,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 				ComparisonOperator: aws.String("EQ"),
 				AttributeValueList: []*dal.AttributeValue{
 					{
-						S: aws.String(fmt.Sprintf("%v:%v", request.Token, request.Sensor)),
+						S: aws.String(fmt.Sprintf("%v<->%v", request.Token, request.Sensor)),
 					},
 				},
 			},
