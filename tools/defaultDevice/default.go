@@ -2,6 +2,7 @@ package defaultDevice
 
 import (
 	"fmt"
+	"math"
 	"math/rand"
 	"time"
 
@@ -124,6 +125,11 @@ func GetFrom(from int64, city string) (result vm.DeviceGetData) {
 				result.Latest[k] = av / float64(len(v))
 			}
 		}
+	}
+
+	for k, v := range result.Latest {
+		v = math.Round(v.(float64))
+		result.Latest[k] = v
 	}
 
 	return
