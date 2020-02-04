@@ -53,6 +53,14 @@ func GetFrom(from int64, city string) (result vm.DeviceGetData) {
 	// res, err := dal.ListNoProjection("live", dal.Name("timestamp").GreaterThanEqual(dal.Value(from)), true)
 	res, err := dal.QueryMultipleNoProjection("live",
 		dal.Condition{
+			"token": {
+				ComparisonOperator: aws.String("CONTAINS"),
+				AttributeValueList: []*dal.AttributeValue{
+					{
+						S: aws.String("Boxy"),
+					},
+				},
+			},
 			"timestamp": {
 				ComparisonOperator: aws.String("GT"),
 				AttributeValueList: []*dal.AttributeValue{
