@@ -8,6 +8,7 @@ import (
 	"github.com/appsmonkey/core.server.functions/dal"
 	m "github.com/appsmonkey/core.server.functions/models"
 	vm "github.com/appsmonkey/core.server.functions/viewmodels"
+	"github.com/aws/aws-sdk-go/aws"
 )
 
 // GetMinimal default device data with minimal data
@@ -48,31 +49,19 @@ func GetFrom(from int64, city string) (result vm.DeviceGetData) {
 	result.ActiveCount = 0
 
 	fmt.Println("From time ::: ", from)
-	res, err := dal.ListNoProjection("live", dal.Name("timestamp").GreaterThanEqual(dal.Value(from)), true)
-	// cond := dal.cond
-	// res, err := dal.QueryMultipleNoProjection("live",
-	// 	dal.Condition{
-	// 		"timestamp": {
-	// 			ComparisonOperator: aws.String("GT"),
-	// 			AttributeValueList: []*dal.AttributeValue{
-	// 				{
-	// 					N: aws.String(fmt.Sprintf("%v", from)),
-	// 				},
-	// 			},
-	// 		},
-	// 	},
-	// 	true)
-
-	// res, err := dal.GetFromIndex("live", "TS-Index", dal.Condition{
-	// 	"timestamp": {
-	// 		ComparisonOperator: aws.String("GE"),
-	// 		AttributeValueList: []*dal.AttributeValue{
-	// 			{
-	// 				N: aws.String(strconv.FormatInt(from, 10)),
-	// 			},
-	// 		},
-	// 	},
-	// })
+	// res, err := dal.ListNoProjection("live", dal.Name("timestamp").GreaterThanEqual(dal.Value(from)), true)
+	res, err := dal.QueryMultipleNoProjection("live",
+		dal.Condition{
+			"timestamp": {
+				ComparisonOperator: aws.String("GT"),
+				AttributeValueList: []*dal.AttributeValue{
+					{
+						N: aws.String(fmt.Sprintf("%v", from)),
+					},
+				},
+			},
+		},
+		true, true)
 
 	if err != nil {
 		fmt.Println("could not retirieve data")
@@ -115,7 +104,7 @@ func GetFrom(from int64, city string) (result vm.DeviceGetData) {
 		}
 
 		for ki, vi := range v {
-			if ki != "timestamp" && ki != "token" && ki != "BATTERY_VOLTAGE" && ki != "DEVICE_TEMPERATURE" && ki != "timestamp_sort" && ki != "ttl" && ki != "city" && ki != "cognito_id" && ki != "indoor" && ki != "zone_id" {
+			if ki != "timestamp" && ki != "SOIL_MOISTURE" && ki != "WATER_LEVEL_SWITCH" && ki != "LIGHT_INTENSITY" && ki != "token" && ki != "BATTERY_VOLTAGE" && ki != "MOTION" && ki != "DEVICE_TEMPERATURE" && ki != "timestamp_sort" && ki != "ttl" && ki != "city" && ki != "cognito_id" && ki != "indoor" && ki != "zone_id" {
 
 				data[ki] = append(data[ki], vi.(float64))
 			}
