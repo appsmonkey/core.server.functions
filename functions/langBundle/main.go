@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"os"
 
 	"github.com/appsmonkey/core.server.functions/integration/cognito"
@@ -20,7 +21,14 @@ func Handler(ctx context.Context, req events.APIGatewayProxyRequest) (events.API
 	request := new(vm.LangBundleRequest)
 	response := request.Validate(req.QueryStringParameters)
 
-	response.Data = h.GetLang(request.Language)
+	res, err := h.GetLang(request.Language)
+
+	if err != nil {
+		fmt.Println("Error fatching lang file")
+		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
+	}
+
+	response.Data = res
 	return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 200, Headers: response.Headers()}, nil
 }
 
