@@ -225,6 +225,7 @@ func QueryMultiple(table string, condition Condition, projection ProjectionBuild
 
 // QueryMultipleNoProjection data from the table
 func QueryMultipleNoProjection(table string, condition Condition, ascending bool, fullScan bool) (*QueryResult, error) {
+	fmt.Println("QUERY NO PROJ", condition)
 	expr, err := expression.NewBuilder().Build()
 	if err != nil {
 		fmt.Print("Got error building expression: ")
