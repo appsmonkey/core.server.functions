@@ -160,7 +160,7 @@ func smoothPoints(it, jt time.Time, iv, jv float64) []*resultData {
 			if iv > jv {
 				v -= (iv - jv) / mod
 			} else if iv < jv {
-				v += (iv - jv) / mod
+				v += (jv - iv) / mod
 			}
 
 			// if we overshot, stop
@@ -190,7 +190,7 @@ func smoothPoints(it, jt time.Time, iv, jv float64) []*resultData {
 			if iv > jv {
 				v -= (iv - jv) / mod
 			} else if iv < jv {
-				v += (iv - jv) / mod
+				v += (jv - iv) / mod
 			}
 
 			// if we overshot, stop
@@ -228,7 +228,7 @@ func smoothPoints(it, jt time.Time, iv, jv float64) []*resultData {
 			if iv > jv {
 				v -= (iv - jv) / mod
 			} else if iv < jv {
-				v += (iv - jv) / mod
+				v += (jv - iv) / mod
 			}
 
 			// if we overshot, stop
