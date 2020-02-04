@@ -136,13 +136,16 @@ func smooth(in []*resultData) []*resultData {
 		res := smoothPoints(iDate, jDate, iValue, jValue)
 		for _, dp := range res {
 			result = append(result, dp)
+			fmt.Println("FOR 2")
 		}
+		fmt.Println("FOR 1")
 	}
 
 	return result
 }
 
 func smoothPoints(it, jt time.Time, iv, jv float64) []*resultData {
+	fmt.Println("ENTER SMOOTH")
 	year, month, day, hour, min, _ := diff(it, jt)
 	minutes := float64(year*525600 + month*43800 + day*1440 + hour*60 + min)
 	res := make([]*resultData, 0)
@@ -173,6 +176,7 @@ func smoothPoints(it, jt time.Time, iv, jv float64) []*resultData {
 				Date:  float64(t.Unix()),
 				Value: v,
 			})
+			fmt.Println("SMOOTH FOR 1")
 		}
 
 		return res
@@ -203,6 +207,7 @@ func smoothPoints(it, jt time.Time, iv, jv float64) []*resultData {
 				Date:  float64(t.Unix()),
 				Value: v,
 			})
+			fmt.Println("SMOOTH FOR 2")
 		}
 
 		return res
@@ -241,6 +246,7 @@ func smoothPoints(it, jt time.Time, iv, jv float64) []*resultData {
 				Date:  float64(t.Unix()),
 				Value: v,
 			})
+			fmt.Println("SMOOTH FOR 3")
 		}
 
 		return res
