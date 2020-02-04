@@ -24,7 +24,7 @@ func Handler(ctx context.Context, req events.APIGatewayProxyRequest) (events.API
 	request := new(vm.LangBundleRequest)
 	response := request.Validate(req.QueryStringParameters)
 
-	response.Data = h.GetLang(lang)
+	response.Data = h.GetLang(request.Language)
 	return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 200, Headers: response.Headers()}, nil
 }
 
