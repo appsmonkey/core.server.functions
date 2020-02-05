@@ -2,7 +2,6 @@ package schema
 
 import (
 	"encoding/json"
-	"fmt"
 	"math"
 )
 
@@ -83,7 +82,6 @@ type Data struct {
 // ConvertRawValue will return parsed raw value form device
 func (s *Data) ConvertRawValue(v float64) float64 {
 	if len(s.ParseCondition) > 0 {
-		fmt.Println("Parsing values ::: ", s.ParseCondition, v, s.Name)
 		switch s.ParseCondition {
 		case "round":
 			{
