@@ -22,6 +22,7 @@ func Handler(ctx context.Context, req events.APIGatewayProxyRequest) (events.API
 	response := request.Validate(req.QueryStringParameters)
 
 	res, err := h.GetLang(request.Language)
+	fmt.Println(request.Language, "RES ::: ", res)
 
 	if err != nil {
 		fmt.Println("Error fatching lang file")
