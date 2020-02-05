@@ -52,6 +52,7 @@ func Handler(ctx context.Context, req interface{}) error {
 			zd := m.Zone{
 				ZoneID:   zoneID,
 				SensorID: sk,
+				CityID:   "Sarajevo",
 				Data: m.ZoneMeta{
 					SensorID:    sk,
 					Name:        zoneID,
