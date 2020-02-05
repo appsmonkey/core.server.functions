@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -41,7 +42,15 @@ func Handler(ctx context.Context, req events.APIGatewayProxyRequest) (events.API
 		fmt.Printf("%s", err)
 		os.Exit(1)
 	}
-	response.Data = contents
+
+	toReturn := new(map[string]string)
+	err = json.Unmarshal(contents, &toReturn)
+	if err != nil {
+		fmt.Println("Unmarshaling er")
+		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
+	}
+
+	response.Data = toReturn
 	return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 200, Headers: response.Headers()}, nil
 }
 
