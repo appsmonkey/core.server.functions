@@ -30,7 +30,7 @@ func RandSeq(n int) string {
 }
 
 // GetLang translations
-func GetLang(lang string) (interface{}, error) {
+func GetLang(lang string) (*http.Response, error) {
 
 	switch lang {
 	case "BA":
