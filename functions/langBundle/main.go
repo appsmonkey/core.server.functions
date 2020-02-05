@@ -2,9 +2,6 @@ package main
 
 import (
 	"context"
-	"encoding/json"
-	"fmt"
-	"io/ioutil"
 	"os"
 
 	"github.com/appsmonkey/core.server.functions/integration/cognito"
@@ -23,35 +20,11 @@ func Handler(ctx context.Context, req events.APIGatewayProxyRequest) (events.API
 	request := new(vm.LangBundleRequest)
 	response := request.Validate(req.QueryStringParameters)
 
-	res, err := h.GetLang(request.Language)
-	fmt.Println(request.Language, "RES ::: ", res.Body)
+	url := h.GetLang(request.Language)
 
-	if err != nil {
-		fmt.Println("Error fatching lang file")
-		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
-	}
-
-	if err != nil {
-		fmt.Printf("%s", err)
-		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
-	}
-
-	defer res.Body.Close()
-	contents, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		fmt.Printf("%s", err)
-		os.Exit(1)
-	}
-
-	toReturn := new(map[string]string)
-	err = json.Unmarshal(contents, &toReturn)
-	if err != nil {
-		fmt.Println("Unmarshaling er")
-		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
-	}
-
-	response.Data = toReturn
-	return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 200, Headers: response.Headers()}, nil
+	headers := response.Headers()
+	headers["Location"] = url
+	return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 301, Headers: response.Headers()}, nil
 }
 
 func main() {

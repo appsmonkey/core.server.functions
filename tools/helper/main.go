@@ -2,7 +2,6 @@ package helper
 
 import (
 	"math/rand"
-	"net/http"
 )
 
 // CognitoIDZeroValue is the zero value for a Cognito ID
@@ -30,12 +29,12 @@ func RandSeq(n int) string {
 }
 
 // GetLang translations
-func GetLang(lang string) (*http.Response, error) {
+func GetLang(lang string) string {
 
 	switch lang {
 	case "BA":
-		return http.Get("https://cityos-universal-links.s3.amazonaws.com/lang/BA-lng.txt")
+		return "https://cityos-universal-links.s3.amazonaws.com/lang/BA-lng.txt"
 	default:
-		return http.Get("https://cityos-universal-links.s3.amazonaws.com/lang/BA-lng.txt")
+		return "https://cityos-universal-links.s3.amazonaws.com/lang/BA-lng.txt"
 	}
 }
