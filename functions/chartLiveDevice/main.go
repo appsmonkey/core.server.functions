@@ -124,7 +124,6 @@ func smooth(in []*resultData) []*resultData {
 
 		j := i + 1
 		if j == lenIN {
-			fmt.Println("SMOOTH1")
 			break
 		}
 
@@ -136,38 +135,28 @@ func smooth(in []*resultData) []*resultData {
 		res := smoothPoints(iDate, jDate, iValue, jValue)
 		for _, dp := range res {
 			result = append(result, dp)
-			fmt.Println("FOR 2")
 		}
-		fmt.Println("FOR 1")
 	}
 
 	return result
 }
 
 func smoothPoints(it, jt time.Time, iv, jv float64) []*resultData {
-	fmt.Println("ENTER SMOOTH")
 	year, month, day, hour, min, _ := diff(it, jt)
 	minutes := float64(year*525600 + month*43800 + day*1440 + hour*60 + min)
 	res := make([]*resultData, 0)
-	fmt.Println("START TIME ", it)
-	fmt.Println("END TIME ", jt)
-	fmt.Println("DIFF ", year, month, day, hour, min)
-	fmt.Println("MINUTES ", minutes)
 
 	// for large differences we can just add a simple curve
 	i := 0
 	if year > 0 || month > 0 || day > 0 {
-		fmt.Println("YEAR")
 		mod := float64(10)
 		v := iv
 		t := it
 		for {
 			i++
-			fmt.Println("START LOOP ", i)
 			// Get the time for the new data point (substract 10%)
 			m := time.Duration(minutes / mod)
 			t = t.Add(time.Minute * m * -1)
-			fmt.Println("TIME ", t)
 
 			// Get the value for the new data point (substract 10%) of the difference between the two points
 			if iv > jv {
@@ -176,11 +165,8 @@ func smoothPoints(it, jt time.Time, iv, jv float64) []*resultData {
 				v += (jv - iv) / mod
 			}
 
-			fmt.Println("VALUE ", v)
-
 			// if we overshot, stop
 			if t.Before(jt) {
-				fmt.Println("OVERSHOT")
 				break
 			}
 
@@ -188,25 +174,20 @@ func smoothPoints(it, jt time.Time, iv, jv float64) []*resultData {
 				Date:  float64(t.Unix()),
 				Value: v,
 			})
-
-			fmt.Println("END LOOP ", i)
 		}
 
 		return res
 	}
 
 	if hour > 0 {
-		fmt.Println("HOUR")
 		mod := float64(5)
 		v := iv
 		t := it
 		for {
 			i++
-			fmt.Println("START LOOP ", i)
 			// Get the time for the new data point (substract 10%)
 			m := time.Duration(minutes / mod)
 			t = t.Add(time.Minute * m * -1)
-			fmt.Println("TIME ", t)
 
 			// Get the value for the new data point (substract 10%) of the difference between the two points
 			if iv > jv {
@@ -215,11 +196,8 @@ func smoothPoints(it, jt time.Time, iv, jv float64) []*resultData {
 				v += (jv - iv) / mod
 			}
 
-			fmt.Println("VALUE ", v)
-
 			// if we overshot, stop
 			if t.Before(jt) {
-				fmt.Println("OVERSHOT")
 				break
 			}
 
@@ -227,8 +205,6 @@ func smoothPoints(it, jt time.Time, iv, jv float64) []*resultData {
 				Date:  float64(t.Unix()),
 				Value: v,
 			})
-
-			fmt.Println("END LOOP ", i)
 		}
 
 		return res
@@ -236,7 +212,6 @@ func smoothPoints(it, jt time.Time, iv, jv float64) []*resultData {
 
 	// if we have three minutes missing, just do nothing
 	if min <= 3 {
-		fmt.Println("< MIN")
 		return res
 	}
 
@@ -244,17 +219,14 @@ func smoothPoints(it, jt time.Time, iv, jv float64) []*resultData {
 	// to put between the two existing points
 	// we base it on the minimum value jump in our dataset
 	if min > 3 {
-		fmt.Println("> MIN")
 		mod := float64(min)
 		v := iv
 		t := it
 		for {
 			i++
-			fmt.Println("START LOOP ", i)
 			// Get the time for the new data point (substract 10%)
 			m := time.Duration(minutes / mod)
 			t = t.Add(time.Minute * m * -1)
-			fmt.Println("TIME ", t)
 
 			// Get the value for the new data point (substract 10%) of the difference between the two points
 			if iv > jv {
@@ -263,11 +235,8 @@ func smoothPoints(it, jt time.Time, iv, jv float64) []*resultData {
 				v += (jv - iv) / mod
 			}
 
-			fmt.Println("VALUE ", v)
-
 			// if we overshot, stop
 			if t.Before(jt) {
-				fmt.Println("OVERSHOT")
 				break
 			}
 
@@ -275,8 +244,6 @@ func smoothPoints(it, jt time.Time, iv, jv float64) []*resultData {
 				Date:  float64(t.Unix()),
 				Value: v,
 			})
-
-			fmt.Println("END LOOP ", i)
 		}
 
 		return res

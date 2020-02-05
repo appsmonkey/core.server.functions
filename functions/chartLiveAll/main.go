@@ -274,10 +274,11 @@ func smoothPointsMulti(it, jt time.Time, iv, jv float64) []map[string]float64 {
 	if year > 0 || month > 0 || day > 0 {
 		mod := float64(10)
 		v := iv
+		t := it
 		for {
 			// Get the time for the new data point (substract 10%)
 			m := time.Duration(minutes / mod)
-			t := it.Add(time.Minute * m * -1)
+			t = t.Add(time.Minute * m * -1)
 
 			// Get the value for the new data point (substract 10%) of the difference between the two points
 			if iv > jv {
@@ -303,10 +304,11 @@ func smoothPointsMulti(it, jt time.Time, iv, jv float64) []map[string]float64 {
 	if hour > 0 {
 		mod := float64(5)
 		v := iv
+		t := it
 		for {
 			// Get the time for the new data point (substract 10%)
 			m := time.Duration(minutes / mod)
-			t := it.Add(time.Minute * m * -1)
+			t = t.Add(time.Minute * m * -1)
 
 			// Get the value for the new data point (substract 10%) of the difference between the two points
 			if iv > jv {
@@ -340,10 +342,11 @@ func smoothPointsMulti(it, jt time.Time, iv, jv float64) []map[string]float64 {
 	if min > 3 {
 		mod := float64(min)
 		v := iv
+		t := it
 		for {
 			// Get the time for the new data point (substract 10%)
 			m := time.Duration(minutes / mod)
-			t := it.Add(time.Minute * m * -1)
+			t = t.Add(time.Minute * m * -1)
 
 			// Get the value for the new data point (substract 10%) of the difference between the two points
 			if iv > jv {
@@ -378,10 +381,11 @@ func smoothPoints(it, jt time.Time, iv, jv float64) []*resultData {
 	if year > 0 || month > 0 || day > 0 {
 		mod := float64(10)
 		v := iv
+		t := it
 		for {
 			// Get the time for the new data point (substract 10%)
 			m := time.Duration(minutes / mod)
-			t := it.Add(time.Minute * m * -1)
+			t = t.Add(time.Minute * m * -1)
 
 			// Get the value for the new data point (substract 10%) of the difference between the two points
 			if iv > jv {
@@ -407,10 +411,11 @@ func smoothPoints(it, jt time.Time, iv, jv float64) []*resultData {
 	if hour > 0 {
 		mod := float64(5)
 		v := iv
+		t := it
 		for {
 			// Get the time for the new data point (substract 10%)
 			m := time.Duration(minutes / mod)
-			t := it.Add(time.Minute * m * -1)
+			t = t.Add(time.Minute * m * -1)
 
 			// Get the value for the new data point (substract 10%) of the difference between the two points
 			if iv > jv {
@@ -444,10 +449,11 @@ func smoothPoints(it, jt time.Time, iv, jv float64) []*resultData {
 	if min > 3 {
 		mod := float64(min)
 		v := iv
+		t := it
 		for {
 			// Get the time for the new data point (substract 10%)
 			m := time.Duration(minutes / mod)
-			t := it.Add(time.Minute * m * -1)
+			t = t.Add(time.Minute * m * -1)
 
 			// Get the value for the new data point (substract 10%) of the difference between the two points
 			if iv > jv {
