@@ -90,6 +90,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 				t.Data = append(t.Data, zz.Data)
 				zoneMap[zz.ZoneID] = t
 			} else {
+				fmt.Println("ZONE_NAME ::: ", zz.ZoneName)
 				zoneMap[zz.ZoneID] = zoneResult{ZoneID: zz.ZoneID, Data: []m.ZoneMeta{zz.Data}, ZoneName: zz.ZoneName}
 			}
 		}
