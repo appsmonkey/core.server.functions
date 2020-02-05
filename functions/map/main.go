@@ -125,7 +125,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 			// fmt.Println("ZONE ID ::: ", tz.ZoneID, "DEVICE ZONE ID ::: ", d.ZoneID, d.DeviceID)
 			if tz.ZoneID == d.ZoneID {
 				hasDevice = true
-				fmt.Println("HAS DEVICE SET TRUE", hasDevice, d.DeviceID)
+				fmt.Println("HAS DEVICE SET TRUE", hasDevice, d.DeviceID, d.ZoneID)
 
 				tz.Data = make([]m.ZoneMeta, 0)
 
