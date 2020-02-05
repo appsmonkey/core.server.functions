@@ -106,7 +106,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 
 	// Update the old zone data
 	if oldZone != "none" {
-		payload := fmt.Sprintf(`{ "zone_id": "%v" }`, oldZone)
+		payload := fmt.Sprintf(`{ "zone_id": "%v", "city_id": "%v"  }`, oldZone, device.City)
 
 		invOut, err := lambdaClient.Invoke(&sl.InvokeInput{FunctionName: aws.String("CityOS-zoneUpdate-1H3L31K60T4LW"), Payload: []byte(payload)})
 		if err != nil {
@@ -117,7 +117,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 
 	// Update the new zone data if different
 	if oldZone != device.ZoneID {
-		payload := fmt.Sprintf(`{ "zone_id": "%v" }`, device.ZoneID)
+		payload := fmt.Sprintf(`{ "zone_id": "%v", "city_id": "%v" }`, device.ZoneID, device.City)
 
 		invOut, err := lambdaClient.Invoke(&sl.InvokeInput{FunctionName: aws.String("CityOS-zoneUpdate-1H3L31K60T4LW"), Payload: []byte(payload)})
 		if err != nil {

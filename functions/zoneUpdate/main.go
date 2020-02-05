@@ -23,6 +23,11 @@ func Handler(ctx context.Context, req interface{}) error {
 	}
 
 	zoneID := input["zone_id"].(string)
+	city := input["city_id"].(string)
+
+	if city == "none" || len(city) == 0 {
+		city = "Sarajevo"
+	}
 
 	res, err := dal.GetFromIndex("devices", "ZoneID-index", dal.Condition{
 		"zone_id": {
@@ -52,7 +57,7 @@ func Handler(ctx context.Context, req interface{}) error {
 			zd := m.Zone{
 				ZoneID:   zoneID,
 				SensorID: sk,
-				CityID:   "Sarajevo",
+				CityID:   city,
 				Data: m.ZoneMeta{
 					SensorID:    sk,
 					Name:        zoneID,
@@ -90,6 +95,7 @@ func Handler(ctx context.Context, req interface{}) error {
 		zd := m.Zone{
 			ZoneID:   zoneID,
 			SensorID: rk,
+			CityID:   city,
 			Data: m.ZoneMeta{
 				SensorID:    rk,
 				Name:        zoneID,

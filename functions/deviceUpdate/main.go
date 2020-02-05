@@ -156,7 +156,7 @@ func Handler(ctx context.Context, req interface{}) error {
 
 	err = dal.Insert("devices", device)
 	if err == nil && len(device.ZoneID) > 0 && device.ZoneID != "none" {
-		payload := fmt.Sprintf(`{ "zone_id": "%v" }`, device.ZoneID)
+		payload := fmt.Sprintf(`{ "zone_id": "%v", "city_id": "%v" }`, device.ZoneID, device.City)
 
 		invOut, err := lambdaClient.Invoke(&sl.InvokeInput{FunctionName: aws.String("CityOS-zoneUpdate-1H3L31K60T4LW"), Payload: []byte(payload)})
 		if err != nil {
