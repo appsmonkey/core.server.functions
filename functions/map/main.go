@@ -63,8 +63,9 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 
 	// Get the polygon data
 	type zoneResult struct {
-		ZoneID string       `json:"zone_id"`
-		Data   []m.ZoneMeta `json:"data"`
+		ZoneID   string       `json:"zone_id"`
+		ZoneName string       `json:"zone_name"`
+		Data     []m.ZoneMeta `json:"data"`
 	}
 
 	zoneMap := make(map[string]zoneResult, 0)
@@ -89,7 +90,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 				t.Data = append(t.Data, zz.Data)
 				zoneMap[zz.ZoneID] = t
 			} else {
-				zoneMap[zz.ZoneID] = zoneResult{ZoneID: zz.ZoneID, Data: []m.ZoneMeta{zz.Data}}
+				zoneMap[zz.ZoneID] = zoneResult{ZoneID: zz.ZoneID, Data: []m.ZoneMeta{zz.Data}, ZoneName: zz.ZoneName}
 			}
 		}
 	}
