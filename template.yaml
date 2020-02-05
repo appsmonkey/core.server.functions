@@ -539,14 +539,10 @@ Resources:
           AttributeType: S
         - AttributeName: sensor_id
           AttributeType: S
-        - AttributeName: city
-          AttributeType: S
       KeySchema:
         - AttributeName: zone_id
           KeyType: HASH
         - AttributeName: sensor_id
-          KeyType: RANGE
-        - AttributeName: city
           KeyType: RANGE
       ProvisionedThroughput:
         ReadCapacityUnits: 5
