@@ -160,12 +160,13 @@ func smoothPoints(it, jt time.Time, iv, jv float64) []*resultData {
 		fmt.Println("YEAR")
 		mod := float64(10)
 		v := iv
+		t := it
 		for {
 			i++
 			fmt.Println("START LOOP ", i)
 			// Get the time for the new data point (substract 10%)
 			m := time.Duration(minutes / mod)
-			t := it.Add(time.Minute * m * -1)
+			t = t.Add(time.Minute * m * -1)
 			fmt.Println("TIME ", t)
 
 			// Get the value for the new data point (substract 10%) of the difference between the two points
@@ -198,12 +199,13 @@ func smoothPoints(it, jt time.Time, iv, jv float64) []*resultData {
 		fmt.Println("HOUR")
 		mod := float64(5)
 		v := iv
+		t := it
 		for {
 			i++
 			fmt.Println("START LOOP ", i)
 			// Get the time for the new data point (substract 10%)
 			m := time.Duration(minutes / mod)
-			t := it.Add(time.Minute * m * -1)
+			t = it.Add(time.Minute * m * -1)
 			fmt.Println("TIME ", t)
 
 			// Get the value for the new data point (substract 10%) of the difference between the two points
@@ -245,12 +247,13 @@ func smoothPoints(it, jt time.Time, iv, jv float64) []*resultData {
 		fmt.Println("> MIN")
 		mod := float64(min)
 		v := iv
+		t := it
 		for {
 			i++
 			fmt.Println("START LOOP ", i)
 			// Get the time for the new data point (substract 10%)
 			m := time.Duration(minutes / mod)
-			t := it.Add(time.Minute * m * -1)
+			t = it.Add(time.Minute * m * -1)
 			fmt.Println("TIME ", t)
 
 			// Get the value for the new data point (substract 10%) of the difference between the two points
