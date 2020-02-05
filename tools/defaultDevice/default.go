@@ -118,6 +118,7 @@ func GetFrom(from int64, city string) (result vm.DeviceGetData) {
 			"LIGHT_INTENSITY":    true,
 			"token":              true,
 			"BATTERY_VOLTAGE":    true,
+			"BATTERY_PERCENTAGE": true,
 			"MOTION":             true,
 			"DEVICE_TEMPERATURE": true,
 			"timestamp_sort":     true,

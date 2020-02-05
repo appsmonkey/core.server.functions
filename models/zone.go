@@ -3,6 +3,7 @@ package models
 // Zone is the base model representing the state of the DB of a single zone
 type Zone struct {
 	ZoneID   string   `json:"zone_id"`
+	ZoneName string   `json:"zone_name"`
 	SensorID string   `json:"sensor_id"`
 	Data     ZoneMeta `json:"data,omitempty"`
 	CityID   string   `json:"city_id"`

@@ -14,6 +14,7 @@ type Point struct {
 // Zone representing a complete zone with all needed points
 type Zone struct {
 	Title    string   `json:"title"`
+	Display  string   `json:"display"`
 	Polygons []*Point `json:"polygon"`
 }
 
