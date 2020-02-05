@@ -121,9 +121,11 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 			} else if request.Filter == "outdoor" && d.Meta.Indoor {
 				continue
 			}
-			fmt.Println("ZONE ID ::: ", tz.ZoneID, "DEVICE ZONE ID ::: ", d.ZoneID, d.DeviceID)
+
+			// fmt.Println("ZONE ID ::: ", tz.ZoneID, "DEVICE ZONE ID ::: ", d.ZoneID, d.DeviceID)
 			if tz.ZoneID == d.ZoneID {
 				hasDevice = true
+				fmt.Println("HAS DEVICE SET TRUE", hasDevice, d.DeviceID)
 
 				tz.Data = make([]m.ZoneMeta, 0)
 
