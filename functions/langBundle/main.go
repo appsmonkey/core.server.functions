@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"os"
 
 	"github.com/appsmonkey/core.server.functions/integration/cognito"
@@ -21,10 +22,11 @@ func Handler(ctx context.Context, req events.APIGatewayProxyRequest) (events.API
 	response := request.Validate(req.QueryStringParameters)
 
 	url := h.GetLang(request.Language)
+	fmt.Println("Lang url ::: ", url)
 
 	headers := response.Headers()
 	headers["Location"] = url
-	return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 301, Headers: response.Headers()}, nil
+	return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 301, Headers: headers}, nil
 }
 
 func main() {
