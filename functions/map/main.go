@@ -72,7 +72,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	zoneData := make([]zoneResult, 0)
 	for _, z := range request.Zone {
 		fmt.Println("Fetching zone data for sensor: " + z)
-		zoneRes, err := dal.List("zones", dal.Name("sensor_id").Equal(dal.Value(z)), dal.Projection(dal.Name("zone_id"), dal.Name("data")))
+		zoneRes, err := dal.List("zones", dal.Name("sensor_id").Equal(dal.Value(z)), dal.Projection(dal.Name("zone_id"), dal.Name("zone_name"), dal.Name("data")))
 
 		zd := make([]m.Zone, 0)
 		err = zoneRes.Unmarshal(&zd)
