@@ -113,19 +113,16 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		for _, d := range dbData {
 			mine := d.CognitoID != h.CognitoIDZeroValue && cognitoID != h.CognitoIDZeroValue && d.CognitoID == cognitoID
 			if (!d.Active) || d.Meta.Coordinates.IsEmpty() {
-				fmt.Println("SKIP 1 ::", d.DeviceID)
 				continue
 			} else if request.Filter == "mine" && !mine {
-				fmt.Println("SKIP 2 ::", d.DeviceID)
 				continue
 			} else if request.Filter == "indoor" && d.Meta.Indoor == false {
-				fmt.Println("SKIP 3 ::", d.DeviceID)
 				continue
 			} else if request.Filter == "outdoor" && d.Meta.Indoor {
-				fmt.Println("SKIP 4 ::", d.DeviceID)
 				continue
 			}
 
+			fmt.Println("UNSKIPED ::: ", d.DeviceID)
 			// fmt.Println("ZONE ID ::: ", tz.ZoneID, "DEVICE ZONE ID ::: ", d.ZoneID, d.DeviceID)
 			if tz.ZoneID == d.ZoneID {
 				hasDevice = true
