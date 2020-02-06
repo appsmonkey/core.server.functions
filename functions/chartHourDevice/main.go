@@ -92,10 +92,10 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 
 	resultChart := make([]map[string]float64, 0)
 	maxValues := make(map[string]float64, 0)
-	rd := make(map[string]float64, 0)
 
 	fmt.Println("DB DATA :::", dbData)
 	for _, v := range dbData {
+		rd := make(map[string]float64, 0)
 		for _, s := range request.SensorAll {
 			splitHash := strings.Split(v["hash"].(string), "<->")
 

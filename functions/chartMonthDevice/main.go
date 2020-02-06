@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"math/rand"
+	"strings"
 
 	"github.com/appsmonkey/core.server.functions/dal"
 	es "github.com/appsmonkey/core.server.functions/errorStatuses"
@@ -32,53 +33,94 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 400, Headers: response.Headers()}, nil
 	}
 
-	res, err := dal.QueryMultiple("chart_device_month",
-		dal.Condition{
-			"hash": {
-				ComparisonOperator: aws.String("EQ"),
-				AttributeValueList: []*dal.AttributeValue{
-					{
-						S: aws.String(fmt.Sprintf("%v<->%v", request.Token, request.Sensor)),
+	var dbData []map[string]interface{}
+	for _, s := range request.SensorAll {
+		res, err := dal.QueryMultiple("chart_device_month",
+			dal.Condition{
+				"hash": {
+					ComparisonOperator: aws.String("EQ"),
+					AttributeValueList: []*dal.AttributeValue{
+						{
+							S: aws.String(fmt.Sprintf("%v<->%v", request.Token, s)),
+						},
+					},
+				},
+				"date": {
+					ComparisonOperator: aws.String("GT"),
+					AttributeValueList: []*dal.AttributeValue{
+						{
+							N: aws.String(request.From),
+						},
 					},
 				},
 			},
-			"date": {
-				ComparisonOperator: aws.String("GT"),
-				AttributeValueList: []*dal.AttributeValue{
-					{
-						N: aws.String(request.From),
-					},
-				},
-			},
-		},
-		dal.Projection(dal.Name("date"), dal.Name("value")),
-		true)
+			dal.Projection(dal.Name("date"), dal.Name("value")),
+			true)
 
-	if err != nil {
-		response.AddError(&es.Error{Message: err.Error(), Data: "could not unmarshal data from the DB"})
-		fmt.Printf("errors on request: %v, requestID: %v", response.Errors, response.RequestID)
-		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
+		if err != nil {
+			response.AddError(&es.Error{Message: err.Error(), Data: "could not unmarshal data from the DB"})
+			fmt.Printf("errors on request: %v, requestID: %v", response.Errors, response.RequestID)
+			return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
+		}
+
+		var tmpData []map[string]interface{}
+		err = res.Unmarshal(&tmpData)
+
+		if err != nil {
+			response.AddError(&es.Error{Message: err.Error(), Data: "could not unmarshal data from the DB"})
+			fmt.Printf("errors on request: %v, requestID: %v", response.Errors, response.RequestID)
+			return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
+		}
+
+		dbData = append(dbData, tmpData...)
+
 	}
 
-	var dbData []map[string]float64
-	err = res.Unmarshal(&dbData)
-	if err != nil {
-		response.AddError(&es.Error{Message: err.Error(), Data: "could not unmarshal data from the DB"})
-		fmt.Printf("errors on request: %v, requestID: %v", response.Errors, response.RequestID)
-		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
+	if len(request.SensorAll) <= 1 {
+		result := make([]*resultData, 0)
+		for _, v := range dbData {
+			result = append(result, &resultData{
+				Date:  v["date"].(float64),
+				Value: v["value"].(float64),
+			})
+		}
+
+		result = qsort(result)
+		response.Data = result
+
+		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 200, Headers: response.Headers()}, nil
 	}
 
-	result := make([]*resultData, 0)
+	resultChart := make([]map[string]float64, 0)
+	maxValues := make(map[string]float64, 0)
+
+	fmt.Println("DB DATA :::", dbData)
 	for _, v := range dbData {
-		result = append(result, &resultData{
-			Date:  v["date"],
-			Value: v["value"],
-		})
+		rd := make(map[string]float64, 0)
+		for _, s := range request.SensorAll {
+			splitHash := strings.Split(v["hash"].(string), "<->")
+
+			if len(splitHash) > 1 && splitHash[1] == s {
+				rd["date"] = v["date"].(float64)
+				rd[s] = v["value"].(float64)
+
+			}
+
+			mv, okmv := maxValues[s]
+			if rd[s] > mv {
+				maxValues[s] = rd[s]
+			} else if !okmv {
+				maxValues[s] = 0
+			}
+		}
+
+		resultChart = append(resultChart, rd)
 	}
 
-	result = qsort(result)
-	response.Data = result
+	// resultChart = qsortMulti(resultChart)
+	// resultChart = smoothMulti(resultChart)
 
+	response.Data = resultDataMulti{Chart: resultChart, Max: maxValues}
 	return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 200, Headers: response.Headers()}, nil
 }
 
