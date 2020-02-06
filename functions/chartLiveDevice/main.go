@@ -18,6 +18,11 @@ type resultData struct {
 	Value float64 `json:"value"`
 }
 
+type resultDataMulti struct {
+	Chart []map[string]float64 `json:"chart"`
+	Max   map[string]float64   `json:"max"`
+}
+
 // Handler will handle our request comming from the API gateway
 func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	request := new(vm.ChartLiveDeviceRequest)
@@ -28,6 +33,12 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 400, Headers: response.Headers()}, nil
 	}
 
+	names := make([]dal.NameBuilder, 0)
+	for _, s := range request.SensorAll {
+		names = append(names, dal.Name(s))
+	}
+
+	projBuilder := dal.Projection(dal.Name("timestamp"), names...)
 	res, err := dal.QueryMultiple("live",
 		dal.Condition{
 			"token": {
@@ -47,7 +58,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 				},
 			},
 		},
-		dal.Projection(dal.Name("timestamp"), dal.Name(request.Sensor)),
+		projBuilder,
 		true)
 
 	if err != nil {
@@ -64,17 +75,38 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
 	}
 
-	result := make([]*resultData, 0)
-	for _, v := range dbData {
-		result = append(result, &resultData{
-			Date:  v["timestamp"],
-			Value: v[request.Sensor],
-		})
+	if len(request.SensorAll) <= 1 {
+		result := make([]*resultData, 0)
+		for _, v := range dbData {
+			result = append(result, &resultData{
+				Date:  v["timestamp"],
+				Value: v[request.Sensor],
+			})
+		}
+
+		result = qsort(result)
+		result = smooth(result)
+		response.Data = result
+		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 200, Headers: response.Headers()}, nil
 	}
 
-	result = qsort(result)
-	result = smooth(result)
-	response.Data = result
+	resultChart := make([]map[string]float64, 0)
+	maxValues := make(map[string]float64, 0)
+	rd := make(map[string]float64, 0)
+
+	for _, v := range dbData {
+		rd["date"] = v["timestamp"]
+		for _, s := range request.SensorAll {
+			rd[s] = v[s]
+		}
+
+		resultChart = append(resultChart, rd)
+	}
+
+	// resultChart = qsortMulti(resultChart)
+	// resultChart = smoothMulti(resultChart)
+
+	response.Data = resultDataMulti{Chart: resultChart, Max: maxValues}
 
 	return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 200, Headers: response.Headers()}, nil
 }

@@ -17,6 +17,11 @@ type resultData struct {
 	Value float64 `json:"value"`
 }
 
+type resultDataMulti struct {
+	Chart []map[string]float64 `json:"chart"`
+	Max   map[string]float64   `json:"max"`
+}
+
 // Handler will handle our request comming from the API gateway
 func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	request := new(vm.ChartHourDeviceRequest)
