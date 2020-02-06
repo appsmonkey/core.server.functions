@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"math/rand"
+	"strings"
 
 	"github.com/appsmonkey/core.server.functions/dal"
 	es "github.com/appsmonkey/core.server.functions/errorStatuses"
@@ -32,7 +33,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 400, Headers: response.Headers()}, nil
 	}
 
-	var dbData []map[string]float64
+	var dbData []map[string]interface{}
 	for _, s := range request.SensorAll {
 		res, err := dal.QueryMultiple("chart_device_hour",
 			dal.Condition{
@@ -53,7 +54,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 					},
 				},
 			},
-			dal.Projection(dal.Name("date"), dal.Name("value")),
+			dal.Projection(dal.Name("hash"), dal.Name("date"), dal.Name("value")),
 			true)
 
 		if err != nil {
@@ -62,7 +63,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 			return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
 		}
 
-		var tmpData []map[string]float64
+		var tmpData []map[string]interface{}
 		err = res.Unmarshal(&tmpData)
 		if err != nil {
 			response.AddError(&es.Error{Message: err.Error(), Data: "could not unmarshal data from the DB"})
@@ -78,8 +79,8 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		result := make([]*resultData, 0)
 		for _, v := range dbData {
 			result = append(result, &resultData{
-				Date:  v["date"],
-				Value: v["value"],
+				Date:  v["date"].(float64),
+				Value: v["value"].(float64),
 			})
 		}
 
@@ -93,11 +94,16 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	maxValues := make(map[string]float64, 0)
 	rd := make(map[string]float64, 0)
 
+	fmt.Println("DB DATA :::", dbData)
 	for _, v := range dbData {
 		for _, s := range request.SensorAll {
-			// splitHash := strings.Split(v["hash"], "<->")
-			rd["date"] = v["date"]
-			rd[s] = v[s]
+			splitHash := strings.Split(v["hash"].(string), "<->")
+
+			if len(splitHash) > 1 && splitHash[1] == s {
+				rd["date"] = v["date"].(float64)
+				rd[s] = v["value"].(float64)
+
+			}
 
 			mv, okmv := maxValues[s]
 			if rd[s] > mv {
