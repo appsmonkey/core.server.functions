@@ -63,7 +63,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 
 	for _, v := range dbDataForFilter {
 		if v["indoor"] == false || v["indoor"] == "false" {
-			var r map[string]float64
+			r := make(map[string]float64, 0)
 			for ka, va := range v {
 				if ka != "indoor" {
 					r[ka] = va.(float64)
