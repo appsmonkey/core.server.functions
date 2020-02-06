@@ -37,7 +37,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		res, err := dal.QueryMultiple("chart_device_hour",
 			dal.Condition{
 				"hash": {
-					ComparisonOperator: aws.String("IN"),
+					ComparisonOperator: aws.String("EQ"),
 					AttributeValueList: []*dal.AttributeValue{
 						{
 							S: aws.String(fmt.Sprintf("%v<->%v", request.Token, s)),
