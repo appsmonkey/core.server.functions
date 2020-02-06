@@ -98,6 +98,13 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		rd["date"] = v["timestamp"]
 		for _, s := range request.SensorAll {
 			rd[s] = v[s]
+
+			mv, okmv := maxValues[s]
+			if rd[s] > mv {
+				maxValues[s] = rd[s]
+			} else if !okmv {
+				maxValues[s] = 0
+			}
 		}
 
 		resultChart = append(resultChart, rd)
