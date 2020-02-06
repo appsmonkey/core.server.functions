@@ -94,9 +94,10 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	maxValues := make(map[string]float64, 0)
 	rd := make(map[string]float64, 0)
 
+	fmt.Println("PRINT DB DATA ::: ", dbData)
 	for _, v := range dbData {
-		rd["date"] = v["timestamp"]
 		for _, s := range request.SensorAll {
+			rd["date"] = v["timestamp"]
 			rd[s] = v[s]
 
 			mv, okmv := maxValues[s]
