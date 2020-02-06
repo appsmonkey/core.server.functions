@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"math/rand"
-	"strings"
 
 	"github.com/appsmonkey/core.server.functions/dal"
 	es "github.com/appsmonkey/core.server.functions/errorStatuses"
@@ -33,15 +32,20 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 400, Headers: response.Headers()}, nil
 	}
 
+	hashList := []*dal.AttributeValue{}
+	for _, s := range request.SensorAll {
+		av := &dal.AttributeValue{
+			S: aws.String(fmt.Sprintf("%v<->%v", request.Token, s)),
+		}
+
+		hashList = append(hashList, av)
+	}
+
 	res, err := dal.QueryMultiple("chart_device_hour",
 		dal.Condition{
 			"hash": {
-				ComparisonOperator: aws.String("EQ"),
-				AttributeValueList: []*dal.AttributeValue{
-					{
-						S: aws.String(fmt.Sprintf("%v<->%v", request.Token, request.Sensor)),
-					},
-				},
+				ComparisonOperator: aws.String("IN"),
+				AttributeValueList: hashList
 			},
 			"date": {
 				ComparisonOperator: aws.String("GT"),
@@ -90,7 +94,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 
 	for _, v := range dbData {
 		for _, s := range request.SensorAll {
-			splitHash := strings.Split(v["hash"], "<->")
+			// splitHash := strings.Split(v["hash"], "<->")
 			rd["date"] = v["date"]
 			rd[s] = v[s]
 
