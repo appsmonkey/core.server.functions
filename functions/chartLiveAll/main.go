@@ -42,6 +42,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	for _, s := range request.SensorAll {
 		names = append(names, dal.Name(s))
 	}
+	names = append(names, dal.Name("indoor"))
 
 	projBuilder := dal.Projection(dal.Name("timestamp_sort"), names...)
 	res, err := dal.List("live", dal.Name("timestamp").GreaterThanEqual(dal.Value(request.From)), projBuilder)
