@@ -51,12 +51,25 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
 	}
 
+	var dbDataForFilter []map[string]interface{}
 	var dbData []map[string]float64
-	err = res.Unmarshal(&dbData)
+	err = res.Unmarshal(&dbDataForFilter)
 	if err != nil {
 		response.AddError(&es.Error{Message: err.Error(), Data: "could not unmarshal data from the DB"})
 		fmt.Printf("errors on request: %v, requestID: %v", response.Errors, response.RequestID)
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
+	}
+
+	for _, v := range dbDataForFilter {
+		if v["indoor"] == false || v["indoor"] == "false" {
+			var r map[string]float64
+			for ka, va := range v {
+				if ka != "indoor" {
+					r[ka] = va.(float64)
+				}
+			}
+			dbData = append(dbData, r)
+		}
 	}
 
 	if len(request.SensorAll) <= 1 {

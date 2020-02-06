@@ -53,7 +53,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 					},
 				},
 			},
-			dal.Projection(dal.Name("hash"), dal.Name("date"), dal.Name("value")),
+			dal.Projection(dal.Name("date"), dal.Name("value")),
 			true)
 
 		if err != nil {
