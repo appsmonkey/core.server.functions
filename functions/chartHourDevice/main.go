@@ -45,7 +45,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		dal.Condition{
 			"hash": {
 				ComparisonOperator: aws.String("IN"),
-				AttributeValueList: hashList
+				AttributeValueList: hashList,
 			},
 			"date": {
 				ComparisonOperator: aws.String("GT"),
