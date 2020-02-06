@@ -87,7 +87,7 @@ func Handler(ctx context.Context, req interface{}) error {
 				fmt.Println("ZONE DATA MARSHAL ERROR")
 			}
 
-			err = dal.Update("zones", "set #da = :d",
+			err = dal.UpdateWithAttrNames("zones", "set #da = :d",
 				map[string]*dal.AttributeValue{
 					"zone_id": {
 						S: aws.String(zoneID),
@@ -99,6 +99,8 @@ func Handler(ctx context.Context, req interface{}) error {
 					":d": {
 						M: mZoneD,
 					},
+				}, map[string]*string{
+					"#da": aws.String("data"),
 				})
 		}
 
@@ -154,7 +156,7 @@ func Handler(ctx context.Context, req interface{}) error {
 			fmt.Println("ZONE DATA MARSHAL ERROR")
 		}
 
-		err = dal.Update("zones", "set #da = :d",
+		err = dal.UpdateWithAttrNames("zones", "set #da = :d",
 			map[string]*dal.AttributeValue{
 				"zone_id": {
 					S: aws.String(zoneID),
@@ -166,6 +168,8 @@ func Handler(ctx context.Context, req interface{}) error {
 				":d": {
 					M: mZoneD,
 				},
+			}, map[string]*string{
+				"#da": aws.String("data"),
 			})
 	}
 

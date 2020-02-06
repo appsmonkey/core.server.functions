@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"math/rand"
+	"strings"
 
 	"github.com/appsmonkey/core.server.functions/dal"
 	es "github.com/appsmonkey/core.server.functions/errorStatuses"
@@ -51,7 +52,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 				},
 			},
 		},
-		dal.Projection(dal.Name("date"), dal.Name("value")),
+		dal.Projection(dal.Name("hash"), dal.Name("date"), dal.Name("value")),
 		true)
 
 	if err != nil {
@@ -68,17 +69,46 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
 	}
 
-	result := make([]*resultData, 0)
-	for _, v := range dbData {
-		result = append(result, &resultData{
-			Date:  v["date"],
-			Value: v["value"],
-		})
+	if len(request.SensorAll) <= 1 {
+		result := make([]*resultData, 0)
+		for _, v := range dbData {
+			result = append(result, &resultData{
+				Date:  v["date"],
+				Value: v["value"],
+			})
+		}
+
+		result = qsort(result)
+		response.Data = result
+
+		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 200, Headers: response.Headers()}, nil
 	}
 
-	result = qsort(result)
-	response.Data = result
+	resultChart := make([]map[string]float64, 0)
+	maxValues := make(map[string]float64, 0)
+	rd := make(map[string]float64, 0)
 
+	for _, v := range dbData {
+		for _, s := range request.SensorAll {
+			splitHash := strings.Split(v["hash"], "<->")
+			rd["date"] = v["date"]
+			rd[s] = v[s]
+
+			mv, okmv := maxValues[s]
+			if rd[s] > mv {
+				maxValues[s] = rd[s]
+			} else if !okmv {
+				maxValues[s] = 0
+			}
+		}
+
+		resultChart = append(resultChart, rd)
+	}
+
+	// resultChart = qsortMulti(resultChart)
+	// resultChart = smoothMulti(resultChart)
+
+	response.Data = resultDataMulti{Chart: resultChart, Max: maxValues}
 	return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 200, Headers: response.Headers()}, nil
 }
 

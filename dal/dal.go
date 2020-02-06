@@ -465,9 +465,27 @@ func HasItemsWithFilter(table string, filter ConditionBuilder) bool {
 func Update(table, updateExpression string, key, data Query) error {
 	// Update Item in table and return
 
-	names := map[string]*string{
-		"#da": aws.String("data"),
+	input := &dynamodb.UpdateItemInput{
+		ExpressionAttributeValues: data,
+		TableName:                 aws.String(table),
+		Key:                       key,
+		ReturnValues:              aws.String("UPDATED_NEW"),
+		UpdateExpression:          aws.String(updateExpression),
 	}
+
+	_, err := svc.UpdateItem(input)
+	if err != nil {
+		fmt.Print("Update API call failed: ")
+		fmt.Println(err.Error())
+		return err
+	}
+
+	return nil
+}
+
+// UpdateWithAttrNames an item
+func UpdateWithAttrNames(table, updateExpression string, key, data Query, names map[string]*string) error {
+	// Update Item in table and return
 
 	input := &dynamodb.UpdateItemInput{
 		ExpressionAttributeValues: data,
