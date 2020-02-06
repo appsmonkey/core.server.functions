@@ -32,45 +32,46 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 400, Headers: response.Headers()}, nil
 	}
 
-	hashList := []*dal.AttributeValue{}
+	var dbData []map[string]float64
 	for _, s := range request.SensorAll {
-		av := &dal.AttributeValue{
-			S: aws.String(fmt.Sprintf("%v<->%v", request.Token, s)),
-		}
-
-		hashList = append(hashList, av)
-	}
-
-	res, err := dal.QueryMultiple("chart_device_hour",
-		dal.Condition{
-			"hash": {
-				ComparisonOperator: aws.String("IN"),
-				AttributeValueList: hashList,
-			},
-			"date": {
-				ComparisonOperator: aws.String("GT"),
-				AttributeValueList: []*dal.AttributeValue{
-					{
-						N: aws.String(request.From),
+		res, err := dal.QueryMultiple("chart_device_hour",
+			dal.Condition{
+				"hash": {
+					ComparisonOperator: aws.String("IN"),
+					AttributeValueList: []*dal.AttributeValue{
+						{
+							S: aws.String(fmt.Sprintf("%v<->%v", request.Token, s)),
+						},
+					},
+				},
+				"date": {
+					ComparisonOperator: aws.String("GT"),
+					AttributeValueList: []*dal.AttributeValue{
+						{
+							N: aws.String(request.From),
+						},
 					},
 				},
 			},
-		},
-		dal.Projection(dal.Name("hash"), dal.Name("date"), dal.Name("value")),
-		true)
+			dal.Projection(dal.Name("hash"), dal.Name("date"), dal.Name("value")),
+			true)
 
-	if err != nil {
-		response.AddError(&es.Error{Message: err.Error(), Data: "could not unmarshal data from the DB"})
-		fmt.Printf("errors on request: %v, requestID: %v", response.Errors, response.RequestID)
-		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
-	}
+		if err != nil {
+			response.AddError(&es.Error{Message: err.Error(), Data: "could not unmarshal data from the DB"})
+			fmt.Printf("errors on request: %v, requestID: %v", response.Errors, response.RequestID)
+			return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
+		}
 
-	var dbData []map[string]float64
-	err = res.Unmarshal(&dbData)
-	if err != nil {
-		response.AddError(&es.Error{Message: err.Error(), Data: "could not unmarshal data from the DB"})
-		fmt.Printf("errors on request: %v, requestID: %v", response.Errors, response.RequestID)
-		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
+		var tmpData []map[string]float64
+		err = res.Unmarshal(&tmpData)
+		if err != nil {
+			response.AddError(&es.Error{Message: err.Error(), Data: "could not unmarshal data from the DB"})
+			fmt.Printf("errors on request: %v, requestID: %v", response.Errors, response.RequestID)
+			return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
+		}
+
+		dbData = append(dbData, tmpData...)
+
 	}
 
 	if len(request.SensorAll) <= 1 {
