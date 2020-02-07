@@ -58,7 +58,6 @@ func Handler(ctx context.Context, req interface{}) error {
 
 		// Set counter and value for the device specific value
 		strValue := fmt.Sprintf("%f", value)
-		fmt.Println("INSERT DATA :: ", token, sensor, timestampStr)
 		access.Increment(incrementData(dev, timestampStr, "data_count", "1", "data_value", strValue))
 		if model.Meta.Indoor == false {
 			access.Increment(incrementData(gen, timestampStr, "data_count", "1", "data_value", strValue))
