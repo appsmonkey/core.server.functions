@@ -9,8 +9,11 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/appsmonkey/core.server.functions/dal"
 	"github.com/appsmonkey/core.server.functions/dal/access"
+	mod "github.com/appsmonkey/core.server.functions/models"
 	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/aws/aws-sdk-go/aws"
 )
 
 var seconds string
@@ -30,6 +33,21 @@ func Handler(ctx context.Context, req interface{}) error {
 	timestampStr := fmt.Sprintf("%f", timestamp)
 	measurements := input["reported"].(map[string]interface{})
 
+	res, err := dal.Get("devices", map[string]*dal.AttributeValue{
+		"token": {
+			S: aws.String(token),
+		},
+	})
+	if err != nil {
+		fmt.Println("Error fetching device")
+	}
+
+	model := mod.Device{}
+	err = res.Unmarshal(&model)
+	if err != nil {
+		fmt.Println("Error unmarshaling device")
+	}
+
 	for k, m := range measurements {
 		sensor := k
 		value, _ := strconv.ParseFloat(m.(string), 64)
@@ -38,7 +56,9 @@ func Handler(ctx context.Context, req interface{}) error {
 		// Set counter and value for the device specific value
 		strValue := fmt.Sprintf("%f", value)
 		access.Increment(incrementData(dev, timestampStr, "data_count", "1", "data_value", strValue))
-		access.Increment(incrementData(gen, timestampStr, "data_count", "1", "data_value", strValue))
+		if model.Meta.Indoor == false {
+			access.Increment(incrementData(gen, timestampStr, "data_count", "1", "data_value", strValue))
+		}
 	}
 
 	return nil

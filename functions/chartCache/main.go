@@ -34,26 +34,27 @@ func Handler(ctx context.Context, req interface{}) error {
 	timestamp := input["timestamp"].(float64)
 	timestampStr := fmt.Sprintf("%f", timestamp)
 	measurements := input["reported"].(map[string]interface{})
+
+	res, err := dal.Get("devices", map[string]*dal.AttributeValue{
+		"token": {
+			S: aws.String(token),
+		},
+	})
+	if err != nil {
+		fmt.Println("Error fetching device")
+	}
+
+	model := mod.Device{}
+	err = res.Unmarshal(&model)
+	if err != nil {
+		fmt.Println("Error unmarshaling device")
+	}
+
 	for k, m := range measurements {
 		sensor := k
 		value, _ := strconv.ParseFloat(m.(string), 64)
 		// value := strconv.ParseFloat(v.(string), 64)
 		dev, gen := calculateHash(timestamp, token, sensor)
-
-		model := mod.Device{}
-		res, err := dal.Get("devices", map[string]*dal.AttributeValue{
-			"token": {
-				S: aws.String(token),
-			},
-		})
-		if err != nil {
-			fmt.Println("Error fetching device")
-		}
-
-		err = res.Unmarshal(&model)
-		if err != nil {
-			fmt.Println("Error unmarshaling device")
-		}
 
 		// Set counter and value for the device specific value
 		strValue := fmt.Sprintf("%f", value)
@@ -62,8 +63,6 @@ func Handler(ctx context.Context, req interface{}) error {
 		if model.Meta.Indoor == false {
 			access.Increment(incrementData(gen, timestampStr, "data_count", "1", "data_value", strValue))
 
-		} else {
-			fmt.Println("INDOOR DEVICE SKIP ::: ", token)
 		}
 	}
 
