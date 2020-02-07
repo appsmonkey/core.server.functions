@@ -29,6 +29,7 @@ func Handler(ctx context.Context, req interface{}) error {
 	timestamp := input["timestamp"].(float64)
 	timestampStr := fmt.Sprintf("%f", timestamp)
 	measurements := input["reported"].(map[string]interface{})
+	fmt.Println("SENSOR DATA ::: ", measurements)
 
 	for k, m := range measurements {
 		sensor := k
