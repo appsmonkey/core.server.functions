@@ -83,12 +83,14 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 400, Headers: response.Headers()}, nil
 	}
 
+	device.City = request.City
+
 	oldZone := device.ZoneID
 	// If coordinates are set, then find the zone it belongs to
 	if !request.Coordinates.IsEmpty() {
 		zone := z.ZoneByPoint(&z.Point{Lat: request.Coordinates.Lat, Lng: request.Coordinates.Lng})
 		if zone != nil {
-			device.ZoneID = zone.Title
+			device.ZoneID = device.City + "@" + zone.Title
 			device.Meta.Coordinates = request.Coordinates
 		}
 	}

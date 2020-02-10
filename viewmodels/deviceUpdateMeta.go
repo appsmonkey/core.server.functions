@@ -13,6 +13,7 @@ import (
 type DeviceUpdateMetaRequest struct {
 	m.Metadata
 	Token string `json:"token"`
+	City  string `json:"city"`
 }
 
 // Validate the request sent from client
@@ -43,6 +44,11 @@ func (r *DeviceUpdateMetaRequest) Validate(body string) *DeviceUpdateMetaRespons
 
 	if len(r.Name) == 0 {
 		response.Errors = append(response.Errors, es.ErrMissingThingName)
+		response.Code = es.StatusAddDeviceError
+	}
+
+	if len(r.City) == 0 {
+		response.Errors = append(response.Errors, es.ErrMissingThingCity)
 		response.Code = es.StatusAddDeviceError
 	}
 

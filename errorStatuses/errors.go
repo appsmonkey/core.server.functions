@@ -157,3 +157,6 @@ var ForgotPasswordBadRequestNoToken = Error{Code: 1046, Message: "Forgot passwor
 
 // ForgotPasswordBadRequestNoID [User verification failed]
 var ForgotPasswordBadRequestNoID = Error{Code: 1047, Message: "Registration not completed, no id supplied"}
+
+// ErrMissingThingCity [cannot update device. Missing name]
+var ErrMissingThingCity = Error{Code: 1048, Message: "manage device failed. Missing city"}
