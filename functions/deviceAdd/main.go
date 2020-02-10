@@ -72,7 +72,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	// If coordinates are set, then find the zone it belongs to
 	if !device.Meta.Coordinates.IsEmpty() {
 		if zone := z.ZoneByPoint(&z.Point{Lat: device.Meta.Coordinates.Lat, Lng: device.Meta.Coordinates.Lng}); zone != nil {
-			device.ZoneID = zone.Title
+			device.ZoneID = device.City + "@" + zone.Title
 		}
 	}
 
