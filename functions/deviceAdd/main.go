@@ -29,6 +29,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
 	}
 
+	existingDevice := m.Device{}
 	res, err := dal.Get("devices", map[string]*dal.AttributeValue{
 		"token": {
 			S: aws.String(request.Token),
@@ -36,15 +37,13 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	})
 	if err != nil {
 		fmt.Println("Existing device not found ::: ", request.Token)
-	}
-
-	existingDevice := m.Device{}
-	err = res.Unmarshal(&existingDevice)
-
-	if err != nil {
-		fmt.Println(err)
-		response.AddError(&es.Error{Message: err.Error(), Data: "could not unmarshal data from the DB"})
-		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
+	} else {
+		err = res.Unmarshal(&existingDevice)
+		if err != nil {
+			fmt.Println(err)
+			response.AddError(&es.Error{Message: err.Error(), Data: "could not unmarshal data from the DB"})
+			return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
+		}
 	}
 
 	device := m.Device{}
@@ -64,7 +63,6 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	device.ZoneID = "none"
 
 	// We can add manually or we can check with lat lon
-
 	if len(request.City) > 0 {
 		device.City = request.City
 	} else {
