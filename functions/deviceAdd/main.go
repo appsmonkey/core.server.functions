@@ -78,6 +78,8 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		}
 	}
 
+	fmt.Println("ZONE_ID ::: ", device.ZoneID)
+
 	response.Data = vm.DeviceAddData{Token: device.Token}
 
 	// insert data into the DB
