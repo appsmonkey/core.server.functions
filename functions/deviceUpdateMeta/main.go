@@ -93,6 +93,9 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		}
 	}
 
+	fmt.Println("OLD_ZONE :: ", oldZone)
+	fmt.Println("NEW_ZONE :::", device.ZoneID)
+
 	device.Meta.Name = request.Name
 	device.Meta.Model = request.Model
 	device.Meta.Indoor = request.Indoor
