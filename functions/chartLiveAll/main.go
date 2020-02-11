@@ -45,7 +45,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	names = append(names, dal.Name("indoor"))
 	names = append(names, dal.Name("token"))
 
-	projBuilder := dal.Projection(dal.Name("timestamp_sort"), names...)
+	projBuilder := dal.Projection(dal.Name("timestamp"), names...)
 	res, err := dal.List("chart_all_minute", dal.Name("timestamp").GreaterThanEqual(dal.Value(request.From)), projBuilder)
 	if err != nil {
 		response.AddError(&es.Error{Message: err.Error(), Data: "could not unmarshal data from the DB"})
