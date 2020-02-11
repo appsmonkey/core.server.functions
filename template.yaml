@@ -498,7 +498,7 @@ Resources:
         ReadCapacityUnits: 5
         WriteCapacityUnits: 5
 
-    ChartAllMinuteTable:
+  ChartAllMinuteTable:
     Type: AWS::DynamoDB::Table
     Properties:
       TableName: chart_all_minute
