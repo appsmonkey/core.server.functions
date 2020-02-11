@@ -453,42 +453,42 @@ func smoothPoints(it, jt time.Time, iv, jv float64) []*resultData {
 	}
 
 	// if we have three minutes missing, just do nothing
-	if min <= 3 {
-		return res
-	}
+	// if min <= 3 {
+	// 	return res
+	// }
 
 	// we have a minutes chart so we need to figure out the amount of data point
 	// to put between the two existing points
 	// we base it on the minimum value jump in our dataset
-	if min > 3 {
-		mod := float64(min)
-		v := iv
-		t := it
-		for {
-			// Get the time for the new data point (substract 10%)
-			m := time.Duration(minutes / mod)
-			t = t.Add(time.Minute * m * -1)
+	// if min > 3 {
+	mod := float64(min)
+	v := iv
+	t := it
+	for {
+		// Get the time for the new data point (substract 10%)
+		m := time.Duration(minutes / mod)
+		t = t.Add(time.Minute * m * -1)
 
-			// Get the value for the new data point (substract 10%) of the difference between the two points
-			if iv > jv {
-				v -= (iv - jv) / mod
-			} else if iv < jv {
-				v += (jv - iv) / mod
-			}
-
-			// if we overshot, stop
-			if t.Before(jt) {
-				break
-			}
-
-			res = append(res, &resultData{
-				Date:  float64(t.Unix()),
-				Value: v,
-			})
+		// Get the value for the new data point (substract 10%) of the difference between the two points
+		if iv > jv {
+			v -= (iv - jv) / mod
+		} else if iv < jv {
+			v += (jv - iv) / mod
 		}
 
-		return res
+		// if we overshot, stop
+		if t.Before(jt) {
+			break
+		}
+
+		res = append(res, &resultData{
+			Date:  float64(t.Unix()),
+			Value: v,
+		})
 	}
+
+	return res
+	// }
 
 	return res
 }
