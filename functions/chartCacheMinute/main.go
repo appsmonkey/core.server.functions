@@ -24,6 +24,7 @@ func Handler(ctx context.Context, req interface{}) error {
 	data["timestamp"] = then.Unix()
 	data["timestamp_sort"] = formulateTimestamp(then.Unix()).Unix()
 	data["ttl"] = then.Add(time.Hour * 6).Unix()
+	data["indoor"] = false
 
 	for k, v := range dd.Latest {
 		data[k] = v
