@@ -79,7 +79,10 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		for _, v := range dbData {
 
 			for k := range d {
-				if k-v["timestamp_sort"] < 1 && k-v["timestamp_sort"] > 0 {
+				iDate := time.Unix(int64(k), 0)
+				jDate := time.Unix(int64(v["timestamp_sort"]), 0)
+				year, month, day, hour, min, sec := diff(iDate, jDate)
+				if year == 0 && month == 0 && day == 0 && hour == 0 && min == 0 && sec > 0 {
 					fmt.Println("SHOULD MERGE")
 				}
 			}
