@@ -49,6 +49,7 @@ type DeviceGetData struct {
 	ZoneID        string                 `json:"zone_id"`
 	Owner         string                 `json:"owner"`
 	ActiveCount   int                    `json:"activeCount,omitempty"`
+	City          string                 `json:"city,omitempty"`
 }
 
 // DeviceGetDataMinimal returned to user
