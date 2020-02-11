@@ -83,17 +83,17 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 			merged := false
 			for k := range d {
 				iDate := time.Unix(int64(k), 0)
-				jDate := time.Unix(int64(v["timestamp_sort"]), 0)
+				jDate := time.Unix(int64(v["timestamp"]), 0)
 				year, month, day, hour, min, sec := diff(iDate, jDate)
 				if year == 0 && month == 0 && day == 0 && hour == 0 && min == 0 && sec > 0 {
 					merged = true
-					d[k] = append(d[v["timestamp_sort"]], v[request.Sensor])
+					d[k] = append(d[v["timestamp"]], v[request.Sensor])
 					break
 				}
 			}
 
 			if !merged {
-				d[v["timestamp_sort"]] = append(d[v["timestamp_sort"]], v[request.Sensor])
+				d[v["timestamp"]] = append(d[v["timestamp"]], v[request.Sensor])
 			}
 		}
 
@@ -129,7 +129,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	d := make(map[float64]map[string][]float64, 0)
 
 	for _, v := range dbData {
-		date := v["timestamp_sort"]
+		date := v["timestamp"]
 		_, ok := d[date]
 		if !ok {
 			d[date] = make(map[string][]float64, 0)
