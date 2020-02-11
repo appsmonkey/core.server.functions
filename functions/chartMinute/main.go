@@ -19,7 +19,7 @@ type Hour struct {
 
 // Save the data into the DB
 func (h *Hour) Save(last *int64) {
-	table := "chart_device_month"
+	table := "chart_device_minute"
 	data := make(map[string]interface{}, 0)
 	if len(h.Token) == 0 {
 		table = "chart_month"
@@ -56,7 +56,7 @@ func Handler() error {
 		from = float64(0)
 	}
 
-	data := access.ChartInput(from, "chart_month_input")
+	data := access.ChartInput(from, "chart_minute_input")
 	n := len(data)
 	sem := make(chan empty, n) // Using semaphore for efficiency
 
