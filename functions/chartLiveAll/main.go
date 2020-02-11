@@ -78,16 +78,21 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		d := make(map[float64][]float64, 0)
 		for _, v := range dbData {
 
+			merged := false
 			for k := range d {
 				iDate := time.Unix(int64(k), 0)
 				jDate := time.Unix(int64(v["timestamp_sort"]), 0)
 				year, month, day, hour, min, sec := diff(iDate, jDate)
 				if year == 0 && month == 0 && day == 0 && hour == 0 && min == 0 && sec > 0 {
-					fmt.Println("SHOULD MERGE")
+					merged = true
+					d[k] = append(d[v["timestamp_sort"]], v[request.Sensor])
+					break
 				}
 			}
 
-			d[v["timestamp_sort"]] = append(d[v["timestamp_sort"]], v[request.Sensor])
+			if !merged {
+				d[v["timestamp_sort"]] = append(d[v["timestamp_sort"]], v[request.Sensor])
+			}
 		}
 
 		for k, v := range d {
@@ -111,7 +116,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 
 		// sort data according to timestamp
 		result = qsort(result)
-		result = smooth(result)
+		// result = smooth(result)
 
 		response.Data = result
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 200, Headers: response.Headers()}, nil
@@ -166,7 +171,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	}
 
 	resultChart = qsortMulti(resultChart)
-	resultChart = smoothMulti(resultChart)
+	// resultChart = smoothMulti(resultChart)
 
 	response.Data = resultDataMulti{Chart: resultChart, Max: maxValues}
 
