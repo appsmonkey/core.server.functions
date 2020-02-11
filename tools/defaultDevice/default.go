@@ -179,7 +179,7 @@ func Qsort(a []map[string]interface{}) []map[string]interface{} {
 
 	// Pile elements smaller than the pivot on the left
 	for i := range a {
-		if a[i]["timestamp"].(float64) > a[right]["timestamp"].(float64) {
+		if a[i]["timestamp_sort"].(float64) > a[right]["timestamp_sort"].(float64) {
 			a[i], a[left] = a[left], a[i]
 			left++
 		}
