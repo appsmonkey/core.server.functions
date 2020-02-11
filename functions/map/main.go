@@ -123,11 +123,9 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 				continue
 			}
 
-			fmt.Println("UNSKIPED ::: ", d.DeviceID)
 			// fmt.Println("ZONE ID ::: ", tz.ZoneID, "DEVICE ZONE ID ::: ", d.ZoneID, d.DeviceID)
 			if tz.ZoneID == d.ZoneID {
 				hasDevice = true
-				fmt.Println("HAS DEVICE SET TRUE", hasDevice, d.DeviceID, d.ZoneID)
 
 				tz.Data = make([]m.ZoneMeta, 0)
 
@@ -169,7 +167,6 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		}
 
 		if !hasDevice {
-			fmt.Println("NO DEVICE ::: ", tz.ZoneID)
 			for index, zs := range tz.Data {
 				zs.Value = -1
 				zs.Level = "No device"
