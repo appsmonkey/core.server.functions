@@ -44,6 +44,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		names = append(names, dal.Name(s))
 	}
 	names = append(names, dal.Name("indoor"))
+	names = append(names, dal.Name("token"))
 
 	projBuilder := dal.Projection(dal.Name("timestamp_sort"), names...)
 	res, err := dal.List("live", dal.Name("timestamp").GreaterThanEqual(dal.Value(request.From)), projBuilder)
@@ -72,7 +73,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 			} else {
 				r := make(map[string]float64, 0)
 				for ka, va := range v {
-					if ka != "indoor" {
+					if ka != "indoor" && ka != "token" {
 						r[ka] = va.(float64)
 					}
 				}
