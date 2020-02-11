@@ -498,6 +498,24 @@ Resources:
         ReadCapacityUnits: 5
         WriteCapacityUnits: 5
 
+    ChartAllMinuteTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: chart_all_minute
+      AttributeDefinitions: 
+        - AttributeName: token
+          AttributeType: S
+        - AttributeName: timestamp
+          AttributeType: N
+      KeySchema:
+        - AttributeName: token
+          KeyType: HASH
+        - AttributeName: timestamp
+          KeyType: RANGE
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+
   SchemaTable:
     Type: AWS::DynamoDB::Table
     Properties:
@@ -856,6 +874,13 @@ Resources:
       Handler: 'chartCache'
       Role: !GetAtt LambdaRole.Arn
       
+  chartCacheMinute:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: 'bin/chartCacheMinute.zip'
+      Handler: 'chartCacheMinute'
+      Role: !GetAtt LambdaRole.Arn
+
   chartCacheDay:
     Type: 'AWS::Serverless::Function'
     Properties:

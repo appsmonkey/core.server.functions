@@ -31,7 +31,7 @@ all : register signup signup signin refresh profile general deviceList deviceLis
 	chartSave chartHourDevice chartHourAll chartCacheDay chartDay chartDayDevice chartDayAll chartHasData \
 	chartCacheSix chartSix chartSixDevice chartSixAll chartLiveAll forgotPasswordStart forgotPasswordEnd notifications \
 	cityList cityDel cityAdd cityGet verifyAndRedirect customizeMessage zoneDel zoneImport zoneGet registerFillUserData \
-	checkDeviceOnline chartCacheMonth chartMonth chartMonthDevice chartMonthAll langBundle
+	checkDeviceOnline chartCacheMonth chartMonth chartMonthDevice chartMonthAll langBundle chartCacheMinute
 
 vendor: Gopkg.toml
 		dep ensure -v
@@ -306,6 +306,12 @@ verifyAndRedirect:
 	mkdir -p bin
 	$(package_lambda) bin/verifyAndRedirect.zip verifyAndRedirect
 	rm verifyAndRedirect
+
+chartCacheMinute:
+	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o chartCacheMinute functions/chartCacheMinute/main.go
+	mkdir -p bin
+	$(package_lambda) bin/chartCacheMinute.zip chartCacheMinute
+	rm chartCacheMinute
 
 customizeMessage:
 	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o customizeMessage functions/customizeMessage/main.go
