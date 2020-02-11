@@ -7,6 +7,7 @@ import (
 
 	"github.com/appsmonkey/core.server.functions/dal"
 	es "github.com/appsmonkey/core.server.functions/errorStatuses"
+	dd "github.com/appsmonkey/core.server.functions/tools/defaultDevice"
 	vm "github.com/appsmonkey/core.server.functions/viewmodels"
 	"github.com/aws/aws-lambda-go/events"
 
@@ -61,17 +62,28 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
 	}
 
+	dbDataForFilter = dd.Qsort(dbDataForFilter)
+
+	var keyList = make(map[string]bool)
 	for _, v := range dbDataForFilter {
 		if v["indoor"] == false || v["indoor"] == "false" {
-			r := make(map[string]float64, 0)
-			for ka, va := range v {
-				if ka != "indoor" {
-					r[ka] = va.(float64)
+			if _, ok := keyList[v["token"].(string)]; ok {
+				continue
+			} else {
+				r := make(map[string]float64, 0)
+				for ka, va := range v {
+					if ka != "indoor" {
+						r[ka] = va.(float64)
+					}
 				}
+
+				keyList[v["token"].(string)] = true
+				dbData = append(dbData, r)
 			}
-			dbData = append(dbData, r)
 		}
 	}
+
+	fmt.Println("Filtered key list ::: ", keyList)
 
 	if len(request.SensorAll) <= 1 {
 		result := make([]*resultData, 0)
