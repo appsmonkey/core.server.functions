@@ -232,6 +232,7 @@ func QueryMultiple(table string, condition Condition, projection ProjectionBuild
 				KeyConditions:             condition,
 				ExpressionAttributeNames:  expr.Names(),
 				ExpressionAttributeValues: expr.Values(),
+				ExclusiveStartKey:         lek,
 				ScanIndexForward:          aws.Bool(ascending),
 			}
 
@@ -298,6 +299,7 @@ func QueryMultipleNoProjection(table string, condition Condition, ascending bool
 				TableName:                 aws.String(table),
 				KeyConditions:             condition,
 				ExpressionAttributeNames:  expr.Names(),
+				ExclusiveStartKey:         lek,
 				ExpressionAttributeValues: expr.Values(),
 				ScanIndexForward:          aws.Bool(ascending),
 			}
