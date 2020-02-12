@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"math/rand"
+	"strings"
 
 	"github.com/appsmonkey/core.server.functions/dal"
 	es "github.com/appsmonkey/core.server.functions/errorStatuses"
@@ -103,16 +104,17 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 			d[date] = make(map[string][]float64, 0)
 		}
 		for _, s := range request.SensorAll {
-			_, ok := d[date][s]
-			if !ok {
-				d[date][s] = make([]float64, 0)
+			splitHash := strings.Split(v["hash"].(string), "<->")
+			if len(splitHash) > 1 && splitHash[1] == s {
+
+				d[date][splitHash[1]] = make([]float64, 0)
+				d[date][s] = append(d[date][s], v["value"].(float64))
 			}
 
-			if v[s] != nil {
-				d[date][s] = append(d[date][s], v[s].(float64))
-			}
 		}
 	}
+
+	fmt.Println("D ::: ", d)
 
 	for k, v := range d {
 		rd := make(map[string]float64, 0)

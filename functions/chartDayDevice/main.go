@@ -99,7 +99,6 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 			if len(splitHash) > 1 && splitHash[1] == s {
 				rd["date"] = v["date"].(float64)
 				rd[s] = v["value"].(float64)
-
 			}
 
 			mv, okmv := maxValues[s]
