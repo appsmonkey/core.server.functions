@@ -37,6 +37,7 @@ func (h *Hour) Save(last *int64) {
 	if data["date"] != 0 {
 		err := access.SaveHourChart(table, &data)
 		errString := ""
+		fmt.Println("VALUE CHECK", h.Date, *last)
 		if err != nil {
 			errString = err.Error()
 			fmt.Printf("Could not Save data [table: %v || err: %v || data: %v]\n", table, errString, h)
