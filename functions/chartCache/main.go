@@ -69,7 +69,7 @@ func Handler(ctx context.Context, req interface{}) error {
 }
 
 func main() {
-	seconds = fmt.Sprint(time.Now().Add(time.Second * 2592000 * 3).Unix()) // One Month * 3 in seconds
+	seconds = fmt.Sprint(time.Now().Add(time.Second * 360000 * 1).Unix()) // One Month * 3 in seconds
 	timeSteps = formulateTimeSteps(5)
 	lambda.Start(Handler)
 }
