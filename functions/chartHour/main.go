@@ -37,7 +37,6 @@ func (h *Hour) Save(last *int64) {
 	if data["date"] != 0 {
 		err := access.SaveHourChart(table, &data)
 		errString := ""
-		fmt.Println("VALUE CHECK", h.Date, *last)
 		if err != nil {
 			errString = err.Error()
 			fmt.Printf("Could not Save data [table: %v || err: %v || data: %v]\n", table, errString, h)
@@ -64,7 +63,6 @@ func Handler() error {
 	data := access.ChartHourInput(from)
 	n := len(data)
 	sem := make(chan empty, n) // Using semaphore for efficiency
-	fmt.Println("REACHED SAVE", from, n)
 	for _, key := range data {
 		go func(key access.ChartHourData) {
 			h := processKey(key)
@@ -75,13 +73,10 @@ func Handler() error {
 		}(key)
 	}
 
-	fmt.Println("FINISHED SAVE")
 	// wait for goroutines to finish
 	for i := 0; i < n; i++ {
 		<-sem
 	}
-
-	fmt.Println("FINISHED", last)
 
 	if last != 0 {
 		// Now that everything is updated we will save the new state
