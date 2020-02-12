@@ -105,7 +105,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	}
 
 	data := make([]vm.DeviceGetData, 0)
-
+	fmt.Println("ZONE DATA ::: ", zoneMap)
 	for _, tz := range zoneMap {
 		var hasDevice = false
 		data := make(map[string]float64, 0)
@@ -134,9 +134,6 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 					for _, z := range request.Zone {
 						if z == mmk {
 							// Don't take in account if device has no sensor
-							if d.Token == "Boxy-Libelium-1" {
-								fmt.Println("EMPTY VAL CHECK", mmv.Value, mmk)
-							}
 							data[mmk] += mmv.Value
 							datak[mmk]++
 						}

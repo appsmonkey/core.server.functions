@@ -53,7 +53,7 @@ func SaveState(state, key string, value interface{}) error {
 // ChartHourInput will retrieve the hourly chart data from a specific point in time.
 // `from` should be a timestamp in the past
 func ChartHourInput(from interface{}) []ChartHourData {
-	res, err := dal.List("chart_hour_input", dal.Name("time_stamp").GreaterThan(dal.Value(from)), dal.Projection(dal.Name("hash"), dal.Name("data_count"), dal.Name("data_value"), dal.Name("time_stamp")))
+	res, err := dal.List("chart_hour_input", dal.Name("time_stamp").GreaterThan(dal.Value(from)), dal.Projection(dal.Name("hash"), dal.Name("data_count"), dal.Name("data_value"), dal.Name("time_stamp")), true)
 	if err != nil {
 		fmt.Println(err.Error())
 		return []ChartHourData{}
@@ -73,7 +73,7 @@ func ChartHourInput(from interface{}) []ChartHourData {
 // `table` should be a table name from which to get data from in the chart based schema
 // `from` should be a timestamp in the past
 func ChartInput(from interface{}, table string) []ChartHourData {
-	res, err := dal.List(table, dal.Name("time_stamp").GreaterThan(dal.Value(from)), dal.Projection(dal.Name("hash"), dal.Name("data_count"), dal.Name("data_value"), dal.Name("time_stamp")))
+	res, err := dal.List(table, dal.Name("time_stamp").GreaterThan(dal.Value(from)), dal.Projection(dal.Name("hash"), dal.Name("data_count"), dal.Name("data_value"), dal.Name("time_stamp")), true)
 	if err != nil {
 		fmt.Println(err.Error())
 		return []ChartHourData{}
