@@ -63,11 +63,10 @@ func Handler() error {
 	data := access.ChartHourInput(from)
 	n := len(data)
 	sem := make(chan empty, n) // Using semaphore for efficiency
-	fmt.Println("REACHED SAVE")
+	fmt.Println("REACHED SAVE", from)
 	for _, key := range data {
 		go func(key access.ChartHourData) {
 			h := processKey(key)
-			fmt.Println(h, "PRINTING H")
 			if h != nil && h.Date != 0 {
 				h.Save(&last)
 			}
