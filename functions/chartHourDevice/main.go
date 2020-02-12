@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"math/rand"
-	"strings"
 
 	"github.com/appsmonkey/core.server.functions/dal"
 	es "github.com/appsmonkey/core.server.functions/errorStatuses"
@@ -95,21 +94,46 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	resultChart := make([]map[string]float64, 0)
 	maxValues := make(map[string]float64, 0)
 
+	d := make(map[float64]map[string][]float64, 0)
+
 	for _, v := range dbData {
-		rd := make(map[string]float64, 0)
+		date := v["date"].(float64)
+		_, ok := d[date]
+		if !ok {
+			d[date] = make(map[string][]float64, 0)
+		}
 		for _, s := range request.SensorAll {
-			splitHash := strings.Split(v["hash"].(string), "<->")
-
-			if len(splitHash) > 1 && splitHash[1] == s {
-				rd["date"] = v["date"].(float64)
-				rd[s] = v["value"].(float64)
+			_, ok := d[date][s]
+			if !ok {
+				d[date][s] = make([]float64, 0)
 			}
+			d[date][s] = append(d[date][s], v[s].(float64))
+		}
+	}
 
-			mv, okmv := maxValues[s]
-			if rd[s] > mv {
-				maxValues[s] = rd[s]
-			} else if !okmv {
-				maxValues[s] = 0
+	for k, v := range d {
+		rd := make(map[string]float64, 0)
+		rd["date"] = k
+		for _, s := range request.SensorAll {
+			values := v[s]
+			if len(values) > 0 {
+				var av float64
+				for _, sv := range values {
+					av += sv
+				}
+
+				if av == 0 {
+					rd[s] = 0
+				} else {
+					rd[s] = av / float64(len(values))
+				}
+
+				mv, okmv := maxValues[s]
+				if rd[s] > mv {
+					maxValues[s] = rd[s]
+				} else if !okmv {
+					maxValues[s] = 0
+				}
 			}
 		}
 
