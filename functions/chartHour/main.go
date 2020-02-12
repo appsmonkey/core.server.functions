@@ -63,7 +63,7 @@ func Handler() error {
 	data := access.ChartHourInput(from)
 	n := len(data)
 	sem := make(chan empty, n) // Using semaphore for efficiency
-
+	fmt.Println("REACHED SAVE")
 	for _, key := range data {
 		go func(key access.ChartHourData) {
 			h := processKey(key)
@@ -74,6 +74,7 @@ func Handler() error {
 		}(key)
 	}
 
+	fmt.Println("FINISHED SAVE")
 	// wait for goroutines to finish
 	for i := 0; i < n; i++ {
 		<-sem
