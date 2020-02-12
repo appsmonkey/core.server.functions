@@ -79,6 +79,7 @@ func Handler() error {
 		<-sem
 	}
 
+	fmt.Println("FINISHED")
 	// Now that everything is updated we will save the new state
 	access.SaveState("hour_Last", "time_stamp", last)
 
