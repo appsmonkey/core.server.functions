@@ -76,7 +76,9 @@ func Handler() error {
 	}
 
 	// Now that everything is updated we will save the new state
-	access.SaveState("six_Last", "time_stamp", last)
+	if last != 0 {
+		access.SaveState("six_Last", "time_stamp", last)
+	}
 
 	return nil
 }

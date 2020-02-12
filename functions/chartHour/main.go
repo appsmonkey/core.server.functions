@@ -81,8 +81,11 @@ func Handler() error {
 	}
 
 	fmt.Println("FINISHED", last)
-	// Now that everything is updated we will save the new state
-	access.SaveState("hour_Last", "time_stamp", last)
+
+	if last != 0 {
+		// Now that everything is updated we will save the new state
+		access.SaveState("hour_Last", "time_stamp", last)
+	}
 
 	return nil
 }
