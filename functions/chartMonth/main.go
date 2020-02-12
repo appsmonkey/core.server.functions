@@ -77,7 +77,7 @@ func Handler() error {
 
 	// Now that everything is updated we will save the new state
 	if last != 0 {
-		access.SaveState("day_Last", "time_stamp", last)
+		access.SaveState("month_Last", "time_stamp", last)
 	}
 
 	return nil

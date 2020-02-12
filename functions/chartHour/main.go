@@ -66,7 +66,7 @@ func Handler() error {
 	for _, key := range data {
 		go func(key access.ChartHourData) {
 			h := processKey(key)
-			if h != nil {
+			if h != nil && h.Date != 0 {
 				h.Save(&last)
 			}
 			sem <- empty{}
