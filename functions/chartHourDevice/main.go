@@ -107,7 +107,10 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 			if !ok {
 				d[date][s] = make([]float64, 0)
 			}
-			d[date][s] = append(d[date][s], v[s].(float64))
+
+			if v[s] != nil {
+				d[date][s] = append(d[date][s], v[s].(float64))
+			}
 		}
 	}
 
