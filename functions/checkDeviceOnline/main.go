@@ -20,7 +20,7 @@ func Handler(ctx context.Context, req interface{}) {
 
 	// Fetch active devices
 	projBuilder := dal.Projection(dal.Name("token"), dal.Name("active"), dal.Name("timestamp"))
-	res, err := dal.List("devices", dal.Name("active").Equal(dal.Value(true)), projBuilder, true)
+	res, err := dal.List("devices", dal.Name("active").Equal(dal.Value(true)), projBuilder)
 
 	if err != nil {
 		fmt.Println("Fetching devices from device table failed", err)
