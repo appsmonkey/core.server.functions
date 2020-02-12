@@ -55,7 +55,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 				},
 			},
 			dal.Projection(dal.Name("date"), dal.Name("value")),
-			true)
+			true, true)
 
 		if err != nil {
 			response.AddError(&es.Error{Message: err.Error(), Data: "could not unmarshal data from the DB"})

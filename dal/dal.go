@@ -194,7 +194,7 @@ func GetFromIndex(table, index string, condition Condition) (*QueryResult, error
 }
 
 // QueryMultiple data from the table
-func QueryMultiple(table string, condition Condition, projection ProjectionBuilder, ascending bool) (*QueryResult, error) {
+func QueryMultiple(table string, condition Condition, projection ProjectionBuilder, ascending bool, fullScan bool) (*QueryResult, error) {
 	expr, err := expression.NewBuilder().WithProjection(projection).Build()
 	if err != nil {
 		fmt.Print("Got error building expression: ")
@@ -219,8 +219,43 @@ func QueryMultiple(table string, condition Condition, projection ProjectionBuild
 		fmt.Println(err.Error())
 		return nil, err
 	}
+	scanRes := &QueryResult{items: result}
 
-	return &QueryResult{items: result}, err
+	lek := result.LastEvaluatedKey
+	if len(lek) > 0 && fullScan {
+		// use lek to do full scan of the table
+
+		for len(lek) > 0 {
+			// Build the query input parameters
+			queryInput = &dynamodb.QueryInput{
+				TableName:                 aws.String(table),
+				KeyConditions:             condition,
+				ExpressionAttributeNames:  expr.Names(),
+				ExpressionAttributeValues: expr.Values(),
+				ScanIndexForward:          aws.Bool(ascending),
+			}
+
+			// Make the DynamoDB Query API call
+			result, err := svc.Query(queryInput)
+			if err != nil {
+				fmt.Print("QueryMultiple API call failed: ")
+				fmt.Println(err.Error())
+				return nil, err
+			}
+
+			lek = result.LastEvaluatedKey
+
+			// append scan outputs and return the whole thing
+			for _, v := range result.Items {
+				scanRes.items.Items = append(scanRes.items.Items, v)
+			}
+		}
+	}
+
+	fmt.Println("query res count ::: ", &result.Count)
+
+	return scanRes, err
+
 }
 
 // QueryMultipleNoProjection data from the table
