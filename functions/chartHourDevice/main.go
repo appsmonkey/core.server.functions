@@ -162,6 +162,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 200, Headers: response.Headers()}, nil
 }
 
+// data has to be sorted asc. by date in order for this to work
 func fillDataMulti(data []map[string]float64, sensors []string) []map[string]float64 {
 
 	for k, v := range data {
@@ -173,7 +174,7 @@ func fillDataMulti(data []map[string]float64, sensors []string) []map[string]flo
 			_, ok := v[vs]
 
 			if !ok {
-				for i := k + 1; i < (len(data) - k + 1); i++ {
+				for i := k + 1; i < len(data); i++ {
 					val, ok := data[i][vs]
 					if ok {
 						v[vs] = val
