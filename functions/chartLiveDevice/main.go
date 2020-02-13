@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"math"
 	"math/rand"
 	"time"
 
@@ -78,9 +79,13 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	if len(request.SensorAll) <= 1 {
 		result := make([]*resultData, 0)
 		for _, v := range dbData {
+			val := v[request.Sensor]
+			if request.Sensor != "BATTERY_VOLTAGE" {
+				val = math.Round(val)
+			}
 			result = append(result, &resultData{
 				Date:  v["timestamp"],
-				Value: v[request.Sensor],
+				Value: val,
 			})
 		}
 
@@ -97,7 +102,11 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		rd := make(map[string]float64, 0)
 		for _, s := range request.SensorAll {
 			rd["date"] = v["timestamp"]
-			rd[s] = v[s]
+			if s == "BATTERY_VOLTRAGE" {
+				rd[s] = v[s]
+			} else {
+				rd[s] = math.Round(v[s])
+			}
 
 			mv, okmv := maxValues[s]
 			if rd[s] > mv {
