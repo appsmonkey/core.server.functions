@@ -30,6 +30,8 @@ func Handler(ctx context.Context, req interface{}) error {
 		return err
 	}
 
+	fmt.Println("INPUT:::", input)
+
 	token := input["token"].(string)
 	timestamp := input["timestamp"].(float64)
 	timestampStr := fmt.Sprintf("%f", timestamp)
