@@ -104,13 +104,11 @@ func GetFrom(from int64, city string) (result vm.DeviceGetData) {
 
 	data := make(map[string][]float64, 0)
 	for _, v := range distinctData {
-		if v["city"] == city {
-			result.ActiveCount++
-		}
-
 		if v["indoor"] == true || v["indoor"] == "true" || v["city"] != city {
 			continue
 		}
+
+		result.ActiveCount++
 
 		toIgnore := map[string]bool{
 			"timestamp":          true,
