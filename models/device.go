@@ -68,7 +68,7 @@ func (d *Device) ToLiveData() map[string]interface{} {
 	}
 	data["timestamp"] = then.Unix()
 	data["timestamp_sort"] = formulateTimestamp(then.Unix()).Unix()
-	data["ttl"] = then.Add(time.Hour * 6).Unix()
+	data["ttl"] = then.Add(time.Hour * 12).Unix()
 
 	for k, v := range d.Measurements {
 		data[k] = v
