@@ -184,9 +184,7 @@ func fillDataMulti(data []map[string]float64, sensors []string) []map[string]flo
 			}
 		}
 	}
-
 	return data
-
 }
 
 // qsort is a quicksort implmentation for sorting chart data
