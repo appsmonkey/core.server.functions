@@ -170,14 +170,15 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 				tz.Data[index] = zs
 			}
 		} else {
-			for _, zsVal := range tz.Data {
-				hasSensor := false
-				for _, z := range request.Zone {
+			for _, z := range request.Zone {
+				for _, zsVal := range tz.Data {
+					hasSensor := false
 					if zsVal.SensorID == z {
 						hasSensor = true
 					}
 
 					if !hasSensor {
+						fmt.Println("MISSING SENS :::", zsVal.SensorID, z)
 						ld, _ := s.SensorReading("1", z, -1)
 						Data := m.ZoneMeta{
 							SensorID:    z,
