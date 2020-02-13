@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"math"
 	"math/rand"
 	"sort"
 
@@ -118,7 +119,11 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		for _, s := range request.SensorAll {
 			sd, ok := d[s]
 			if ok {
-				rd[s] = sd
+				if s == "BATTERY_VOLTAGE" {
+					rd[s] = sd
+				} else {
+					rd[s] = math.Round(sd)
+				}
 				mv, okmv := maxValues[s]
 				if sd > mv {
 					maxValues[s] = sd

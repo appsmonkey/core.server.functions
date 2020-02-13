@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"math"
 	"math/rand"
 	"time"
 
@@ -157,7 +158,11 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 				if av == 0 {
 					rd[s] = 0
 				} else {
-					rd[s] = av / float64(len(values))
+					if s == "BATTERY_VOLTAGE" {
+						rd[s] = av / float64(len(values))
+					} else {
+						rd[s] = math.Round(av / float64(len(values)))
+					}
 				}
 
 				mv, okmv := maxValues[s]
