@@ -120,7 +120,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	}
 
 	resultChart = qsortMulti(resultChart)
-	resultChart = smoothMulti(resultChart)
+	// resultChart = smoothMulti(resultChart)
 
 	response.Data = resultDataMulti{Chart: resultChart, Max: maxValues}
 
