@@ -171,26 +171,24 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 			}
 		} else {
 			for _, z := range request.Zone {
+				hasSensor := false
 				for _, zsVal := range tz.Data {
-					hasSensor := false
 					if zsVal.SensorID == z {
 						hasSensor = true
 					}
-
-					if !hasSensor {
-						fmt.Println("MISSING SENS :::", zsVal.SensorID, z)
-						ld, _ := s.SensorReading("1", z, -1)
-						Data := m.ZoneMeta{
-							SensorID:    z,
-							Name:        tz.ZoneID,
-							Level:       "No device",
-							Value:       -1,
-							Measurement: ld.Name,
-							Unit:        ld.Unit,
-						}
-
-						tz.Data = append(tz.Data, Data)
+				}
+				if !hasSensor {
+					ld, _ := s.SensorReading("1", z, -1)
+					Data := m.ZoneMeta{
+						SensorID:    z,
+						Name:        tz.ZoneID,
+						Level:       "No device",
+						Value:       -1,
+						Measurement: ld.Name,
+						Unit:        ld.Unit,
 					}
+
+					tz.Data = append(tz.Data, Data)
 				}
 
 			}
