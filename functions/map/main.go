@@ -169,6 +169,30 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 				zs.Level = "No device"
 				tz.Data[index] = zs
 			}
+		} else {
+			for _, zsVal := range tz.Data {
+				hasSensor := false
+				for _, z := range request.Zone {
+					if zsVal.SensorID == z {
+						hasSensor = true
+					}
+
+					if !hasSensor {
+						ld, _ := s.SensorReading("1", z, -1)
+						Data := m.ZoneMeta{
+							SensorID:    z,
+							Name:        tz.ZoneID,
+							Level:       "No device",
+							Value:       -1,
+							Measurement: ld.Name,
+							Unit:        ld.Unit,
+						}
+
+						tz.Data = append(tz.Data, Data)
+					}
+				}
+
+			}
 		}
 
 		zoneData = append(zoneData, tz)
