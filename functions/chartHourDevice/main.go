@@ -155,10 +155,37 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	}
 
 	resultChart = qsortMulti(resultChart)
+	resultChart = fillDataMulti(resultChart, request.SensorAll)
 	// resultChart = smoothMulti(resultChart)
 
 	response.Data = resultDataMulti{Chart: resultChart, Max: maxValues}
 	return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 200, Headers: response.Headers()}, nil
+}
+
+func fillDataMulti(data []map[string]float64, sensors []string) []map[string]float64 {
+
+	for k, v := range data {
+		if k == len(data)-1 {
+			continue
+		}
+
+		for _, vs := range sensors {
+			_, ok := v[vs]
+
+			if !ok {
+				for i := k + 1; i < (len(data) - k + 1); i++ {
+					val, ok := data[i][vs]
+					if ok {
+						v[vs] = val
+						break
+					}
+				}
+			}
+		}
+	}
+
+	return data
+
 }
 
 // qsort is a quicksort implmentation for sorting chart data
