@@ -5,6 +5,7 @@ import (
 	"math"
 	"math/rand"
 	"strings"
+	"time"
 
 	"github.com/appsmonkey/core.server.functions/dal"
 	es "github.com/appsmonkey/core.server.functions/errorStatuses"
@@ -160,6 +161,45 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 
 	response.Data = resultDataMulti{Chart: resultChart, Max: maxValues}
 	return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 200, Headers: response.Headers()}, nil
+}
+
+// fills device offline periods for single sensor
+func fillDataOffline(data []*resultData) []*resultData {
+
+	var interval float64 = 60
+	var onlineTime float64 = 60 * 120
+	diff := float64(time.Now().Unix()) - data[0].Date
+
+	if diff > interval && diff < onlineTime {
+		// device is int artif. online mode, add data
+		for i := diff; i > interval; i -= interval {
+			dataToFill := *data[0]
+			dataToFill.Date = dataToFill.Date + 60
+
+			data = append([]*resultData{&dataToFill}, data...)
+		}
+	}
+
+	// data point difference in sec
+	for k, v := range data {
+		if v.Date-data[k+1].Date > interval {
+			dataToFill := *data[k+1]
+			dataToFill.Date = v.Date - 60
+
+			// add data
+			// data = append(data, 0)
+			copy(data[k+1:], data[k:])
+			data[k+1] = &dataToFill
+		}
+	}
+
+	return data
+}
+
+// fills device offline periods for multiple sensors
+func fillDataMultiOffline(data []map[string]float64, sensors []string) []map[string]float64 {
+
+	return data
 }
 
 // data has to be sorted asc. by date in order for this to work
