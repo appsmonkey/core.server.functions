@@ -131,7 +131,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 
 // fills device offline periods for single sensor
 func fillDataOffline(data []*resultData) []*resultData {
-	fmt.Println("FILL DATA ::: ", len(data), data)
+
 	var interval float64 = 60
 	var onlineTime float64 = 60 * 120
 	diff := float64(time.Now().Unix()) - data[0].Date
@@ -149,6 +149,7 @@ func fillDataOffline(data []*resultData) []*resultData {
 	// data point difference in sec
 	for k, v := range data {
 		if v.Date-data[k+1].Date > interval {
+			fmt.Println("SHOULD FILL DATA")
 			dataToFill := *data[k+1]
 			dataToFill.Date = v.Date - 60
 
