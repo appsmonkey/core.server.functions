@@ -150,8 +150,9 @@ func fillDataOffline(data []*resultData) []*resultData {
 
 	// data point difference in sec
 	for k, v := range data {
-		fmt.Println("DIFF PRINT", v.Date-data[k+1].Date, v.Date, data[k+1].Date)
+		fmt.Println("DIFF PRINT", v.Date-data[k+1].Date, int64(v.Date), int64(data[k+1].Date))
 		if v.Date-data[k+1].Date > interval {
+			timesToInsert := int(diff) % int(interval)
 			dataToFill := *data[k+1]
 			dataToFill.Date = v.Date - 60
 			dataToFill.Real = false
@@ -162,8 +163,10 @@ func fillDataOffline(data []*resultData) []*resultData {
 				Date:  0,
 				Value: 0,
 			})
-			copy(data[k+1:], data[k:])
-			data[k+1] = &dataToFill
+			copy(data[k+timesToInsert:], data[k:])
+			for i := 1; i == timesToInsert; i++ {
+				data[k+i] = &dataToFill
+			}
 		}
 	}
 
