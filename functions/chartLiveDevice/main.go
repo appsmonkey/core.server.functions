@@ -153,7 +153,10 @@ func fillDataOffline(data []*resultData) []*resultData {
 			dataToFill.Date = v.Date - 60
 
 			// add data
-			// data = append(data, 0)
+			data = append(data, &resultData{
+				Date:  0,
+				Value: 0,
+			})
 			copy(data[k+1:], data[k:])
 			data[k+1] = &dataToFill
 		}
