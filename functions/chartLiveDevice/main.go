@@ -17,6 +17,7 @@ import (
 type resultData struct {
 	Date  float64 `json:"date"`
 	Value float64 `json:"value"`
+	Real  bool    `json:"real"`
 }
 
 type resultDataMulti struct {
@@ -86,6 +87,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 			result = append(result, &resultData{
 				Date:  v["timestamp"],
 				Value: val,
+				Real:  true,
 			})
 		}
 
@@ -152,6 +154,7 @@ func fillDataOffline(data []*resultData) []*resultData {
 		if v.Date-data[k+1].Date > interval {
 			dataToFill := *data[k+1]
 			dataToFill.Date = v.Date - 60
+			dataToFill.Real = false
 
 			fmt.Println("SHOULD FILL DATA", dataToFill)
 			// add data
