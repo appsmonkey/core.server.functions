@@ -149,10 +149,10 @@ func fillDataOffline(data []*resultData) []*resultData {
 	// data point difference in sec
 	for k, v := range data {
 		if v.Date-data[k+1].Date > interval {
-			fmt.Println("SHOULD FILL DATA")
 			dataToFill := *data[k+1]
 			dataToFill.Date = v.Date - 60
 
+			fmt.Println("SHOULD FILL DATA", dataToFill)
 			// add data
 			data = append(data, &resultData{
 				Date:  0,
