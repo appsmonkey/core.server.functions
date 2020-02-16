@@ -136,14 +136,21 @@ func fillDataOffline(data []*resultData) []*resultData {
 
 	var interval float64 = 60
 	var onlineTime float64 = 60 * 120
-	diff := float64(time.Now().Unix()) - data[0].Date
+	latest := data[0].Date
+	diff := float64(time.Now().Unix()) - latest
 
-	if diff > interval && diff < onlineTime {
+	if diff > interval {
 		// device is int artif. online mode, add data
 		for i := diff; i > interval; i -= interval {
 			dataToFill := *data[0]
 			dataToFill.Date = dataToFill.Date + 60
 
+			// stop filling after online period is exceeded
+			if dataToFill.Date >= latest+onlineTime {
+				break
+			}
+
+			// prepend data
 			data = append([]*resultData{&dataToFill}, data...)
 		}
 	}
@@ -151,22 +158,24 @@ func fillDataOffline(data []*resultData) []*resultData {
 	// data point difference in sec
 	for k, v := range data {
 		fmt.Println("DIFF PRINT", v.Date-data[k+1].Date, int64(v.Date), int64(data[k+1].Date))
+
 		if v.Date-data[k+1].Date > interval {
-			timesToInsert := int(diff) % int(interval)
 			dataToFill := *data[k+1]
 			dataToFill.Date = v.Date - 60
 			dataToFill.Real = false
 
 			fmt.Println("SHOULD FILL DATA", dataToFill)
-			// add data
-			data = append(data, &resultData{
-				Date:  0,
-				Value: 0,
-			})
-			copy(data[k+timesToInsert:], data[k:])
-			for i := 1; i == timesToInsert; i++ {
-				data[k+i] = &dataToFill
-			}
+
+			// insert data on the needed index
+			data = append(data[:k], append([]*resultData{&dataToFill}, data[k:]...)...)
+
+			// // add data
+			// data = append(data, &resultData{
+			// 	Date:  0,
+			// 	Value: 0,
+			// })
+			// copy(data[k+1:], data[k:])
+			// data[k+1] = &dataToFill
 		}
 	}
 
