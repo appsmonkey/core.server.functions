@@ -122,6 +122,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 
 	resultChart = qsortMulti(resultChart)
 	resultChart = fillDataMulti(resultChart, request.SensorAll)
+	resultChart = fillDataMultiOffline(resultChart)
 	// resultChart = smoothMulti(resultChart)
 
 	response.Data = resultDataMulti{Chart: resultChart, Max: maxValues}
@@ -178,6 +179,64 @@ func fillDataOffline(data []*resultData) []*resultData {
 
 					// insert data on the needed index
 					data = append(data[:k], append([]*resultData{&dataToFill}, data[k:]...)...)
+					k++
+				}
+				k++
+			}
+		}
+	}
+	return data
+}
+
+// fills device offline periods for multiple sensors
+func fillDataMultiOffline(data []map[string]float64) []map[string]float64 {
+	// if no data return
+	if len(data) < 1 {
+		return data
+	}
+
+	var interval float64 = 60
+	var onlineTime float64 = 60 * 120
+	latest := data[0]["date"]
+	diff := float64(time.Now().Unix()) - latest
+
+	if diff > interval {
+		// device is int artif. online mode, add data
+		for i := diff; i > interval; i -= interval {
+			dataToFill := data[0]
+			dataToFill["date"] = dataToFill["date"] + 60
+
+			// stop filling after online period is exceeded
+			if dataToFill["date"] >= latest+onlineTime {
+				break
+			}
+
+			// prepend data
+			data = append([]map[string]float64{dataToFill}, data...)
+		}
+	}
+
+	if len(data) > 2 {
+		// data point difference in sec
+		for k := 0; k < len(data)-1; k++ {
+			diff := data[k]["date"] - data[k+1]["date"]
+
+			if diff > interval {
+				timesToAdd := int(diff) / int(interval)
+				maxTimesToAdd := int(onlineTime) / int(interval)
+
+				// if exceeds onlineTime fill only max online time
+				if timesToAdd > maxTimesToAdd {
+					timesToAdd = maxTimesToAdd
+				}
+
+				fmt.Println("TIMES TO ADD", timesToAdd, maxTimesToAdd)
+				for j := 1; j <= timesToAdd; j++ {
+					dataToFill := data[k+1]
+					dataToFill["date"] = data[k]["date"] - (interval * float64(j))
+
+					// insert data on the needed index
+					data = append(data[:k], append([]map[string]float64{dataToFill}, data[k:]...)...)
 					k++
 				}
 				k++
