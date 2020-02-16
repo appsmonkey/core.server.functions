@@ -163,7 +163,12 @@ func fillDataOffline(data []*resultData) []*resultData {
 	if len(data) > 2 {
 		// data point difference in sec
 		for k := 0; k < len(data); k++ {
+			if k+1 == len(data) {
+				continue
+			}
+
 			fmt.Println("DIFF PRINT", data[k].Date-data[k+1].Date, int64(data[k].Date), int64(data[k+1].Date))
+
 			diff := data[k].Date - data[k+1].Date
 			if diff > interval {
 				timesToAdd := int(diff) % int(interval)
@@ -177,7 +182,7 @@ func fillDataOffline(data []*resultData) []*resultData {
 				dataToFill.Real = false
 
 				for j := 0; j < timesToAdd; j++ {
-					dataToFill.Date = dataToFill.Date - 60
+					dataToFill.Date = dataToFill.Date - interval
 					fmt.Println("SHOULD FILL DATA", int64(dataToFill.Date))
 					// insert data on the needed index
 					data = append(data[:k], append([]*resultData{&dataToFill}, data[k:]...)...)
