@@ -168,8 +168,8 @@ func fillDataOffline(data []*resultData) []*resultData {
 
 			diff := data[k].Date - data[k+1].Date
 			if diff > interval {
-				timesToAdd := int(diff) % int(interval)
-				maxTimesToAdd := int(onlineTime) % int(interval)
+				timesToAdd := int(diff) / int(interval)
+				maxTimesToAdd := int(onlineTime) / int(interval)
 
 				fmt.Println("ENTERED 1 ", timesToAdd, maxTimesToAdd)
 
