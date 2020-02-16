@@ -167,13 +167,13 @@ func fillDataOffline(data []*resultData) []*resultData {
 				timesToAdd := int(diff) / int(interval)
 				maxTimesToAdd := int(onlineTime) / int(interval)
 
-				// if exceeds onlineTime don't fill
+				// if exceeds onlineTime fill only max online time
 				if timesToAdd > maxTimesToAdd {
 					timesToAdd = maxTimesToAdd
 				}
 
 				fmt.Println("TIMES TO ADD", timesToAdd, maxTimesToAdd)
-				for j := 1; j == timesToAdd; j++ {
+				for j := 1; j <= timesToAdd; j++ {
 					dataToFill := *data[k+1]
 					dataToFill.Date = data[k].Date - (interval * float64(j))
 					fmt.Println("PRINT CHECK", dataToFill, int64(dataToFill.Date))
