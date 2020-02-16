@@ -162,10 +162,7 @@ func fillDataOffline(data []*resultData) []*resultData {
 
 	if len(data) > 2 {
 		// data point difference in sec
-		for k := 0; k < len(data); k++ {
-			if k+1 == len(data) {
-				continue
-			}
+		for k := 0; k < len(data)-1; k++ {
 
 			fmt.Println("DIFF PRINT", data[k].Date-data[k+1].Date, int64(data[k].Date), int64(data[k+1].Date))
 
