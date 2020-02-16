@@ -166,7 +166,6 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 
 // fills device offline periods for single sensor
 func fillDataOffline(data []*resultData) []*resultData {
-
 	// if no data return
 	if len(data) < 1 {
 		return data
@@ -196,20 +195,21 @@ func fillDataOffline(data []*resultData) []*resultData {
 	if len(data) > 2 {
 		// data point difference in sec
 		for k := 0; k < len(data)-1; k++ {
-
 			diff := data[k].Date - data[k+1].Date
+
 			if diff > interval {
 				timesToAdd := int(diff) / int(interval)
 				maxTimesToAdd := int(onlineTime) / int(interval)
 
-				// if exceeds onlineTime don't fill
+				// if exceeds onlineTime fill only max online time
 				if timesToAdd > maxTimesToAdd {
 					timesToAdd = maxTimesToAdd
 				}
-				dataToFill := *data[k]
 
-				for j := 0; j < timesToAdd; j++ {
-					dataToFill.Date = dataToFill.Date - interval
+				fmt.Println("TIMES TO ADD", timesToAdd, maxTimesToAdd)
+				for j := 1; j <= timesToAdd; j++ {
+					dataToFill := *data[k+1]
+					dataToFill.Date = data[k].Date - (interval * float64(j))
 
 					// insert data on the needed index
 					data = append(data[:k], append([]*resultData{&dataToFill}, data[k:]...)...)
