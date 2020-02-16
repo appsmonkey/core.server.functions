@@ -171,6 +171,8 @@ func fillDataOffline(data []*resultData) []*resultData {
 				timesToAdd := int(diff) % int(interval)
 				maxTimesToAdd := int(onlineTime) % int(interval)
 
+				fmt.Println("ENTERED 1 ", timesToAdd, maxTimesToAdd)
+
 				if timesToAdd > maxTimesToAdd {
 					timesToAdd = maxTimesToAdd
 				}
@@ -181,6 +183,7 @@ func fillDataOffline(data []*resultData) []*resultData {
 				for j := 0; j < timesToAdd; j++ {
 					dataToFill.Date = dataToFill.Date - interval
 					fmt.Println("SHOULD FILL DATA", int64(dataToFill.Date))
+
 					// insert data on the needed index
 					data = append(data[:k], append([]*resultData{&dataToFill}, data[k:]...)...)
 					k++
