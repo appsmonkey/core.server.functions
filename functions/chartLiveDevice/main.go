@@ -160,27 +160,30 @@ func fillDataOffline(data []*resultData) []*resultData {
 		}
 	}
 
-	// data point difference in sec
-	for k, v := range data {
-		fmt.Println("DIFF PRINT", v.Date-data[k+1].Date, int64(v.Date), int64(data[k+1].Date))
+	if len(data) > 2 {
+		// data point difference in sec
+		for k, v := range data {
 
-		if v.Date-data[k+1].Date > interval {
-			dataToFill := *data[k+1]
-			dataToFill.Date = v.Date - 60
-			dataToFill.Real = false
+			fmt.Println("DIFF PRINT", v.Date-data[k+1].Date, int64(v.Date), int64(data[k+1].Date))
 
-			fmt.Println("SHOULD FILL DATA", dataToFill)
+			if v.Date-data[k+1].Date > interval {
+				dataToFill := *data[k+1]
+				dataToFill.Date = v.Date - 60
+				dataToFill.Real = false
 
-			// insert data on the needed index
-			data = append(data[:k], append([]*resultData{&dataToFill}, data[k:]...)...)
+				fmt.Println("SHOULD FILL DATA", dataToFill)
 
-			// // add data
-			// data = append(data, &resultData{
-			// 	Date:  0,
-			// 	Value: 0,
-			// })
-			// copy(data[k+1:], data[k:])
-			// data[k+1] = &dataToFill
+				// insert data on the needed index
+				data = append(data[:k], append([]*resultData{&dataToFill}, data[k:]...)...)
+
+				// // add data
+				// data = append(data, &resultData{
+				// 	Date:  0,
+				// 	Value: 0,
+				// })
+				// copy(data[k+1:], data[k:])
+				// data[k+1] = &dataToFill
+			}
 		}
 	}
 
