@@ -172,6 +172,7 @@ func fillDataOffline(data []*resultData) []*resultData {
 					timesToAdd = maxTimesToAdd
 				}
 
+				fmt.Println("TIMES TO ADD", timesToAdd, maxTimesToAdd)
 				for j := 1; j == timesToAdd; j++ {
 					dataToFill := *data[k+1]
 					dataToFill.Date = data[k].Date - (interval * float64(j))
