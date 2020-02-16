@@ -5,6 +5,7 @@ import (
 	"math"
 	"math/rand"
 	"strings"
+	"time"
 
 	"github.com/appsmonkey/core.server.functions/dal"
 	es "github.com/appsmonkey/core.server.functions/errorStatuses"
@@ -91,6 +92,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		}
 
 		result = qsort(result)
+		result = fillDataOffline(result)
 		response.Data = result
 
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 200, Headers: response.Headers()}, nil
@@ -158,6 +160,64 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 
 	response.Data = resultDataMulti{Chart: resultChart, Max: maxValues}
 	return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 200, Headers: response.Headers()}, nil
+}
+
+// fills device offline periods for single sensor
+func fillDataOffline(data []*resultData) []*resultData {
+
+	// if no data return
+	if len(data) < 1 {
+		return data
+	}
+
+	var interval float64 = 60 * 60 * 24
+	var onlineTime float64 = 60 * 120
+	latest := data[0].Date
+	diff := float64(time.Now().Unix()) - latest
+
+	if diff > interval {
+		// device is int artif. online mode, add data
+		for i := diff; i > interval; i -= interval {
+			dataToFill := *data[0]
+			dataToFill.Date = dataToFill.Date + 60
+
+			// stop filling after online period is exceeded
+			if dataToFill.Date >= latest+onlineTime {
+				break
+			}
+
+			// prepend data
+			data = append([]*resultData{&dataToFill}, data...)
+		}
+	}
+
+	if len(data) > 2 {
+		// data point difference in sec
+		for k := 0; k < len(data)-1; k++ {
+
+			diff := data[k].Date - data[k+1].Date
+			if diff > interval {
+				timesToAdd := int(diff) / int(interval)
+				maxTimesToAdd := int(onlineTime) / int(interval)
+
+				// if exceeds onlineTime don't fill
+				if timesToAdd > maxTimesToAdd {
+					timesToAdd = maxTimesToAdd
+				}
+				dataToFill := *data[k]
+
+				for j := 0; j < timesToAdd; j++ {
+					dataToFill.Date = dataToFill.Date - interval
+
+					// insert data on the needed index
+					data = append(data[:k], append([]*resultData{&dataToFill}, data[k:]...)...)
+					k++
+				}
+				k++
+			}
+		}
+	}
+	return data
 }
 
 // data has to be sorted asc. by date in order for this to work

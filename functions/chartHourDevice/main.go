@@ -93,6 +93,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		}
 
 		result = qsort(result)
+		result = fillDataOffline(result)
 		response.Data = result
 
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 200, Headers: response.Headers()}, nil
@@ -165,37 +166,59 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 
 // fills device offline periods for single sensor
 func fillDataOffline(data []*resultData) []*resultData {
-	fmt.Println("FILL DATA ::: ", len(data), data)
-	var interval float64 = 60
-	var onlineTime float64 = 60 * 120
-	diff := float64(time.Now().Unix()) - data[0].Date
 
-	if diff > interval && diff < onlineTime {
+	// if no data return
+	if len(data) < 1 {
+		return data
+	}
+
+	var interval float64 = 60 * 5
+	var onlineTime float64 = 60 * 120
+	latest := data[0].Date
+	diff := float64(time.Now().Unix()) - latest
+
+	if diff > interval {
 		// device is int artif. online mode, add data
 		for i := diff; i > interval; i -= interval {
 			dataToFill := *data[0]
 			dataToFill.Date = dataToFill.Date + 60
 
+			// stop filling after online period is exceeded
+			if dataToFill.Date >= latest+onlineTime {
+				break
+			}
+
+			// prepend data
 			data = append([]*resultData{&dataToFill}, data...)
 		}
 	}
 
-	// data point difference in sec
-	for k, v := range data {
-		if v.Date-data[k+1].Date > interval {
-			dataToFill := *data[k+1]
-			dataToFill.Date = v.Date - 60
+	if len(data) > 2 {
+		// data point difference in sec
+		for k := 0; k < len(data)-1; k++ {
 
-			// add data
-			data = append(data, &resultData{
-				Date:  0,
-				Value: 0,
-			})
-			copy(data[k+1:], data[k:])
-			data[k+1] = &dataToFill
+			diff := data[k].Date - data[k+1].Date
+			if diff > interval {
+				timesToAdd := int(diff) / int(interval)
+				maxTimesToAdd := int(onlineTime) / int(interval)
+
+				// if exceeds onlineTime don't fill
+				if timesToAdd > maxTimesToAdd {
+					timesToAdd = maxTimesToAdd
+				}
+				dataToFill := *data[k]
+
+				for j := 0; j < timesToAdd; j++ {
+					dataToFill.Date = dataToFill.Date - interval
+
+					// insert data on the needed index
+					data = append(data[:k], append([]*resultData{&dataToFill}, data[k:]...)...)
+					k++
+				}
+				k++
+			}
 		}
 	}
-
 	return data
 }
 
