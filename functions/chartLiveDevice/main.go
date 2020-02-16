@@ -171,14 +171,14 @@ func fillDataOffline(data []*resultData) []*resultData {
 				if timesToAdd > maxTimesToAdd {
 					timesToAdd = maxTimesToAdd
 				}
-				dataToFill := *data[k]
+				dataToFill := *data[k+1]
 
-				for j := 0; j < timesToAdd; j++ {
-					dataToFill.Date -= interval
+				for j := 1; j == timesToAdd; j++ {
+					dataToFill.Date -= data[k].Date - interval
 					fmt.Println("PRINT CHECK", dataToFill, int64(dataToFill.Date))
 
 					// insert data on the needed index
-					data = append(data[:k], append([]*resultData{&dataToFill}, data[k:]...)...)
+					data = append(data[:k], append([]*resultData{dataToFill}, data[k:]...)...)
 					k++
 				}
 				k++
