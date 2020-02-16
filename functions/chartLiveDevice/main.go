@@ -175,6 +175,7 @@ func fillDataOffline(data []*resultData) []*resultData {
 
 				for j := 0; j < timesToAdd; j++ {
 					dataToFill.Date -= interval
+					fmt.Println("PRINT CHECK", dataToFill, int64(dataToFill.Date))
 
 					// insert data on the needed index
 					data = append(data[:k], append([]*resultData{&dataToFill}, data[k:]...)...)
