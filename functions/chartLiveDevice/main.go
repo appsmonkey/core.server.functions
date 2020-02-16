@@ -178,7 +178,7 @@ func fillDataOffline(data []*resultData) []*resultData {
 					fmt.Println("PRINT CHECK", dataToFill, int64(dataToFill.Date))
 
 					// insert data on the needed index
-					data = append(data[:k+j], append([]*resultData{&dataToFill}, data[k+j:]...)...)
+					data = append(data[:k], append([]*resultData{&dataToFill}, data[k:]...)...)
 					k++
 				}
 				k++
