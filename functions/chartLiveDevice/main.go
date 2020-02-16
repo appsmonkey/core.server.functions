@@ -86,7 +86,6 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 			result = append(result, &resultData{
 				Date:  v["timestamp"],
 				Value: val,
-				Real:  true,
 			})
 		}
 
@@ -175,7 +174,7 @@ func fillDataOffline(data []*resultData) []*resultData {
 				dataToFill := *data[k]
 
 				for j := 0; j < timesToAdd; j++ {
-					dataToFill.Date = dataToFill.Date - interval
+					dataToFill.Date -= interval
 
 					// insert data on the needed index
 					data = append(data[:k], append([]*resultData{&dataToFill}, data[k:]...)...)
