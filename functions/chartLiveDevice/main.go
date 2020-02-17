@@ -91,6 +91,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 
 		result = qsort(result)
 		result = fillDataOffline(result)
+		result = qsort(result)
 		// result = smooth(result)
 		response.Data = result
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 200, Headers: response.Headers()}, nil
@@ -123,6 +124,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	resultChart = qsortMulti(resultChart)
 	resultChart = fillDataMulti(resultChart, request.SensorAll)
 	resultChart = fillDataMultiOffline(resultChart)
+	resultChart = qsortMulti(resultChart)
 	// resultChart = smoothMulti(resultChart)
 
 	response.Data = resultDataMulti{Chart: resultChart, Max: maxValues}
@@ -169,14 +171,14 @@ func fillDataOffline(data []*resultData) []*resultData {
 
 				// if exceeds onlineTime fill only max online time
 				if timesToAdd > maxTimesToAdd {
-					fmt.Println("MAX TIMES TO ADD EXCEEDED, SETTING LIMIT")
+					fmt.Println("MAX TIMES TO ADD EXCEEDED, SETTING")
 					timesToAdd = maxTimesToAdd
 				}
 
 				fmt.Println("TIMES TO ADD", timesToAdd, maxTimesToAdd)
 				for j := 1; j <= timesToAdd; j++ {
 					dataToFill := *data[k+1]
-					dataToFill.Date = dataToFill.Date + (interval * float64(j))
+					dataToFill.Date = data[k].Date - (interval * float64(j))
 
 					// insert data on the needed index
 					data = append(data[:k], append([]*resultData{&dataToFill}, data[k:]...)...)

@@ -94,6 +94,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 
 		result = qsort(result)
 		result = fillDataOffline(result)
+		result = qsort(result)
 		response.Data = result
 
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 200, Headers: response.Headers()}, nil
@@ -159,6 +160,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	resultChart = qsortMulti(resultChart)
 	resultChart = fillDataMulti(resultChart, request.SensorAll)
 	resultChart = fillDataMultiOffline(resultChart)
+	resultChart = qsortMulti(resultChart)
 	// resultChart = smoothMulti(resultChart)
 
 	response.Data = resultDataMulti{Chart: resultChart, Max: maxValues}
