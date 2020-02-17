@@ -9,6 +9,7 @@ import (
 
 	"github.com/appsmonkey/core.server.functions/dal"
 	es "github.com/appsmonkey/core.server.functions/errorStatuses"
+	m "github.com/appsmonkey/core.server.functions/models"
 	vm "github.com/appsmonkey/core.server.functions/viewmodels"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
@@ -78,6 +79,31 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 
 	}
 
+	type schemaData struct {
+		Version   string   `json:"version"`
+		Data      m.Schema `json:"data"`
+		Heartbeat int      `json:"heartbeat"`
+	}
+
+	schemaRes, err := dal.Get("schema", map[string]*dal.AttributeValue{
+		"version": {
+			S: aws.String("1"),
+		},
+	})
+	if err != nil {
+		fmt.Println("Error fetching schema from db", err)
+		response.AddError(&es.Error{Message: err.Error(), Data: "could not fetch schema data from the DB"})
+		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
+	}
+
+	schema := new(schemaData)
+	err = schemaRes.Unmarshal(schema)
+	if err != nil {
+		fmt.Println("Error unmarshaling schema ::. ", err)
+		response.AddError(&es.Error{Message: err.Error(), Data: "could not unmarshal data from the DB"})
+		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
+	}
+
 	if len(request.SensorAll) <= 1 {
 		result := make([]*resultData, 0)
 		for _, v := range dbData {
@@ -92,7 +118,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		}
 
 		result = qsort(result)
-		result = fillDataOffline(result)
+		result = fillDataOffline(result, schema.Heartbeat)
 		result = qsort(result)
 		response.Data = result
 
@@ -158,7 +184,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 
 	resultChart = qsortMulti(resultChart)
 	resultChart = fillDataMulti(resultChart, request.SensorAll)
-	resultChart = fillDataMultiOffline(resultChart)
+	resultChart = fillDataMultiOffline(resultChart, schema.Heartbeat)
 	resultChart = qsortMulti(resultChart)
 
 	response.Data = resultDataMulti{Chart: resultChart, Max: maxValues}
@@ -166,14 +192,14 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 }
 
 // fills device offline periods for multiple sensors
-func fillDataMultiOffline(data []map[string]float64) []map[string]float64 {
+func fillDataMultiOffline(data []map[string]float64, heartbeat int) []map[string]float64 {
 	// if no data return
 	if len(data) < 1 {
 		return data
 	}
 
 	var interval float64 = 60 * 60 * 24
-	var onlineTime float64 = 60 * 120
+	var onlineTime float64 = 60 * 2 * float64(heartbeat)
 	latest := data[0]["date"]
 	diff := float64(time.Now().Unix()) - latest
 
@@ -224,14 +250,14 @@ func fillDataMultiOffline(data []map[string]float64) []map[string]float64 {
 }
 
 // fills device offline periods for single sensor
-func fillDataOffline(data []*resultData) []*resultData {
+func fillDataOffline(data []*resultData, heartbeat int) []*resultData {
 	// if no data return
 	if len(data) < 1 {
 		return data
 	}
 
 	var interval float64 = 60 * 60 * 24
-	var onlineTime float64 = 60 * 120
+	var onlineTime float64 = 60 * 2 * float64(heartbeat) // heartbeat is stated in minutes
 	latest := data[0].Date
 	diff := float64(time.Now().Unix()) - latest
 
