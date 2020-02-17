@@ -169,6 +169,7 @@ func fillDataOffline(data []*resultData) []*resultData {
 
 				// if exceeds onlineTime fill only max online time
 				if timesToAdd > maxTimesToAdd {
+					fmt.Println("MAX TIMES TO ADD EXCEEDED, SETTING LIMIT")
 					timesToAdd = maxTimesToAdd
 				}
 
