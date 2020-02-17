@@ -14,6 +14,7 @@ import (
 	vm "github.com/appsmonkey/core.server.functions/viewmodels"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/aws/aws-sdk-go/aws"
 
 	s "github.com/appsmonkey/core.server.functions/models/schema"
 	h "github.com/appsmonkey/core.server.functions/tools/helper"
@@ -72,7 +73,18 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	zoneData := make([]zoneResult, 0)
 	for _, z := range request.Zone {
 		fmt.Println("Fetching zone data for sensor: " + z)
-		zoneRes, err := dal.List("zones", dal.Name("sensor_id").Equal(dal.Value(z)), dal.Projection(dal.Name("zone_id"), dal.Name("zone_name"), dal.Name("data")), true)
+		// zoneRes, err := dal.List("zones", dal.Name("sensor_id").Equal(dal.Value(z)), dal.Projection(dal.Name("zone_id"), dal.Name("zone_name"), dal.Name("data")), true)
+
+		zoneRes, err := dal.GetFromIndex("zones", "sensor_id-index", dal.Condition{
+			"sensor_id": {
+				ComparisonOperator: aws.String("EQ"),
+				AttributeValueList: []*dal.AttributeValue{
+					{
+						S: aws.String(z),
+					},
+				},
+			},
+		})
 
 		zd := make([]m.Zone, 0)
 		err = zoneRes.Unmarshal(&zd)
