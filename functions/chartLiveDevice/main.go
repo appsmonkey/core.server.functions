@@ -226,8 +226,8 @@ func fillDataMultiOffline(data []map[string]float64, heartbeat int) []map[string
 
 	var interval float64 = 60
 	var onlineTime float64 = 60 * 2 * float64(heartbeat) // heartbeat is stated in minutes
-	latest := data[0]["date"]
-	diff := float64(time.Now().Unix()) - latest
+	// latest := data[0]["date"]
+	//diff := float64(time.Now().Unix()) - latest
 
 	// if diff > interval {
 	// 	// device is int artif. online mode, add data
