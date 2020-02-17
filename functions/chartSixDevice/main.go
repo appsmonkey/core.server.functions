@@ -179,7 +179,7 @@ func fillDataMultiOffline(data []map[string]float64) []map[string]float64 {
 		// device is int artif. online mode, add data
 		for i := diff; i > interval; i -= interval {
 			dataToFill := data[0]
-			dataToFill["date"] = dataToFill["date"] + 60
+			dataToFill["date"] = dataToFill["date"] + interval
 
 			// stop filling after online period is exceeded
 			if dataToFill["date"] >= latest+onlineTime {
@@ -208,7 +208,7 @@ func fillDataMultiOffline(data []map[string]float64) []map[string]float64 {
 				fmt.Println("TIMES TO ADD", timesToAdd, maxTimesToAdd)
 				for j := 1; j <= timesToAdd; j++ {
 					dataToFill := data[k+1]
-					dataToFill["date"] = data[k]["date"] - (interval * float64(j))
+					dataToFill["date"] = dataToFill["date"] + (interval * float64(j))
 
 					// insert data on the needed index
 					data = append(data[:k], append([]map[string]float64{dataToFill}, data[k:]...)...)
@@ -237,7 +237,7 @@ func fillDataOffline(data []*resultData) []*resultData {
 		// device is int artif. online mode, add data
 		for i := diff; i > interval; i -= interval {
 			dataToFill := *data[0]
-			dataToFill.Date = dataToFill.Date + 60
+			dataToFill.Date = dataToFill.Date + interval
 
 			// stop filling after online period is exceeded
 			if dataToFill.Date >= latest+onlineTime {
@@ -266,7 +266,7 @@ func fillDataOffline(data []*resultData) []*resultData {
 				fmt.Println("TIMES TO ADD", timesToAdd, maxTimesToAdd)
 				for j := 1; j <= timesToAdd; j++ {
 					dataToFill := *data[k+1]
-					dataToFill.Date = data[k].Date - (interval * float64(j))
+					dataToFill.Date = dataToFill.Date + (interval * float64(j))
 
 					// insert data on the needed index
 					data = append(data[:k], append([]*resultData{&dataToFill}, data[k:]...)...)
