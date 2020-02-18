@@ -131,7 +131,8 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 					maxValues[s] = 0
 				}
 			} else {
-				rd[s] = 0
+				// rd[s] = 0
+				continue
 			}
 		}
 

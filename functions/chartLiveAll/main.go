@@ -86,6 +86,12 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 				iDate := time.Unix(int64(k), 0)
 				jDate := time.Unix(int64(v["timestamp"]), 0)
 				year, month, day, hour, min, sec := diff(iDate, jDate)
+
+				_, ok := v[request.Sensor]
+				if !ok {
+					continue
+				}
+
 				if year == 0 && month == 0 && day == 0 && hour == 0 && min == 0 && sec > 0 {
 					merged = true
 					d[k] = append(d[v["timestamp"]], v[request.Sensor])
@@ -138,7 +144,8 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		for _, s := range request.SensorAll {
 			_, ok := d[date][s]
 			if !ok {
-				d[date][s] = make([]float64, 0)
+				// d[date][s] = make([]float64, 0)
+				continue
 			}
 			d[date][s] = append(d[date][s], v[s])
 		}
