@@ -233,7 +233,10 @@ func fillDataMultiOffline(data []map[string]float64, heartbeat int) []map[string
 		fmt.Println("DIF :::", diff)
 		// device is int artif. online mode, add data
 		for i := diff; i > interval; i -= interval {
-			dataToFill := data[0]
+			dataToFill := make(map[string]float64, 0)
+			for k, v := range data[0] {
+				dataToFill[k] = v
+			}
 			dataToFill["date"] = dataToFill["date"] + interval
 
 			// stop filling after online period is exceeded
@@ -268,7 +271,6 @@ func fillDataMultiOffline(data []map[string]float64, heartbeat int) []map[string
 					dataToFill["date"] = dataToFill["date"] + (interval * float64(j))
 
 					// insert data on the needed index
-					fmt.Println("INSERT DATA ::: ", int64(dataToFill["date"]))
 					data = append(data[:k], append([]map[string]float64{dataToFill}, data[k:]...)...)
 					k++
 				}
