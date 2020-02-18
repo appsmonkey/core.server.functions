@@ -236,7 +236,7 @@ func fillDataMultiOffline(data []map[string]float64, heartbeat int) []map[string
 				dtu := data[k+1]["date"]
 				for j := 1; j <= timesToAdd; j++ {
 					dataToFill := data[k+1]
-					dataToFill["date"] = dtu + (interval * float64(j))
+					dataToFill["date"] = data[k]["date"] + (interval * float64(j))
 
 					// insert data on the needed index
 					data = append(data[:k], append([]map[string]float64{dataToFill}, data[k:]...)...)
