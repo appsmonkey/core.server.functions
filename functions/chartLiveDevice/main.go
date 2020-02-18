@@ -226,24 +226,27 @@ func fillDataMultiOffline(data []map[string]float64, heartbeat int) []map[string
 
 	var interval float64 = 60
 	var onlineTime float64 = 60 * 2 * float64(heartbeat) // heartbeat is stated in minutes
-	// latest := data[0]["date"]
-	//diff := float64(time.Now().Unix()) - latest
+	latest := data[0]["date"]
+	diff := float64(time.Now().Unix()) - latest
 
-	// if diff > interval {
-	// 	// device is int artif. online mode, add data
-	// 	for i := diff; i > interval; i -= interval {
-	// 		dataToFill := data[0]
-	// 		dataToFill["date"] = dataToFill["date"] + interval
+	if diff > interval {
+		fmt.Println("DIF :::", diff)
+		// device is int artif. online mode, add data
+		for i := diff; i > interval; i -= interval {
+			dataToFill := data[0]
+			dataToFill["date"] = dataToFill["date"] + interval
 
-	// 		// stop filling after online period is exceeded
-	// 		if dataToFill["date"] >= latest+onlineTime {
-	// 			break
-	// 		}
+			// stop filling after online period is exceeded
+			if dataToFill["date"] >= latest+onlineTime {
+				fmt.Println("EXCEEDED ONLINE TIME, LIMITING")
+				break
+			}
+			fmt.Println("ADDED ::: ", int(dataToFill["date"]))
 
-	// 		// prepend data
-	// 		data = append([]map[string]float64{dataToFill}, data...)
-	// 	}
-	// }
+			// prepend data
+			data = append([]map[string]float64{dataToFill}, data...)
+		}
+	}
 
 	if len(data) > 2 {
 		// data point difference in sec
