@@ -139,7 +139,8 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		for _, s := range request.SensorAll {
 			_, ok := d[date][s]
 			if !ok {
-				d[date][s] = make([]float64, 0)
+				//d[date][s] = make([]float64, 0)
+				continue
 			}
 			d[date][s] = append(d[date][s], v[s])
 		}
@@ -170,8 +171,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 				if rd[s] > mv {
 					maxValues[s] = rd[s]
 				} else if !okmv {
-					// maxValues[s] = 0
-					continue
+					maxValues[s] = 0
 				}
 			}
 		}
