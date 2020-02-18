@@ -263,7 +263,7 @@ func fillDataMultiOffline(data []map[string]float64, heartbeat int) []map[string
 				fmt.Println("TIMES TO ADD", timesToAdd, maxTimesToAdd)
 				for j := 1; j <= timesToAdd; j++ {
 					dataToFill := data[k+1]
-					dataToFill["date"] = data[k]["date"] + (interval * float64(j))
+					dataToFill["date"] = data[k]["date"] - (interval * float64(j))
 
 					// insert data on the needed index
 					fmt.Println("INSERT DATA ::: ", int64(dataToFill["date"]))
