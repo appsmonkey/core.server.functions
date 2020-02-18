@@ -139,9 +139,14 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		for _, s := range request.SensorAll {
 			_, ok := d[date][s]
 			if !ok {
-				//d[date][s] = make([]float64, 0)
+				d[date][s] = make([]float64, 0)
+			}
+
+			_, ok = v[s]
+			if !ok {
 				continue
 			}
+
 			d[date][s] = append(d[date][s], v[s])
 		}
 	}
