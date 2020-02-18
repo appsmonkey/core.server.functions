@@ -105,7 +105,12 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	if len(request.SensorAll) <= 1 {
 		result := make([]*resultData, 0)
 		for _, v := range dbData {
-			val := v[request.Sensor]
+			val, ok := v[request.Sensor]
+
+			if !ok {
+				continue
+			}
+
 			if request.Sensor != "BATTERY_VOLTAGE" {
 				val = math.Round(val)
 			}
@@ -129,6 +134,10 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	for _, v := range dbData {
 		rd := make(map[string]float64, 0)
 		for _, s := range request.SensorAll {
+			_, ok := v[s]
+			if !ok {
+				continue
+			}
 			rd["date"] = v["timestamp"]
 			if s == "BATTERY_VOLTRAGE" {
 				rd[s] = v[s]
