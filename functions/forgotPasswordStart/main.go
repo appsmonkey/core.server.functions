@@ -34,7 +34,7 @@ func Handler(ctx context.Context, req events.APIGatewayProxyRequest) (events.API
 
 	// Initiate the forgot password flow
 	res, err := dal.GetFromIndex("users", "Email-index", dal.Condition{
-		"cognito_id": {
+		"email": {
 			ComparisonOperator: aws.String("EQ"),
 			AttributeValueList: []*dal.AttributeValue{
 				{
