@@ -58,7 +58,7 @@ func Handler(ctx context.Context, req events.APIGatewayProxyRequest) (events.API
 	res.Unmarshal(&users)
 
 	if len(users) > 0 && users[0].SocialID != "none" {
-		errData := es.ErrCouldNotInitiateForgottenPasswordFlow
+		errData := es.ErrCouldNotResetPasswordForUser
 		response.Errors = append(response.Errors, errData)
 
 		fmt.Printf("errors on request: %v, requestID: %v", response.Errors, response.RequestID)
