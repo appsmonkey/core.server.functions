@@ -58,6 +58,7 @@ func (c *Cognito) Google(id, token, inEmail string, client *http.Client) (*Cogni
 		r.Profile = m.UserProfile{}
 		r.Token = bg.New()
 		r.SocialID = id
+		// G as Google
 		r.SocialType = "G"
 
 		for _, uav := range p.UserAttributes {
@@ -139,6 +140,7 @@ func (c *Cognito) Facebook(id, token, inEmail string) (*CognitoData, error) {
 		r.Profile = m.UserProfile{}
 		r.Token = bg.New()
 		r.SocialID = id
+		// F as Facebook
 		r.SocialType = "F"
 
 		for _, uav := range p.UserAttributes {

@@ -14,7 +14,6 @@ func init() {
 
 // Increment the key inside the table
 func Increment(in *IncrementInput) error {
-	fmt.Println("INSERT DETAILS :: ", in.Timestamp, in.KeyValue, in.Table)
 	return dal.Update(in.Table, in.Expression(), in.Key(), in.Data())
 }
 
