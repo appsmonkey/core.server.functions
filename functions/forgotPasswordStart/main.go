@@ -7,11 +7,14 @@ import (
 	"log"
 	"os"
 
+	"github.com/appsmonkey/core.server.functions/dal"
 	es "github.com/appsmonkey/core.server.functions/errorStatuses"
 	"github.com/appsmonkey/core.server.functions/integration/cognito"
+	m "github.com/appsmonkey/core.server.functions/models"
 	vm "github.com/appsmonkey/core.server.functions/viewmodels"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/aws/aws-sdk-go/aws"
 	"github.com/joho/godotenv"
 )
 
@@ -26,14 +29,47 @@ func Handler(ctx context.Context, req events.APIGatewayProxyRequest) (events.API
 	response.Data = false
 	if response.Code != 0 {
 		fmt.Printf("errors on request: %v, requestID: %v", response.Errors, response.RequestID)
-
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 400, Headers: response.Headers()}, nil
 	}
 
 	// Initiate the forgot password flow
-	err := cog.ForgotPasswordStart(request.Email)
+	res, err := dal.GetFromIndex("users", "Email-index", dal.Condition{
+		"cognito_id": {
+			ComparisonOperator: aws.String("EQ"),
+			AttributeValueList: []*dal.AttributeValue{
+				{
+					S: aws.String(request.Email),
+				},
+			},
+		},
+	})
+
 	if err != nil {
 		errData := es.ErrCouldNotInitiateForgottenPasswordFlow
+		errData.Data = err.Error()
+		response.Errors = append(response.Errors, errData)
+
+		fmt.Printf("errors on request: %v, requestID: %v", response.Errors, response.RequestID)
+
+		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
+	}
+
+	users := make([]m.User, 0)
+	res.Unmarshal(&users)
+
+	if len(users) > 0 && users[0].SocialID != "none" {
+		errData := es.ErrCouldNotInitiateForgottenPasswordFlow
+		errData.Data = err.Error()
+		response.Errors = append(response.Errors, errData)
+
+		fmt.Printf("errors on request: %v, requestID: %v", response.Errors, response.RequestID)
+
+		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
+	}
+
+	err = cog.ForgotPasswordStart(request.Email)
+	if err != nil {
+		errData := es.ErrCouldNotResetPasswordForUser
 		errData.Data = err.Error()
 		response.Errors = append(response.Errors, errData)
 

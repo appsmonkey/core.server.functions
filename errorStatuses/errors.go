@@ -160,3 +160,6 @@ var ForgotPasswordBadRequestNoID = Error{Code: 1047, Message: "Registration not 
 
 // ErrMissingThingCity [cannot update device. Missing name]
 var ErrMissingThingCity = Error{Code: 1048, Message: "manage device failed. Missing city"}
+
+// ErrCouldNotResetPasswordForUser [Forgot Psssword Flow Error]
+var ErrCouldNotResetPasswordForUser = Error{Code: 1049, Message: "Can not reset password for this user"}
