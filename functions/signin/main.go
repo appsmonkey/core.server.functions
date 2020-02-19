@@ -7,15 +7,18 @@ import (
 	"log"
 	"os"
 
+	"net/http"
+
+	dala "github.com/appsmonkey/core.server.functions/dal"
 	dal "github.com/appsmonkey/core.server.functions/dal/access"
 	es "github.com/appsmonkey/core.server.functions/errorStatuses"
 	"github.com/appsmonkey/core.server.functions/integration/cognito"
+	m "github.com/appsmonkey/core.server.functions/models"
 	vm "github.com/appsmonkey/core.server.functions/viewmodels"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/aws/aws-sdk-go/aws"
 	"github.com/joho/godotenv"
-
-	"net/http"
 )
 
 var (
@@ -81,6 +84,33 @@ func Handler(ctx context.Context, req events.APIGatewayProxyRequest) (events.API
 
 	data, err := cog.SignIn(request.Email, request.Password)
 	if err != nil {
+
+		// Initiate the forgot password flow
+		res, err := dala.GetFromIndex("users", "Email-index", dala.Condition{
+			"email": {
+				ComparisonOperator: aws.String("EQ"),
+				AttributeValueList: []*dala.AttributeValue{
+					{
+						S: aws.String(request.Email),
+					},
+				},
+			},
+		})
+
+		if err != nil {
+			fmt.Println("Failed to fetch user, continue normal flow")
+		}
+
+		users := make([]m.User, 0)
+		res.Unmarshal(&users)
+
+		if len(users) > 0 && users[0].SocialID != "none" {
+			errData := es.StatusDeleteZoneError
+
+			fmt.Printf("errors on request: %v, requestID: %v", response.Errors, response.RequestID)
+			return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
+		}
+
 		errData := es.ErrRegistrationSignInError
 		errData.Data = err.Error()
 		response.Errors = append(response.Errors, errData)

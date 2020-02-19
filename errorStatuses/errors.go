@@ -163,3 +163,6 @@ var ErrMissingThingCity = Error{Code: 1048, Message: "manage device failed. Miss
 
 // ErrCouldNotResetPasswordForUser [Forgot Psssword Flow Error]
 var ErrCouldNotResetPasswordForUser = Error{Code: 1049, Message: "Can not reset password for this user"}
+
+// ErrSocialUserAlreadyExists [SignIn flow error]
+var ErrSocialUserAlreadyExists = Error{Code: 1050, Message: "Try using a social login method for this email"}
