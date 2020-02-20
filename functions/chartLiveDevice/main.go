@@ -215,7 +215,11 @@ func fillDataOffline(data []*resultData, heartbeat int) []*resultData {
 					dataToFill := *data[k+1]
 					dataToFill.Date = dataToFill.Date + (interval * float64(j))
 
-					if dataToFill.Date-data[k+1].Date < 60 {
+					if dataToFill.Date-data[k+1].Date < interval {
+						continue
+					}
+
+					if dataToFill.Date-data[k+1].Date < interval {
 						continue
 					}
 
@@ -282,7 +286,7 @@ func fillDataMultiOffline(data []map[string]float64, heartbeat int) []map[string
 					}
 					dataToFill["date"] = dataToFill["date"] + (interval * float64(j))
 
-					if dataToFill["date"]-data[k+1]["date"] < 60 {
+					if dataToFill["date"]-data[k+1]["date"] < interval {
 						continue
 					}
 
