@@ -244,7 +244,6 @@ func fillDataMultiOffline(data []map[string]float64, heartbeat int) []map[string
 					data = append(data[:k], append([]map[string]float64{dataToFill}, data[k:]...)...)
 					k++
 				}
-				k++
 			}
 		}
 	}
@@ -302,7 +301,6 @@ func fillDataOffline(data []*resultData, heartbeat int) []*resultData {
 					data = append(data[:k], append([]*resultData{&dataToFill}, data[k:]...)...)
 					k++
 				}
-				k++
 			}
 		}
 	}
