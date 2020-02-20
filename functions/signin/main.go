@@ -86,7 +86,7 @@ func Handler(ctx context.Context, req events.APIGatewayProxyRequest) (events.API
 	if err != nil {
 
 		// Initiate the forgot password flow
-		res, err := dala.GetFromIndex("users", "Email-index", dala.Condition{
+		res, errI := dala.GetFromIndex("users", "Email-index", dala.Condition{
 			"email": {
 				ComparisonOperator: aws.String("EQ"),
 				AttributeValueList: []*dala.AttributeValue{
@@ -97,7 +97,7 @@ func Handler(ctx context.Context, req events.APIGatewayProxyRequest) (events.API
 			},
 		})
 
-		if err != nil {
+		if errI != nil {
 			fmt.Println("Failed to fetch user, continue normal flow")
 		}
 
@@ -107,6 +107,7 @@ func Handler(ctx context.Context, req events.APIGatewayProxyRequest) (events.API
 		if len(users) > 0 && users[0].SocialID != "none" {
 			errData := es.ErrSocialUserAlreadyExists
 			response.Errors = append(response.Errors, errData)
+			errData.Data = "SocialAccountException"
 
 			fmt.Printf("errors on request: %v, requestID: %v", response.Errors, response.RequestID)
 			return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil

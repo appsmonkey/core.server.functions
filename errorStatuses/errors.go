@@ -37,9 +37,6 @@ var ErrRegistrationCognitoSignupError = Error{Code: 1008, Message: "registration
 // ErrRegistrationSignInError signin error [cannot singin user. cognito signin error]
 var ErrRegistrationSignInError = Error{Code: 1009, Message: "signin error [cannot singin user. cognito signin error]"}
 
-// ErrProfileMissingEmail [cannot get user's profile. Missing email]
-var ErrProfileMissingEmail = Error{Code: 1005, Message: "profile error [missing email]"}
-
 // ErrMissingCognitoID [cannot save user. Missing cognito user ID]
 var ErrMissingCognitoID = Error{Code: 1010, Message: "profile error [missing cognito ID]"}
 
@@ -166,3 +163,6 @@ var ErrCouldNotResetPasswordForUser = Error{Code: 1049, Message: "Can not reset 
 
 // ErrSocialUserAlreadyExists [SignIn flow error]
 var ErrSocialUserAlreadyExists = Error{Code: 1050, Message: "Try using a social login method for this email"}
+
+// ErrProfileMissingEmail [cannot get user's profile. Missing email]
+var ErrProfileMissingEmail = Error{Code: 1051, Message: "profile error [missing email]"}
