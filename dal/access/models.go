@@ -58,6 +58,10 @@ func (i *IncrementInput) Data() map[string]*dal.AttributeValue {
 		keyMap[":ts"] = &dal.AttributeValue{N: aws.String(i.Timestamp)}
 	}
 
+	if len(i.City) > 0 {
+		keyMap[":ci"] = &dal.AttributeValue{S: aws.String(i.City)}
+	}
+
 	return keyMap
 }
 
@@ -71,6 +75,8 @@ func (i *IncrementInput) Expression() string {
 		expr = "SET time_to_live = :ttl"
 	} else if len(i.Timestamp) > 0 {
 		expr = "SET time_stamp = :ts"
+	} else if len(i.City) > 0 {
+		expr = "SET city = :ci"
 	}
 
 	expr += " ADD"

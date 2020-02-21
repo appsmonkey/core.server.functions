@@ -59,7 +59,7 @@ func Handler(ctx context.Context, req events.APIGatewayProxyRequest) (events.API
 
 	if len(users) > 0 && users[0].SocialID != "none" {
 		errData := es.ErrCouldNotResetPasswordForUser
-		errData.Data = "SocialUserPasswordResetException: Can not reset password for this user, contact support"
+		errData.Data = "SocialUserPasswordResetException: Can not reset password for social login"
 		response.Errors = append(response.Errors, errData)
 
 		fmt.Printf("errors on request: %v, requestID: %v", response.Errors, response.RequestID)

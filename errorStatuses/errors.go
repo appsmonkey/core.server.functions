@@ -159,10 +159,10 @@ var ForgotPasswordBadRequestNoID = Error{Code: 1047, Message: "Registration not 
 var ErrMissingThingCity = Error{Code: 1048, Message: "manage device failed. Missing city"}
 
 // ErrCouldNotResetPasswordForUser [Forgot Psssword Flow Error]
-var ErrCouldNotResetPasswordForUser = Error{Code: 1049, Message: "Can not reset password for this user"}
+var ErrCouldNotResetPasswordForUser = Error{Code: 1049, Message: "Can not reset password for social login"}
 
 // ErrSocialUserAlreadyExists [SignIn flow error]
-var ErrSocialUserAlreadyExists = Error{Code: 1050, Message: "Try using a social login method for this email"}
+var ErrSocialUserAlreadyExists = Error{Code: 1050, Message: "This email is already linked with a social account"}
 
 // ErrProfileMissingEmail [cannot get user's profile. Missing email]
 var ErrProfileMissingEmail = Error{Code: 1051, Message: "profile error [missing email]"}

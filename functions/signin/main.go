@@ -106,7 +106,7 @@ func Handler(ctx context.Context, req events.APIGatewayProxyRequest) (events.API
 
 		if len(users) > 0 && users[0].SocialID != "none" {
 			errData := es.ErrSocialUserAlreadyExists
-			errData.Data = "SocialAccountLoginMethodException: Try using a social login method with this email"
+			errData.Data = "SocialAccountLoginMethodException: This email is already linked with a social account"
 			response.Errors = append(response.Errors, errData)
 
 			fmt.Printf("errors on request: %v, requestID: %v", response.Errors, response.RequestID)
