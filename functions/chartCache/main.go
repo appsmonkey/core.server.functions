@@ -21,7 +21,6 @@ var timeSteps map[int]int
 
 // Handler will handle our request comming from the API gateway
 func Handler(ctx context.Context, req interface{}) error {
-	fmt.Println("INPUT: ", req)
 
 	input, ok := req.(map[string]interface{})
 	if !ok {
@@ -29,8 +28,6 @@ func Handler(ctx context.Context, req interface{}) error {
 		fmt.Println(err)
 		return err
 	}
-
-	fmt.Println("INPUT:::", input)
 
 	token := input["token"].(string)
 	timestamp := input["timestamp"].(float64)
