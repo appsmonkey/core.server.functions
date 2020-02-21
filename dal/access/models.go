@@ -75,8 +75,10 @@ func (i *IncrementInput) Expression() string {
 		expr = "SET time_to_live = :ttl"
 	} else if len(i.Timestamp) > 0 {
 		expr = "SET time_stamp = :ts"
-	} else if len(i.City) > 0 {
-		expr = "SET city = :ci"
+	}
+
+	if len(i.City) > 0 {
+		expr += ",city = :ci"
 	}
 
 	expr += " ADD"
