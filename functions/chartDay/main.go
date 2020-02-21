@@ -96,6 +96,8 @@ func processKey(key access.ChartHourData) *Hour {
 		res.Value = key.Value / float64(key.Count)
 	}
 
+	res.City = key.City
+
 	return res
 }
 
