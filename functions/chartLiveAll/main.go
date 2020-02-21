@@ -64,9 +64,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	}
 
 	for _, v := range dbDataForFilter {
-		fmt.Println("CITY ::: ", request.City, v["token"])
-
-		if v["indoor"] == false || v["indoor"] == "false" && v["token"] == request.City {
+		if v["token"] == request.City && (v["indoor"] == false || v["indoor"] == "false") {
 			r := make(map[string]float64, 0)
 			for ka, va := range v {
 				if ka != "indoor" && ka != "token" {
