@@ -60,9 +60,9 @@ func Handler(ctx context.Context, req interface{}) error {
 
 		// Set counter and value for the device specific value
 		strValue := fmt.Sprintf("%f", value)
-		access.Increment(incrementData(dev, timestampStr, "data_count", "1", "data_value", strValue))
+		access.Increment(incrementData(dev, timestampStr, "data_count", "1", "data_value", strValue, model.City))
 		if model.Meta.Indoor == false {
-			access.Increment(incrementData(gen, timestampStr, "data_count", "1", "data_value", strValue))
+			access.Increment(incrementData(gen, timestampStr, "data_count", "1", "data_value", strValue, model.City))
 
 		}
 	}
@@ -76,11 +76,12 @@ func main() {
 	lambda.Start(Handler)
 }
 
-func incrementData(hash, timestamp, key1, value1, key2, value2 string) *access.IncrementInput {
+func incrementData(hash, timestamp, key1, value1, key2, value2 string, city string) *access.IncrementInput {
 	return &access.IncrementInput{
 		Table:     "chart_hour_input",
 		KeyName:   "hash",
 		KeyValue:  hash,
+		City:      city,
 		TTL:       seconds,
 		Timestamp: timestamp,
 		Columns: []access.IncrementItem{

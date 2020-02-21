@@ -15,6 +15,7 @@ type IncrementInput struct {
 	SortKeyName  string
 	SortKeyValue string
 	TTL          string
+	City         string
 	Timestamp    string
 	Columns      []IncrementItem
 }
@@ -92,6 +93,7 @@ type ChartHourData struct {
 	Count     float64 `json:"data_count"`
 	Value     float64 `json:"data_value"`
 	Timestamp int64   `json:"time_stamp"`
+	City      string  `json:"city"`
 }
 
 // HourChart represents one calculated row in the hourly chart

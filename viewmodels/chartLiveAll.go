@@ -14,6 +14,7 @@ type ChartLiveAllRequest struct {
 	Sensor    string   `json:"sensor"`
 	From      int64    `json:"from"`
 	SensorAll []string `json:"-"`
+	City      string   `json:"city"`
 }
 
 // Validate the request sent from client
@@ -51,6 +52,11 @@ func (r *ChartLiveAllRequest) Validate(body map[string]string) *ChartLiveAllResp
 		return response
 	}
 
+	city, ok := body["city"]
+	if !ok {
+		city = "Sarajevo"
+	}
+
 	if len(sensor) == 0 {
 		response.Errors = append(response.Errors, es.ErrMissingSensorType)
 		response.Code = es.StatusChartLiveAllError
@@ -71,6 +77,7 @@ func (r *ChartLiveAllRequest) Validate(body map[string]string) *ChartLiveAllResp
 	r.Sensor = sensor
 	r.From = f
 	r.SensorAll = sensorAll
+	r.City = city
 
 	return response
 }

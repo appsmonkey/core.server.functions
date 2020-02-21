@@ -14,6 +14,7 @@ type ChartHourAllRequest struct {
 	Sensor    string   `json:"sensor"`
 	From      string   `json:"from"`
 	SensorAll []string `json:"-"`
+	City      string   `json:"city"`
 }
 
 // Validate the request sent from client
@@ -51,6 +52,11 @@ func (r *ChartHourAllRequest) Validate(body map[string]string) *ChartHourAllResp
 		return response
 	}
 
+	city, ok := body["city"]
+	if !ok {
+		city = "Sarajevo"
+	}
+
 	if len(sensor) == 0 {
 		response.Errors = append(response.Errors, es.ErrMissingSensorType)
 		response.Code = es.StatusChartAllDeviceError
@@ -71,6 +77,7 @@ func (r *ChartHourAllRequest) Validate(body map[string]string) *ChartHourAllResp
 	r.Sensor = sensor
 	r.From = from
 	r.SensorAll = sensorAll
+	r.City = city
 
 	return response
 }

@@ -15,6 +15,7 @@ type Hour struct {
 	Value  float64 `json:"value"`
 	Token  string  `json:"token"`
 	Sensor string  `json:"sensor"`
+	City   string  `json:"city"`
 }
 
 // Save the data into the DB
@@ -26,6 +27,7 @@ func (h *Hour) Save(last *int64) {
 		data["sensor"] = h.Sensor
 		data["date"] = h.Date
 		data["value"] = h.Value
+		data["city"] = h.City
 	} else {
 		data["hash"] = fmt.Sprintf("%v<->%v", h.Token, h.Sensor)
 		data["date"] = h.Date
