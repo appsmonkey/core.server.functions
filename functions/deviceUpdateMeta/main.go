@@ -92,6 +92,9 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		if zone != nil {
 			device.ZoneID = device.City + "@" + zone.Title
 			device.Meta.Coordinates = request.Coordinates
+		} else {
+			device.Meta.Coordinates = request.Coordinates
+			device.ZoneID = "none"
 		}
 	}
 
@@ -101,7 +104,6 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	device.Meta.Name = request.Name
 	device.Meta.Model = request.Model
 	device.Meta.Indoor = request.Indoor
-	device.Active = true
 
 	resData.Success = true
 	response.Data = resData
