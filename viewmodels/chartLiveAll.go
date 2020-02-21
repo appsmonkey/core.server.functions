@@ -2,6 +2,7 @@ package viewmodels
 
 import (
 	"encoding/json"
+	"fmt"
 	"strconv"
 	"strings"
 	"time"
@@ -52,6 +53,7 @@ func (r *ChartLiveAllRequest) Validate(body map[string]string) *ChartLiveAllResp
 		return response
 	}
 
+	fmt.Println("BODY :::", body)
 	city, ok := body["city"]
 	if !ok {
 		city = "Sarajevo"
