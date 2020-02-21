@@ -72,7 +72,7 @@ func ChartHourInput(from interface{}) []ChartHourData {
 // `table` should be a table name from which to get data from in the chart based schema
 // `from` should be a timestamp in the past
 func ChartInput(from interface{}, table string) []ChartHourData {
-	res, err := dal.List(table, dal.Name("time_stamp").GreaterThan(dal.Value(from)), dal.Projection(dal.Name("hash"), dal.Name("data_count"), dal.Name("data_value"), dal.Name("time_stamp")), true)
+	res, err := dal.List(table, dal.Name("time_stamp").GreaterThan(dal.Value(from)), dal.Projection(dal.Name("hash"), dal.Name("data_count"), dal.Name("data_value"), dal.Name("city"), dal.Name("time_stamp")), true)
 	if err != nil {
 		fmt.Println(err.Error())
 		return []ChartHourData{}
