@@ -55,7 +55,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 					},
 				},
 			},
-			dal.Projection(dal.Name("date"), dal.Name("value")),
+			dal.Projection(dal.Name("date"), dal.Name("value"), dal.Name("city")),
 			true, true)
 
 		if err != nil {
@@ -64,8 +64,20 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 			return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
 		}
 
+		var dbUnfiltered []map[string]interface{}
 		var dbData []map[string]float64
-		err = res.Unmarshal(&dbData)
+
+		err = res.Unmarshal(&dbUnfiltered)
+
+		for _, v := range dbUnfiltered {
+			if v["city"] == request.City {
+				ta := make(map[string]float64)
+				ta["date"] = v["date"].(float64)
+				ta["value"] = v["value"].(float64)
+				dbData = append(dbData, ta)
+			}
+		}
+
 		if err != nil {
 			response.AddError(&es.Error{Message: err.Error(), Data: "could not unmarshal data from the DB"})
 			fmt.Printf("errors on request: %v, requestID: %v", response.Errors, response.RequestID)
