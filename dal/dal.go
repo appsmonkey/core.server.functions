@@ -262,22 +262,13 @@ func QueryMultiple(table string, condition Condition, projection ProjectionBuild
 // QueryMultipleNoProjection data from the table
 func QueryMultipleNoProjection(table string, condition Condition, ascending bool, fullScan bool) (*QueryResult, error) {
 	fmt.Println("QUERY NO PROJ")
-	expr, err := expression.NewBuilder().Build()
 	fmt.Println("QUERY NO PROJ2")
-	if err != nil {
-		fmt.Print("Got error building expression: ")
-		fmt.Println(err.Error())
-
-		return nil, err
-	}
 
 	// Perform the query
 	var queryInput = &dynamodb.QueryInput{
-		TableName:                 aws.String(table),
-		KeyConditions:             condition,
-		ExpressionAttributeNames:  expr.Names(),
-		ExpressionAttributeValues: expr.Values(),
-		ScanIndexForward:          aws.Bool(ascending),
+		TableName:        aws.String(table),
+		KeyConditions:    condition,
+		ScanIndexForward: aws.Bool(ascending),
 	}
 
 	result, err := svc.Query(queryInput)
@@ -296,12 +287,10 @@ func QueryMultipleNoProjection(table string, condition Condition, ascending bool
 		for len(lek) > 0 {
 			// Build the query input parameters
 			queryInput = &dynamodb.QueryInput{
-				TableName:                 aws.String(table),
-				KeyConditions:             condition,
-				ExpressionAttributeNames:  expr.Names(),
-				ExclusiveStartKey:         lek,
-				ExpressionAttributeValues: expr.Values(),
-				ScanIndexForward:          aws.Bool(ascending),
+				TableName:         aws.String(table),
+				KeyConditions:     condition,
+				ExclusiveStartKey: lek,
+				ScanIndexForward:  aws.Bool(ascending),
 			}
 
 			// Make the DynamoDB Query API call

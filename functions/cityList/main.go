@@ -23,7 +23,6 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	response.Init()
 
 	// fetch all cities with minimal data
-
 	dbRes, err := dal.ListNoFilter("cities", dal.Projection(dal.Name("city_id"), dal.Name("name"), dal.Name("country"), dal.Name("timestamp")))
 	if err != nil {
 		fmt.Println(err)
