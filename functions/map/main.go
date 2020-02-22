@@ -73,7 +73,6 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	zoneData := make([]zoneResult, 0)
 	for _, z := range request.Zone {
 		fmt.Println("Fetching zone data for sensor: " + z)
-		// zoneRes, err := dal.List("zones", dal.Name("sensor_id").Equal(dal.Value(z)), dal.Projection(dal.Name("zone_id"), dal.Name("zone_name"), dal.Name("data")), true)
 
 		zoneRes, err := dal.GetFromIndex("zones", "sensor_id-index", dal.Condition{
 			"sensor_id": {
