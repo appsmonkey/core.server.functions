@@ -57,10 +57,11 @@ func (i *IncrementInput) Data() map[string]*dal.AttributeValue {
 	if len(i.Timestamp) > 0 {
 		keyMap[":ts"] = &dal.AttributeValue{N: aws.String(i.Timestamp)}
 	}
-
 	if len(i.City) > 0 {
 		keyMap[":ci"] = &dal.AttributeValue{S: aws.String(i.City)}
 	}
+
+	keyMap[":ks"] = &dal.AttributeValue{S: aws.String("true")}
 
 	return keyMap
 }
@@ -80,6 +81,8 @@ func (i *IncrementInput) Expression() string {
 	if len(i.City) > 0 {
 		expr += ",city = :ci"
 	}
+
+	expr += ",take = :ks"
 
 	expr += " ADD"
 	length := len(i.Columns)
