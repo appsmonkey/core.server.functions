@@ -63,7 +63,7 @@ func ChartHourInput(from interface{}) []ChartHourData {
 					},
 				},
 			},
-			"times_tamp": {
+			"time_stamp": {
 				ComparisonOperator: aws.String("GT"),
 				AttributeValueList: []*dal.AttributeValue{
 					{
@@ -103,7 +103,7 @@ func ChartInput(from interface{}, table string) []ChartHourData {
 					},
 				},
 			},
-			"times_tamp": {
+			"time_stamp": {
 				ComparisonOperator: aws.String("GT"),
 				AttributeValueList: []*dal.AttributeValue{
 					{
