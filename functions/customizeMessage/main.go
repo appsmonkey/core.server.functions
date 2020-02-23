@@ -11,8 +11,6 @@ import (
 func Handler(event events.CognitoEventUserPoolsCustomMessage) (events.CognitoEventUserPoolsCustomMessage, error) {
 	userSub := event.Request.UserAttributes["sub"]
 
-	fmt.Println("USER SUB ::: ", userSub)
-
 	if event.TriggerSource == "CustomMessage_SignUp" {
 		event.Response.EmailSubject = "Welcome to CityOS, please click the following link to verify your email"
 		event.Response.EmailMessage = "Please click the link below to verify your email address."

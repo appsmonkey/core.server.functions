@@ -246,7 +246,6 @@ func fillDataMultiOffline(data []map[string]float64, heartbeat int) []map[string
 	diff := float64(time.Now().Unix()) - latest
 
 	if diff > interval {
-		fmt.Println("DIF :::", diff)
 		// device is int artif. online mode, add data
 		for i := diff; i > interval; i -= interval {
 			dataToFill := make(map[string]float64, 0)

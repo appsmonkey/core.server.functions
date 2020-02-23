@@ -50,7 +50,6 @@ func GetFrom(from int64, city string) (result vm.DeviceGetData) {
 	result.ActiveCount = 0
 	result.City = city
 
-	fmt.Println("From time ::: ", from)
 	// res, err := dal.ListNoProjection("live", dal.Name("timestamp").GreaterThanEqual(dal.Value(from)), true)
 	res, err := dal.GetFromIndex("live", "city-timestamp-index",
 		dal.Condition{
@@ -99,8 +98,6 @@ func GetFrom(from int64, city string) (result vm.DeviceGetData) {
 			distinctData = append(distinctData, v)
 		}
 	}
-	fmt.Println("Filtered key list ::: ", keyList)
-	fmt.Println("DISTINCT DATA :::", distinctData)
 
 	data := make(map[string][]float64, 0)
 	for _, v := range distinctData {

@@ -116,7 +116,6 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	}
 
 	data := make([]vm.DeviceGetData, 0)
-	fmt.Println("ZONE DATA ::: ", zoneMap)
 	for _, tz := range zoneMap {
 		var hasDevice = false
 		data := make(map[string]float64, 0)
@@ -134,7 +133,6 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 				continue
 			}
 
-			// fmt.Println("ZONE ID ::: ", tz.ZoneID, "DEVICE ZONE ID ::: ", d.ZoneID, d.DeviceID)
 			if tz.ZoneID == d.ZoneID {
 				hasDevice = true
 
@@ -151,7 +149,6 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 					}
 				}
 
-				// fmt.Println("MapMeta:::", d.MapMeta)
 				for rk, rv := range data {
 					val := rv / datak[rk]
 

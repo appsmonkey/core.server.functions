@@ -42,7 +42,6 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		}
 	}
 
-	fmt.Println("Fetch User ::: ", request.UserName, request.CognitoID)
 	res, err := dal.Get("users", map[string]*dal.AttributeValue{
 		"cognito_id": {
 			S: aws.String(request.CognitoID),
@@ -60,7 +59,6 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	user := new(m.User)
 	res.Unmarshal(&user)
 
-	fmt.Println("USER :::", user)
 	if user.Attributes["cognito:user_status"] != "CONFIRMED" {
 		fmt.Println("User not confirmed, verification failed.")
 		response.AddError(&es.Error{Message: err.Error(), Data: "User not confirmed, verification failed or not attempted."})
@@ -83,7 +81,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		fmt.Println("Default response ::: ", ua.OS.Name.String(), ua.OS.Platform.String(), ua.DeviceType.String(), ua.Browser.Name.String())
 
 		route := "complete-registration"
-		fmt.Println("TYPE ::: ", request.Type)
+
 		if request.Type == "verify" {
 			route = "complete-registration"
 		} else if request.Type == "pwreset" {

@@ -146,8 +146,6 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		}
 	}
 
-	fmt.Println("D ::: ", d)
-
 	for k, v := range d {
 		rd := make(map[string]float64, 0)
 		rd["date"] = k

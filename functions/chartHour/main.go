@@ -34,8 +34,6 @@ func (h *Hour) Save(last *int64) {
 		data["value"] = h.Value
 	}
 
-	// fmt.Println("DATA :::", h.Date, h.Sensor, h.Value, h.Token)
-	// fmt.Println("DATA :::", data)
 	if data["date"] != 0 {
 		err := access.SaveHourChart(table, &data)
 		errString := ""
