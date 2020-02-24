@@ -224,6 +224,11 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		}
 	}
 
+	// sensors from city charts that will be included
+	request.SensorAll = append(request.SensorAll, "AIR_PM1_CITY")
+	request.SensorAll = append(request.SensorAll, "AIR_PM10_CITY")
+	request.SensorAll = append(request.SensorAll, "AIR_PM2P5_CITY")
+
 	for _, v := range dbData {
 		rd := make(map[string]float64, 0)
 		for _, s := range request.SensorAll {
