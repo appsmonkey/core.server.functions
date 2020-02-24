@@ -151,10 +151,11 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
 	}
 
+	fmt.Println("DEVICE CITY ::: ", device)
 	// fetch city chart data for comparison
 	projBuilder = dal.Projection(dal.Name("timestamp"), names...)
 	// res, err := dal.List("chart_all_minute", dal.Name("timestamp").GreaterThanEqual(dal.Value(request.From)), projBuilder, true)
-	res, err = dal.QueryMultiple("chart_all_minute",
+	resCity, err := dal.QueryMultiple("chart_all_minute",
 		dal.Condition{
 			"token": {
 				ComparisonOperator: aws.String("EQ"),
@@ -182,7 +183,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 
 	var dbDataForFilter []map[string]interface{}
 	var dbDataCity []map[string]float64
-	err = res.Unmarshal(&dbDataForFilter)
+	err = resCity.Unmarshal(&dbDataForFilter)
 	if err != nil {
 		response.AddError(&es.Error{Message: err.Error(), Data: "could not unmarshal data from the DB"})
 		fmt.Printf("errors on request: %v, requestID: %v", response.Errors, response.RequestID)
