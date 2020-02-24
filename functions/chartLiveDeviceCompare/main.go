@@ -203,26 +203,18 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	}
 
 	// // append city data to response
-	// for _, v := range dbData {
-	// 	date := v["timestamp"]
-	// 	_, ok := d[date]
-	// 	if !ok {
-	// 		d[date] = make(map[string][]float64, 0)
-	// 	}
-	// 	for _, s := range request.SensorAll {
-	// 		_, ok := d[date][s]
-	// 		if !ok {
-	// 			d[date][s] = make([]float64, 0)
-	// 		}
+	for _, v := range dbDataCity {
+		date := v["timestamp"]
 
-	// 		_, ok = v[s]
-	// 		if !ok {
-	// 			continue
-	// 		}
+		for _, vi := range dbData {
+			if vi["timestamp"]-date < 60 && vi["timestamp"]-date > 0 {
+				vi["AIR_PM1_CITY"] = v["AIR_PM1"]
+				vi["AIR_PM10_CITY"] = v["AIR_PM10"]
+				vi["AIR_PM2P5_CITY"] = v["AIR_PM2P5"]
+			}
 
-	// 		d[date][s] = append(d[date][s], v[s])
-	// 	}
-	// }
+		}
+	}
 
 	for _, v := range dbData {
 		rd := make(map[string]float64, 0)
