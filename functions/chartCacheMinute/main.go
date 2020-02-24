@@ -33,7 +33,7 @@ func Handler(ctx context.Context, req interface{}) error {
 		fmt.Println("Unmarshaling error ::: ", err)
 	}
 
-	n := len(cities)
+	// n := len(cities)
 	// sem := make(chan empty, n) // Using semaphore for efficiency
 
 	// for _, key := range cities {
