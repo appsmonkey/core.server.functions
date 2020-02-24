@@ -408,7 +408,7 @@ chartHourDeviceCompare:
 	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o chartHourDeviceCompare functions/chartHourDeviceCompare/main.go
 	mkdir -p bin
 	$(package_lambda) bin/chartHourDeviceCompare.zip chartHourDeviceCompare
-	rm chartLiveDeviceCompare
+	rm chartHourDeviceCompare
 
 chartLiveDeviceCompare:
 	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o chartLiveDeviceCompare functions/chartLiveDeviceCompare/main.go
