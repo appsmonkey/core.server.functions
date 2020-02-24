@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"math"
 	"math/rand"
-	"strings"
 	"time"
 
 	"github.com/appsmonkey/core.server.functions/dal"
@@ -28,52 +27,54 @@ type resultDataMulti struct {
 
 // Handler will handle our request comming from the API gateway
 func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-	request := new(vm.ChartHourDeviceRequest)
+	request := new(vm.ChartLiveDeviceRequest)
 	response := request.Validate(req.QueryStringParameters)
 	if response.Code != 0 {
 		fmt.Printf("errors on request: %v, requestID: %v", response.Errors, response.RequestID)
+
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 400, Headers: response.Headers()}, nil
 	}
 
-	var dbData []map[string]interface{}
+	names := make([]dal.NameBuilder, 0)
 	for _, s := range request.SensorAll {
-		res, err := dal.QueryMultiple("chart_device_day",
-			dal.Condition{
-				"hash": {
-					ComparisonOperator: aws.String("EQ"),
-					AttributeValueList: []*dal.AttributeValue{
-						{
-							S: aws.String(fmt.Sprintf("%v<->%v", request.Token, s)),
-						},
-					},
-				},
-				"date": {
-					ComparisonOperator: aws.String("GT"),
-					AttributeValueList: []*dal.AttributeValue{
-						{
-							N: aws.String(request.From),
-						},
+		names = append(names, dal.Name(s))
+	}
+
+	projBuilder := dal.Projection(dal.Name("timestamp"), names...)
+	res, err := dal.QueryMultiple("live",
+		dal.Condition{
+			"token": {
+				ComparisonOperator: aws.String("EQ"),
+				AttributeValueList: []*dal.AttributeValue{
+					{
+						S: aws.String(request.Token),
 					},
 				},
 			},
-			dal.Projection(dal.Name("hash"), dal.Name("date"), dal.Name("value")),
-			true, true)
+			"timestamp": {
+				ComparisonOperator: aws.String("GT"),
+				AttributeValueList: []*dal.AttributeValue{
+					{
+						N: aws.String(request.From),
+					},
+				},
+			},
+		},
+		projBuilder,
+		true, true)
 
-		if err != nil {
-			response.AddError(&es.Error{Message: err.Error(), Data: "could not unmarshal data from the DB"})
-			fmt.Printf("errors on request: %v, requestID: %v", response.Errors, response.RequestID)
-			return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
-		}
+	if err != nil {
+		response.AddError(&es.Error{Message: err.Error(), Data: "could not unmarshal data from the DB"})
+		fmt.Printf("errors on request: %v, requestID: %v", response.Errors, response.RequestID)
+		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
+	}
 
-		var tmpData []map[string]interface{}
-		err = res.Unmarshal(&tmpData)
-		if err != nil {
-			response.AddError(&es.Error{Message: err.Error(), Data: "could not unmarshal data from the DB"})
-			fmt.Printf("errors on request: %v, requestID: %v", response.Errors, response.RequestID)
-			return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
-		}
-
-		dbData = append(dbData, tmpData...)
+	var dbData []map[string]float64
+	err = res.Unmarshal(&dbData)
+	if err != nil {
+		response.AddError(&es.Error{Message: err.Error(), Data: "could not unmarshal data from the DB"})
+		fmt.Printf("errors on request: %v, requestID: %v", response.Errors, response.RequestID)
+		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
 	}
 
 	type schemaData struct {
@@ -98,18 +99,23 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	if err != nil {
 		fmt.Println("Error unmarshaling schema ::. ", err)
 		response.AddError(&es.Error{Message: err.Error(), Data: "could not unmarshal data from the DB"})
-		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
+		fmt.Printf("errors on request: %v, requestID: %v", response.Errors, response.RequestID)
 	}
 
 	if len(request.SensorAll) <= 1 {
 		result := make([]*resultData, 0)
 		for _, v := range dbData {
-			val := v["value"].(float64)
+			val, ok := v[request.Sensor]
+
+			if !ok {
+				continue
+			}
+
 			if request.Sensor != "BATTERY_VOLTAGE" {
 				val = math.Round(val)
 			}
 			result = append(result, &resultData{
-				Date:  v["date"].(float64),
+				Date:  v["timestamp"],
 				Value: val,
 			})
 		}
@@ -117,149 +123,103 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		result = qsort(result)
 		result = fillDataOffline(result, schema.Heartbeat)
 		result = qsort(result)
+		// result = smooth(result)
 		response.Data = result
-
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 200, Headers: response.Headers()}, nil
 	}
 
 	resultChart := make([]map[string]float64, 0)
 	maxValues := make(map[string]float64, 0)
-	d := make(map[float64]map[string][]float64, 0)
 
 	// fetch device for which we need to include city avg
-	res, err := dal.Get("devices", map[string]*dal.AttributeValue{
+	deviceRes, err := dal.Get("devices", map[string]*dal.AttributeValue{
 		"token": {
 			S: aws.String(request.Token),
 		},
 	})
 	if err != nil {
-		fmt.Println("Error fetching device")
+		response.AddError(&es.Error{Message: err.Error(), Data: "falied to fetch device from DB"})
+		fmt.Printf("errors on request: %v, requestID: %v", response.Errors, response.RequestID)
+		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
 	}
 
 	device := m.Device{}
-	err = res.Unmarshal(&device)
+	err = deviceRes.Unmarshal(&device)
 	if err != nil {
-		fmt.Println("Error unmarshaling device")
+		response.AddError(&es.Error{Message: err.Error(), Data: "could not unmarshal data from the DB"})
+		fmt.Printf("errors on request: %v, requestID: %v", response.Errors, response.RequestID)
+		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
 	}
 
-	// include city average pm10,pm2p5 and pm2p5 into response
-	dbRawData := make(map[string][]map[string]float64, 0)
-	for _, sid := range request.SensorAll {
-		res, err := dal.QueryMultiple("chart_day",
-			dal.Condition{
-				"sensor": {
-					ComparisonOperator: aws.String("EQ"),
-					AttributeValueList: []*dal.AttributeValue{
-						{
-							S: aws.String(sid),
-						},
-					},
-				},
-				"date": {
-					ComparisonOperator: aws.String("GT"),
-					AttributeValueList: []*dal.AttributeValue{
-						{
-							N: aws.String(request.From),
-						},
+	// fetch city chart data for comparison 
+	projBuilder = dal.Projection(dal.Name("timestamp"), names...)
+	// res, err := dal.List("chart_all_minute", dal.Name("timestamp").GreaterThanEqual(dal.Value(request.From)), projBuilder, true)
+	res, err = dal.QueryMultiple("chart_all_minute",
+		dal.Condition{
+			"token": {
+				ComparisonOperator: aws.String("EQ"),
+				AttributeValueList: []*dal.AttributeValue{
+					{
+						S: aws.String(request.City),
 					},
 				},
 			},
-			dal.Projection(dal.Name("date"), dal.Name("value"), dal.Name("city")),
-			true, true)
+			"timestamp": {
+				ComparisonOperator: aws.String("GT"),
+				AttributeValueList: []*dal.AttributeValue{
+					{
+						N: aws.String(fmt.Sprintf("%v", request.From)),
+					},
+				},
+			},
+		}, projBuilder, true, true)
 
-		if err != nil {
-			response.AddError(&es.Error{Message: err.Error(), Data: "could not unmarshal data from the DB"})
-			fmt.Printf("errors on request: %v, requestID: %v", response.Errors, response.RequestID)
-			return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
-		}
-
-		var dbUnfiltered []map[string]interface{}
-		var dbData []map[string]float64
-
-		err = res.Unmarshal(&dbUnfiltered)
-
-		for _, v := range dbUnfiltered {
-			if v["city"] == device.City {
-				ta := make(map[string]float64)
-				ta["date"] = v["date"].(float64)
-				ta["value"] = v["value"].(float64)
-				dbData = append(dbData, ta)
-			}
-		}
-
-		if err != nil {
-			response.AddError(&es.Error{Message: err.Error(), Data: "could not unmarshal data from the DB"})
-			fmt.Printf("errors on request: %v, requestID: %v", response.Errors, response.RequestID)
-			return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
-		}
-
-		dbRawData[sid] = dbData
+	if err != nil {
+		response.AddError(&es.Error{Message: err.Error(), Data: "could not unmarshal data from the DB"})
+		fmt.Printf("errors on request: %v, requestID: %v", response.Errors, response.RequestID)
+		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
 	}
 
-	// sensors from city charts that will be included
-	request.SensorAll = append(request.SensorAll, "AIR_PM1_CITY")
-	request.SensorAll = append(request.SensorAll, "AIR_PM10_CITY")
-	request.SensorAll = append(request.SensorAll, "AIR_PM2P5_CITY")
+	var dbDataForFilter []map[string]interface{}
+	var dbData []map[string]float64
+	err = res.Unmarshal(&dbDataForFilter)
+	if err != nil {
+		response.AddError(&es.Error{Message: err.Error(), Data: "could not unmarshal data from the DB"})
+		fmt.Printf("errors on request: %v, requestID: %v", response.Errors, response.RequestID)
+		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
+	}
 
-	// append fetch city avg. data to response with alias e.g. AIR_PM1 -> AIR_PM1_CITY
-	for sid, sd := range dbRawData {
-		for _, v := range sd {
-			date := v["date"]
-			val := v["value"]
-			_, ok := d[date]
-			if !ok {
-				d[date] = make(map[string][]float64, 0)
+	for _, v := range dbDataForFilter {
+		if v["token"] == request.City && (v["indoor"] == false || v["indoor"] == "false") {
+			r := make(map[string]float64, 0)
+			for ka, va := range v {
+				if ka != "indoor" && ka != "token" && ka != "ttl" && ka != "timestamp_sort" {
+					r[ka] = va.(float64)
+				}
 			}
 
-			d[date][sid+"_CITY"] = append(d[date][sid+"_CITY"], val)
+			dbData = append(dbData, r)
 		}
-	}
 
 	for _, v := range dbData {
-		date := v["date"].(float64)
-		_, ok := d[date]
-		if !ok {
-			d[date] = make(map[string][]float64, 0)
-		}
-
+		rd := make(map[string]float64, 0)
 		for _, s := range request.SensorAll {
-			splitHash := strings.Split(v["hash"].(string), "<->")
-			if len(splitHash) > 1 && splitHash[1] == s {
-
-				d[date][splitHash[1]] = make([]float64, 0)
-				d[date][s] = append(d[date][s], v["value"].(float64))
+			_, ok := v[s]
+			if !ok {
+				continue
+			}
+			rd["date"] = v["timestamp"]
+			if s == "BATTERY_VOLTRAGE" {
+				rd[s] = v[s]
+			} else {
+				rd[s] = math.Round(v[s])
 			}
 
-		}
-	}
-
-	for k, v := range d {
-		rd := make(map[string]float64, 0)
-		rd["date"] = k
-		for _, s := range request.SensorAll {
-			values := v[s]
-			if len(values) > 0 {
-				var av float64
-				for _, sv := range values {
-					av += sv
-				}
-
-				if av == 0 {
-					rd[s] = 0
-				} else {
-					if s == "BATTERY_VOLTAGE" {
-						rd[s] = av / float64(len(values))
-					} else {
-						rd[s] = math.Round(av / float64(len(values)))
-					}
-				}
-
-				mv, okmv := maxValues[s]
-				if rd[s] > mv {
-					maxValues[s] = rd[s]
-				} else if !okmv {
-					maxValues[s] = 0
-				}
+			mv, okmv := maxValues[s]
+			if rd[s] > mv {
+				maxValues[s] = rd[s]
+			} else if !okmv {
+				maxValues[s] = 0
 			}
 		}
 
@@ -273,7 +233,74 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	// resultChart = smoothMulti(resultChart)
 
 	response.Data = resultDataMulti{Chart: resultChart, Max: maxValues}
+
 	return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 200, Headers: response.Headers()}, nil
+}
+
+// fills device offline periods for single sensor
+func fillDataOffline(data []*resultData, heartbeat int) []*resultData {
+	// if no data return
+	if len(data) < 1 {
+		return data
+	}
+
+	var interval float64 = 60
+	var onlineTime float64 = 60 * 2 * float64(heartbeat)
+	latest := data[0].Date
+	diff := float64(time.Now().Unix()) - latest
+
+	if diff > interval {
+		// device is int artif. online mode, add data
+		for i := diff; i > interval; i -= interval {
+			dataToFill := *data[0]
+			dataToFill.Date = dataToFill.Date + interval
+
+			// stop filling after online period is exceeded
+			if dataToFill.Date >= latest+onlineTime {
+				break
+			}
+
+			// prepend data
+			data = append([]*resultData{&dataToFill}, data...)
+		}
+	}
+
+	if len(data) > 2 {
+		// data point difference in sec
+		for k := 0; k < len(data)-1; k++ {
+			diff := data[k].Date - data[k+1].Date
+
+			if diff > interval {
+				timesToAdd := int(diff) / int(interval)
+				maxTimesToAdd := int(onlineTime) / int(interval)
+
+				// if exceeds onlineTime fill only max online time
+				if timesToAdd > maxTimesToAdd {
+					fmt.Println("MAX TIMES TO ADD EXCEEDED, SETTING")
+					timesToAdd = maxTimesToAdd
+				}
+
+				fmt.Println("TIMES TO ADD", timesToAdd, maxTimesToAdd)
+				for j := 1; j <= timesToAdd; j++ {
+					dataToFill := *data[k+1]
+					dataToFill.Date = dataToFill.Date + (interval * float64(j))
+
+					if dataToFill.Date-data[k+1].Date < interval {
+						continue
+					}
+
+					if data[k].Date-dataToFill.Date < interval {
+						continue
+					}
+
+					// insert data on the needed index
+					data = append(data[:k], append([]*resultData{&dataToFill}, data[k:]...)...)
+					k++
+				}
+			}
+		}
+	}
+	return data
 }
 
 // fills device offline periods for multiple sensors
@@ -283,7 +310,7 @@ func fillDataMultiOffline(data []map[string]float64, heartbeat int) []map[string
 		return data
 	}
 
-	var interval float64 = 60 * 30
+	var interval float64 = 60
 	var onlineTime float64 = 60 * 2 * float64(heartbeat) // heartbeat is stated in minutes
 	latest := data[0]["date"]
 	diff := float64(time.Now().Unix()) - latest
@@ -334,67 +361,6 @@ func fillDataMultiOffline(data []map[string]float64, heartbeat int) []map[string
 
 					// insert data on the needed index
 					data = append(data[:k], append([]map[string]float64{dataToFill}, data[k:]...)...)
-					k++
-				}
-			}
-		}
-	}
-	return data
-}
-
-// fills device offline periods for single sensor
-func fillDataOffline(data []*resultData, heartbeat int) []*resultData {
-	// if no data return
-	if len(data) < 1 {
-		return data
-	}
-
-	var interval float64 = 60 * 30
-	var onlineTime float64 = 60 * 2 * float64(heartbeat) // heartbeat is stated in minutes
-	latest := data[0].Date
-	diff := float64(time.Now().Unix()) - latest
-
-	if diff > interval {
-		// device is int artif. online mode, add data
-		for i := diff; i > interval; i -= interval {
-			dataToFill := *data[0]
-			dataToFill.Date = dataToFill.Date + interval
-
-			// stop filling after online period is exceeded
-			if dataToFill.Date >= latest+onlineTime {
-				break
-			}
-
-			// prepend data
-			data = append([]*resultData{&dataToFill}, data...)
-		}
-	}
-
-	if len(data) > 2 {
-		// data point difference in sec
-		for k := 0; k < len(data)-1; k++ {
-			diff := data[k].Date - data[k+1].Date
-
-			if diff > interval {
-				timesToAdd := int(diff) / int(interval)
-				maxTimesToAdd := int(onlineTime) / int(interval)
-
-				// if exceeds onlineTime fill only max online time
-				if timesToAdd > maxTimesToAdd {
-					timesToAdd = maxTimesToAdd
-				}
-
-				fmt.Println("TIMES TO ADD", timesToAdd, maxTimesToAdd)
-				for j := 1; j <= timesToAdd; j++ {
-					dataToFill := *data[k+1]
-					dataToFill.Date = dataToFill.Date + (interval * float64(j))
-
-					if data[k].Date-dataToFill.Date < interval {
-						continue
-					}
-
-					// insert data on the needed index
-					data = append(data[:k], append([]*resultData{&dataToFill}, data[k:]...)...)
 					k++
 				}
 			}
@@ -494,4 +460,321 @@ func qsort(a []*resultData) []*resultData {
 
 func main() {
 	lambda.Start(Handler)
+}
+
+func smooth(in []*resultData) []*resultData {
+	result := make([]*resultData, 0)
+	lenIN := len(in)
+
+	for i := 0; i < lenIN; i++ {
+		result = append(result, in[i])
+
+		j := i + 1
+		if j == lenIN {
+			break
+		}
+
+		iDate := time.Unix(int64(in[i].Date), 0)
+		jDate := time.Unix(int64(in[j].Date), 0)
+		iValue := in[i].Value
+		jValue := in[j].Value
+
+		res := smoothPoints(iDate, jDate, iValue, jValue)
+		for _, dp := range res {
+			result = append(result, dp)
+		}
+	}
+
+	return result
+}
+
+func smoothPoints(it, jt time.Time, iv, jv float64) []*resultData {
+	year, month, day, hour, min, _ := diff(it, jt)
+	minutes := float64(year*525600 + month*43800 + day*1440 + hour*60 + min)
+	res := make([]*resultData, 0)
+
+	// for large differences we can just add a simple curve
+	i := 0
+	if year > 0 || month > 0 || day > 0 {
+		mod := float64(10)
+		v := iv
+		t := it
+		for {
+			i++
+			// Get the time for the new data point (substract 10%)
+			m := time.Duration(minutes / mod)
+			t = t.Add(time.Minute * m * -1)
+
+			// Get the value for the new data point (substract 10%) of the difference between the two points
+			if iv > jv {
+				v -= (iv - jv) / mod
+			} else if iv < jv {
+				v += (jv - iv) / mod
+			}
+
+			// if we overshot, stop
+			if t.Before(jt) {
+				break
+			}
+
+			res = append(res, &resultData{
+				Date:  float64(t.Unix()),
+				Value: v,
+			})
+		}
+
+		return res
+	}
+
+	if hour > 0 {
+		mod := float64(5)
+		v := iv
+		t := it
+		for {
+			i++
+			// Get the time for the new data point (substract 10%)
+			m := time.Duration(minutes / mod)
+			t = t.Add(time.Minute * m * -1)
+
+			// Get the value for the new data point (substract 10%) of the difference between the two points
+			if iv > jv {
+				v -= (iv - jv) / mod
+			} else if iv < jv {
+				v += (jv - iv) / mod
+			}
+
+			// if we overshot, stop
+			if t.Before(jt) {
+				break
+			}
+
+			res = append(res, &resultData{
+				Date:  float64(t.Unix()),
+				Value: v,
+			})
+		}
+
+		return res
+	}
+
+	// if we have three minutes missing, just do nothing
+	if min <= 3 {
+		return res
+	}
+
+	// we have a minutes chart so we need to figure out the amount of data point
+	// to put between the two existing points
+	// we base it on the minimum value jump in our dataset
+	if min > 3 {
+		mod := float64(min)
+		v := iv
+		t := it
+		for {
+			i++
+			// Get the time for the new data point (substract 10%)
+			m := time.Duration(minutes / mod)
+			t = t.Add(time.Minute * m * -1)
+
+			// Get the value for the new data point (substract 10%) of the difference between the two points
+			if iv > jv {
+				v -= (iv - jv) / mod
+			} else if iv < jv {
+				v += (jv - iv) / mod
+			}
+
+			// if we overshot, stop
+			if t.Before(jt) {
+				break
+			}
+
+			res = append(res, &resultData{
+				Date:  float64(t.Unix()),
+				Value: v,
+			})
+		}
+
+		return res
+	}
+
+	return res
+}
+
+func diff(a, b time.Time) (year, month, day, hour, min, sec int) {
+	if a.Location() != b.Location() {
+		b = b.In(a.Location())
+	}
+	if a.After(b) {
+		a, b = b, a
+	}
+	y1, M1, d1 := a.Date()
+	y2, M2, d2 := b.Date()
+
+	h1, m1, s1 := a.Clock()
+	h2, m2, s2 := b.Clock()
+
+	year = int(y2 - y1)
+	month = int(M2 - M1)
+	day = int(d2 - d1)
+	hour = int(h2 - h1)
+	min = int(m2 - m1)
+	sec = int(s2 - s1)
+
+	// Normalize negative values
+	if sec < 0 {
+		sec += 60
+		min--
+	}
+	if min < 0 {
+		min += 60
+		hour--
+	}
+	if hour < 0 {
+		hour += 24
+		day--
+	}
+	if day < 0 {
+		// days in month:
+		t := time.Date(y1, M1, 32, 0, 0, 0, 0, time.UTC)
+		day += 32 - t.Day()
+		month--
+	}
+	if month < 0 {
+		month += 12
+		year--
+	}
+
+	return
+}
+
+func smoothMulti(in []map[string]float64) []map[string]float64 {
+	result := make([]map[string]float64, 0)
+	lenIN := len(in)
+
+	for i := 0; i < lenIN; i++ {
+		result = append(result, in[i])
+
+		j := i + 1
+		if j == lenIN {
+			break
+		}
+
+		iDate := time.Unix(int64(in[i]["date"]), 0)
+		jDate := time.Unix(int64(in[j]["date"]), 0)
+		iValue := in[i]["value"]
+		jValue := in[j]["value"]
+
+		res := smoothPointsMulti(iDate, jDate, iValue, jValue)
+		for _, dp := range res {
+			result = append(result, dp)
+		}
+	}
+
+	return result
+}
+
+func smoothPointsMulti(it, jt time.Time, iv, jv float64) []map[string]float64 {
+	year, month, day, hour, min, _ := diff(it, jt)
+	minutes := float64(year*525600 + month*43800 + day*1440 + hour*60 + min)
+	res := make([]map[string]float64, 0)
+
+	// for large differences we can just add a simple curve
+	if year > 0 || month > 0 || day > 0 {
+		mod := float64(10)
+		v := iv
+		t := it
+		for {
+			// Get the time for the new data point (substract 10%)
+			m := time.Duration(minutes / mod)
+			t = t.Add(time.Minute * m * -1)
+
+			// Get the value for the new data point (substract 10%) of the difference between the two points
+			if iv > jv {
+				v -= (iv - jv) / mod
+			} else if iv < jv {
+				v += (jv - iv) / mod
+			}
+
+			// if we overshot, stop
+			if t.Before(jt) {
+				break
+			}
+
+			res = append(res, map[string]float64{
+				"date":  float64(t.Unix()),
+				"value": v,
+			})
+		}
+
+		return res
+	}
+
+	if hour > 0 {
+		mod := float64(5)
+		v := iv
+		t := it
+		for {
+			// Get the time for the new data point (substract 10%)
+			m := time.Duration(minutes / mod)
+			t = t.Add(time.Minute * m * -1)
+
+			// Get the value for the new data point (substract 10%) of the difference between the two points
+			if iv > jv {
+				v -= (iv - jv) / mod
+			} else if iv < jv {
+				v += (jv - iv) / mod
+			}
+
+			// if we overshot, stop
+			if t.Before(jt) {
+				break
+			}
+
+			res = append(res, map[string]float64{
+				"date":  float64(t.Unix()),
+				"value": v,
+			})
+		}
+
+		return res
+	}
+
+	// if we have three minutes missing, just do nothing
+	if min <= 3 {
+		return res
+	}
+
+	// we have a minutes chart so we need to figure out the amount of data point
+	// to put between the two existing points
+	// we base it on the minimum value jump in our dataset
+	if min > 3 {
+		mod := float64(min)
+		v := iv
+		t := it
+		for {
+			// Get the time for the new data point (substract 10%)
+			m := time.Duration(minutes / mod)
+			t = t.Add(time.Minute * m * -1)
+
+			// Get the value for the new data point (substract 10%) of the difference between the two points
+			if iv > jv {
+				v -= (iv - jv) / mod
+			} else if iv < jv {
+				v += (jv - iv) / mod
+			}
+
+			// if we overshot, stop
+			if t.Before(jt) {
+				break
+			}
+
+			res = append(res, map[string]float64{
+				"date":  float64(t.Unix()),
+				"value": v,
+			})
+		}
+
+		return res
+	}
+
+	return res
 }
