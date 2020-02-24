@@ -1105,9 +1105,38 @@ Resources:
       CodeUri: 'bin/langBundle.zip'
       Handler: 'langBundle'
       Role: !GetAtt LambdaRole.Arn
+  
+  chartMonthDeviceCompare:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: 'bin/chartMonthDeviceCompare.zip'
+      Handler: 'chartMonthDeviceCompare'
+      Role: !GetAtt LambdaRole.Arn
 
-  # test:
-  #   Type: 'AWS::Serverless::Function'
-  #   Properties:
-  #     CodeUri: 'bin/test.zip'
-  #     Handler: 'test'
+  chartSixDeviceCompare:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: 'bin/chartSixDeviceCompare.zip'
+      Handler: 'chartSixDeviceCompare'
+      Role: !GetAtt LambdaRole.Arn
+
+  chartDayDeviceCompare:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: 'bin/chartDayDeviceCompare.zip'
+      Handler: 'chartDayDeviceCompare'
+      Role: !GetAtt LambdaRole.Arn
+
+  chartHourDeviceCompare:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: 'bin/chartHourDeviceCompare.zip'
+      Handler: 'chartHourDeviceCompare'
+      Role: !GetAtt LambdaRole.Arn
+
+  chartLiveDeviceCompare:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: 'bin/chartLiveDeviceCompare.zip'
+      Handler: 'chartLiveDeviceCompare'
+      Role: !GetAtt LambdaRole.Arn
