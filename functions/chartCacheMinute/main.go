@@ -34,7 +34,7 @@ func Handler(ctx context.Context, req interface{}) error {
 	}
 
 	n := len(cities)
-	sem := make(chan empty, n) // Using semaphore for efficiency
+	// sem := make(chan empty, n) // Using semaphore for efficiency
 
 	// for _, key := range cities {
 	// 	go func(key m.City) {
@@ -86,9 +86,9 @@ func Handler(ctx context.Context, req interface{}) error {
 	}
 
 	// wait for goroutines to finish
-	for i := 0; i < n; i++ {
-		<-sem
-	}
+	// for i := 0; i < n; i++ {
+	// 	<-sem
+	// }
 
 	return nil
 }
