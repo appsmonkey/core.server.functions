@@ -153,6 +153,13 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 
 	fmt.Println("DEVICE CITY ::: ", device)
 	// fetch city chart data for comparison
+	names = make([]dal.NameBuilder, 0)
+	for _, s := range request.SensorAll {
+		names = append(names, dal.Name(s))
+	}
+	names = append(names, dal.Name("indoor"))
+	names = append(names, dal.Name("token"))
+
 	projBuilder = dal.Projection(dal.Name("timestamp"), names...)
 	// res, err := dal.List("chart_all_minute", dal.Name("timestamp").GreaterThanEqual(dal.Value(request.From)), projBuilder, true)
 	resCity, err := dal.QueryMultiple("chart_all_minute",
