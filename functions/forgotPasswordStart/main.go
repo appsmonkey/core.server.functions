@@ -68,7 +68,7 @@ func Handler(ctx context.Context, req events.APIGatewayProxyRequest) (events.API
 
 	err = cog.ForgotPasswordStart(request.Email)
 	if err != nil {
-		errData := es.ErrCouldNotResetPasswordForUser
+		errData := es.ErrCouldNotFindUser
 		errData.Data = err.Error()
 		response.Errors = append(response.Errors, errData)
 

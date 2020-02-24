@@ -166,3 +166,6 @@ var ErrSocialUserAlreadyExists = Error{Code: 1050, Message: "This email is alrea
 
 // ErrProfileMissingEmail [cannot get user's profile. Missing email]
 var ErrProfileMissingEmail = Error{Code: 1051, Message: "profile error [missing email]"}
+
+// ErrCouldNotFindUser [User not found Error]
+var ErrCouldNotFindUser = Error{Code: 1052, Message: "Could not find user with this email"}
