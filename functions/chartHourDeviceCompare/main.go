@@ -37,7 +37,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 
 	var dbData []map[string]interface{}
 	for _, s := range request.SensorAll {
-		res, err := dal.QueryMultiple("chart_device_day",
+		res, err := dal.QueryMultiple("chart_device_hour",
 			dal.Condition{
 				"hash": {
 					ComparisonOperator: aws.String("EQ"),
@@ -133,19 +133,23 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		},
 	})
 	if err != nil {
-		fmt.Println("Error fetching device")
+		response.AddError(&es.Error{Message: err.Error(), Data: "falied to fetch device from DB"})
+		fmt.Printf("errors on request: %v, requestID: %v", response.Errors, response.RequestID)
+		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
 	}
 
 	device := m.Device{}
 	err = res.Unmarshal(&device)
 	if err != nil {
-		fmt.Println("Error unmarshaling device")
+		response.AddError(&es.Error{Message: err.Error(), Data: "could not unmarshal data from the DB"})
+		fmt.Printf("errors on request: %v, requestID: %v", response.Errors, response.RequestID)
+		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
 	}
 
 	// include city average pm10,pm2p5 and pm2p5 into response
 	dbRawData := make(map[string][]map[string]float64, 0)
 	for _, sid := range request.SensorAll {
-		res, err := dal.QueryMultiple("chart_day",
+		res, err := dal.QueryMultiple("chart_hour",
 			dal.Condition{
 				"sensor": {
 					ComparisonOperator: aws.String("EQ"),
