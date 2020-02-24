@@ -149,6 +149,10 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	// include city average pm10,pm2p5 and pm2p5 into response
 	dbRawData := make(map[string][]map[string]float64, 0)
 	for _, sid := range request.SensorAll {
+		if sid != "AIR_PM10" && sid != "AIR_PM1" && sid != "AIR_PM2P5" {
+			continue
+		}
+
 		res, err := dal.QueryMultiple("chart_day",
 			dal.Condition{
 				"sensor": {

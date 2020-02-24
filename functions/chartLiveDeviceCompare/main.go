@@ -151,7 +151,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
 	}
 
-	// fetch city chart data for comparison 
+	// fetch city chart data for comparison
 	projBuilder = dal.Projection(dal.Name("timestamp"), names...)
 	// res, err := dal.List("chart_all_minute", dal.Name("timestamp").GreaterThanEqual(dal.Value(request.From)), projBuilder, true)
 	res, err = dal.QueryMultiple("chart_all_minute",
@@ -160,7 +160,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 				ComparisonOperator: aws.String("EQ"),
 				AttributeValueList: []*dal.AttributeValue{
 					{
-						S: aws.String(request.City),
+						S: aws.String(device.City),
 					},
 				},
 			},
@@ -181,7 +181,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	}
 
 	var dbDataForFilter []map[string]interface{}
-	var dbData []map[string]float64
+	var dbDataCity []map[string]float64
 	err = res.Unmarshal(&dbDataForFilter)
 	if err != nil {
 		response.AddError(&es.Error{Message: err.Error(), Data: "could not unmarshal data from the DB"})
@@ -190,7 +190,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	}
 
 	for _, v := range dbDataForFilter {
-		if v["token"] == request.City && (v["indoor"] == false || v["indoor"] == "false") {
+		if v["token"] == device.City && (v["indoor"] == false || v["indoor"] == "false") {
 			r := make(map[string]float64, 0)
 			for ka, va := range v {
 				if ka != "indoor" && ka != "token" && ka != "ttl" && ka != "timestamp_sort" {
@@ -198,8 +198,31 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 				}
 			}
 
-			dbData = append(dbData, r)
+			dbDataCity = append(dbDataCity, r)
 		}
+	}
+
+	// // append city data to response
+	// for _, v := range dbData {
+	// 	date := v["timestamp"]
+	// 	_, ok := d[date]
+	// 	if !ok {
+	// 		d[date] = make(map[string][]float64, 0)
+	// 	}
+	// 	for _, s := range request.SensorAll {
+	// 		_, ok := d[date][s]
+	// 		if !ok {
+	// 			d[date][s] = make([]float64, 0)
+	// 		}
+
+	// 		_, ok = v[s]
+	// 		if !ok {
+	// 			continue
+	// 		}
+
+	// 		d[date][s] = append(d[date][s], v[s])
+	// 	}
+	// }
 
 	for _, v := range dbData {
 		rd := make(map[string]float64, 0)
