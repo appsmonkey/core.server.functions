@@ -211,13 +211,10 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	}
 
 	// append city data to response
-	fmt.Println("LEN OF CITY AVG DATA", len(dbDataCity))
 	for _, v := range dbDataCity {
 		date := v["timestamp"]
 		for _, vi := range dbData {
-			fmt.Println("DIFF :::", date-vi["timestamp"])
-			if date-vi["timestamp"] > 0 && vi["timestamp"]-date <= 60 {
-				fmt.Println("SETTING AVG DATA")
+			if date-vi["timestamp"] > 0 && date-vi["timestamp"] <= 60 {
 				vi["AIR_PM1_CITY"] = v["AIR_PM1"]
 				vi["AIR_PM10_CITY"] = v["AIR_PM10"]
 				vi["AIR_PM2P5_CITY"] = v["AIR_PM2P5"]
