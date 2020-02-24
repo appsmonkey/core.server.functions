@@ -215,6 +215,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		date := v["timestamp"]
 		for _, vi := range dbData {
 			if date-vi["timestamp"] > 0 && date-vi["timestamp"] <= 60 {
+				fmt.Println("SET AVG DATA")
 				vi["AIR_PM1_CITY"] = v["AIR_PM1"]
 				vi["AIR_PM10_CITY"] = v["AIR_PM10"]
 				vi["AIR_PM2P5_CITY"] = v["AIR_PM2P5"]
