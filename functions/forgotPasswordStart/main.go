@@ -74,7 +74,7 @@ func Handler(ctx context.Context, req events.APIGatewayProxyRequest) (events.API
 
 		fmt.Printf("errors on request: %v, requestID: %v", response.Errors, response.RequestID)
 
-		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
+		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 403, Headers: response.Headers()}, nil
 	}
 
 	response.Data = true
