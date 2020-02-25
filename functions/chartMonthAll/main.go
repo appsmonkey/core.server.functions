@@ -136,7 +136,6 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 				} else {
 					rd[s] = math.Round(sd)
 				}
-				rd[s] = sd
 				mv, okmv := maxValues[s]
 				if sd > mv {
 					maxValues[s] = sd
