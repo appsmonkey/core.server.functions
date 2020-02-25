@@ -82,7 +82,6 @@ func GetFrom(from int64, city string) (result vm.DeviceGetData) {
 		fmt.Println("could not unmarshal data from the DB")
 		return
 	}
-	fmt.Println("City ::: ", city, dbData, "DB DATA")
 
 	// sort data by timestamp
 	dbData = Qsort(dbData)
@@ -197,6 +196,8 @@ func Get(city string) (result vm.DeviceGetData) {
 	if len(result.Latest) == 0 {
 		result = GetFrom(time.Now().Add(-time.Hour*4).Unix(), city)
 	}
+
+	fmt.Println("CITY RESULTS ::: ", result, city)
 
 	if len(result.Latest) == 0 {
 		result = GetFrom(time.Now().Add(-time.Hour*12).Unix(), city)

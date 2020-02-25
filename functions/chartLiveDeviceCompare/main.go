@@ -151,7 +151,6 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
 	}
 
-	fmt.Println("DEVICE CITY ::: ", device)
 	// fetch city chart data for comparison
 	names = make([]dal.NameBuilder, 0)
 	for _, s := range request.SensorAll {
