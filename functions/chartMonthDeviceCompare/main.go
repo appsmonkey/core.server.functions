@@ -416,7 +416,19 @@ func fillDataMulti(data []map[string]float64, sensors []string) []map[string]flo
 
 	for k, v := range data {
 		if k == len(data)-1 {
-			continue
+			for _, vs := range sensors {
+				_, ok := v[vs]
+
+				if !ok {
+					for i := k - 1; 0 <= i; i-- {
+						val, ok := data[i][vs]
+						if ok {
+							v[vs] = val
+							break
+						}
+					}
+				}
+			}
 		}
 
 		for _, vs := range sensors {
