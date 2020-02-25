@@ -2,12 +2,14 @@ package defaultDevice
 
 import (
 	"encoding/json"
+	"fmt"
 
 	"github.com/appsmonkey/core.server.functions/dal/access"
 	vm "github.com/appsmonkey/core.server.functions/viewmodels"
 )
 
 func saveState(data *vm.DeviceGetData) {
+	fmt.Println("Saving state for ::: ", data)
 	state, _ := json.Marshal(data)
 	access.SaveState("avg_"+data.City, "last_state", string(state))
 }
