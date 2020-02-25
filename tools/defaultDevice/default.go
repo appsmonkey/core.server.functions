@@ -82,7 +82,7 @@ func GetFrom(from int64, city string) (result vm.DeviceGetData) {
 		fmt.Println("could not unmarshal data from the DB")
 		return
 	}
-	fmt.Println(dbData, "DB DATA")
+	fmt.Println("City ::: ", city, dbData, "DB DATA")
 
 	// sort data by timestamp
 	dbData = Qsort(dbData)
@@ -205,7 +205,7 @@ func Get(city string) (result vm.DeviceGetData) {
 	// Since we did not get any data, get the last successfull state
 	if len(result.Latest) == 0 {
 		fmt.Println("We didn't get any data, calling get state.")
-		result = getState()
+		result = getState(city)
 	} else {
 		// We have data, update the state
 		saveState(&result)

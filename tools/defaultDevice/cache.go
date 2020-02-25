@@ -9,11 +9,11 @@ import (
 
 func saveState(data *vm.DeviceGetData) {
 	state, _ := json.Marshal(data)
-	access.SaveState("avg", "last_state", string(state))
+	access.SaveState("avg_"+data.City, "last_state", string(state))
 }
 
-func getState() vm.DeviceGetData {
-	state, ok := access.State("avg", "last_state").(string)
+func getState(city string) vm.DeviceGetData {
+	state, ok := access.State("avg_"+city, "last_state").(string)
 
 	if !ok || len(state) == 0 {
 		return vm.DeviceGetData{}
