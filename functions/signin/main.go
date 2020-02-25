@@ -110,7 +110,7 @@ func Handler(ctx context.Context, req events.APIGatewayProxyRequest) (events.API
 			response.Errors = append(response.Errors, errData)
 
 			fmt.Printf("errors on request: %v, requestID: %v", response.Errors, response.RequestID)
-			return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 401, Headers: response.Headers()}, nil
+			return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 403, Headers: response.Headers()}, nil
 		}
 
 		errData := es.ErrRegistrationSignInError
