@@ -1,7 +1,9 @@
 package helper
 
 import (
+	"fmt"
 	"math/rand"
+	"strings"
 )
 
 // CognitoIDZeroValue is the zero value for a Cognito ID
@@ -37,4 +39,29 @@ func GetLang(lang string) string {
 	default:
 		return "https://cityos-universal-links.s3.amazonaws.com/lang/BA-lng.txt"
 	}
+}
+
+// TransformCityString replaces some unwanted chars with altrenatives
+func TransformCityString(s string) string {
+	fmt.Printf("Original: %s\n", s)
+	cs := strings.Map(normalize, s)
+	fmt.Printf("Cleaned: %s\n", cs)
+
+	return cs
+}
+
+func normalize(in rune) rune {
+	switch in {
+	case 'ć':
+		return 'c'
+	case 'č':
+		return 'c'
+	case 'ž':
+		return 'z'
+	case 'š':
+		return 's'
+	case 'đ':
+		return 'd'
+	}
+	return in
 }

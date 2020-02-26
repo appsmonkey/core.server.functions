@@ -7,6 +7,7 @@ import (
 
 	es "github.com/appsmonkey/core.server.functions/errorStatuses"
 	m "github.com/appsmonkey/core.server.functions/models"
+	h "github.com/appsmonkey/core.server.functions/tools/helper"
 )
 
 // DeviceUpdateMetaRequest is the request from the client
@@ -51,6 +52,8 @@ func (r *DeviceUpdateMetaRequest) Validate(body string) *DeviceUpdateMetaRespons
 		response.Errors = append(response.Errors, es.ErrMissingThingCity)
 		response.Code = es.StatusAddDeviceError
 	}
+
+	r.City = h.TransformCityString(r.City)
 
 	return response
 }
