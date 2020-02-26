@@ -22,6 +22,7 @@ type resultData struct {
 type resultDataMulti struct {
 	Chart []map[string]float64 `json:"chart"`
 	Max   map[string]float64   `json:"max"`
+	Min   map[string]float64   `json:"min"`
 }
 
 // Handler will handle our request comming from the API gateway
@@ -122,6 +123,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	sort.Float64s(resultRawIndex)
 	sort.Sort(sort.Reverse(sort.Float64Slice(resultRawIndex)))
 	maxValues := make(map[string]float64, 0)
+	minValues := make(map[string]float64, 0)
 
 	for _, ri := range resultRawIndex {
 		d := resultRaw[ri]
@@ -136,11 +138,19 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 				} else {
 					rd[s] = math.Round(sd)
 				}
+
 				mv, okmv := maxValues[s]
 				if sd > mv {
 					maxValues[s] = sd
 				} else if !okmv {
 					maxValues[s] = 0
+				}
+
+				miv, okmiv := minValues[s]
+				if sd < miv {
+					minValues[s] = sd
+				} else if !okmiv {
+					minValues[s] = sd
 				}
 			} else {
 				// rd[s] = 0
@@ -152,7 +162,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	}
 
 	result = fillDataMulti(result, request.SensorAll)
-	response.Data = resultDataMulti{Chart: result, Max: maxValues}
+	response.Data = resultDataMulti{Chart: result, Max: maxValues, Min: minValues}
 	return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 200, Headers: response.Headers()}, nil
 }
 
