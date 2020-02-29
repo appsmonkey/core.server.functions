@@ -89,6 +89,8 @@ func MapCity(in string) string {
 		return "Sarajevo"
 	case "Kanton Sarajevo":
 		return "Sarajevo"
+	case "Canton Sarajevo":
+		return "Sarajevo"
 	}
 
 	return in
