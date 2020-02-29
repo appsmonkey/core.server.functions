@@ -85,6 +85,8 @@ func MapCity(in string) string {
 		return "Sarajevo"
 	case "Trnovo":
 		return "Sarajevo"
+	case "Luzani":
+		return "Sarajevo"
 	}
 
 	return in
