@@ -65,3 +65,27 @@ func normalize(in rune) rune {
 	}
 	return in
 }
+
+// MapCity maps city param from clients to match out needs
+func MapCity(in string) string {
+	fmt.Printf("Original: %s\n", in)
+
+	switch in {
+	case "Novo Sarajevo":
+		return "Sarajevo"
+	case "Vogosca":
+		return "Sarajevo"
+	case "Ilidza":
+		return "Sarajevo"
+	case "Novi Grad":
+		return "Sarajevo"
+	case "Hadzici":
+		return "Sarajevo"
+	case "Ilijas":
+		return "Sarajevo"
+	case "Trnovo":
+		return "Sarajevo"
+	}
+
+	return in
+}
