@@ -65,7 +65,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 
 	// We can add manually or we can check with lat lon
 	if len(request.City) > 0 {
-		device.City = h.MapCity(h.TransformCityString(request.City))
+		device.City = h.TransformCityString(request.City
 	} else {
 		device.City = "Sarajevo" // default value is Sarajevo
 	}
@@ -73,7 +73,9 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	// If coordinates are set, then find the zone it belongs to
 	if !device.Meta.Coordinates.IsEmpty() {
 		if zone := z.ZoneByPoint(&z.Point{Lat: device.Meta.Coordinates.Lat, Lng: device.Meta.Coordinates.Lng}); zone != nil {
-			device.ZoneID = device.City + "@" + zone.Title
+			device.ZoneID = "Sarajevo" + "@" + zone.Title
+			device.City = "Sarajevo"
+			// device.ZoneID = device.City + "@" + zone.Title
 		}
 	}
 
