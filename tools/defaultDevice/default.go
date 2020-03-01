@@ -100,7 +100,7 @@ func GetFrom(from int64, city string) (result vm.DeviceGetData) {
 
 	data := make(map[string][]float64, 0)
 	for _, v := range distinctData {
-		if v["indoor"] == true || v["indoor"] == "true" || v["city"] != city {
+		if v["indoor"] == true || v["indoor"] == "true" || v["city"] != city || v["active"] == false {
 			continue
 		}
 
