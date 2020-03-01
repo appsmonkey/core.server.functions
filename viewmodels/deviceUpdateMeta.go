@@ -53,7 +53,7 @@ func (r *DeviceUpdateMetaRequest) Validate(body string) *DeviceUpdateMetaRespons
 		response.Code = es.StatusAddDeviceError
 	}
 
-	r.City = h.TransformCityString(r.City)
+	r.City = h.MapCity(h.TransformCityString(r.City))
 
 	return response
 }

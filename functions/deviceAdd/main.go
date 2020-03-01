@@ -65,7 +65,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 
 	// We can add manually or we can check with lat lon
 	if len(request.City) > 0 {
-		device.City = h.TransformCityString(request.City
+		device.City = h.MapCity(h.TransformCityString(request.City))
 	} else {
 		device.City = "Sarajevo" // default value is Sarajevo
 	}
@@ -76,6 +76,9 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 			device.ZoneID = "Sarajevo" + "@" + zone.Title
 			device.City = "Sarajevo"
 			// device.ZoneID = device.City + "@" + zone.Title
+		} else {
+			device.City = "Unknown"
+			device.ZoneID = "none"
 		}
 	}
 

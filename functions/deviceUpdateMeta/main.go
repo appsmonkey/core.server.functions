@@ -89,6 +89,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	// If coordinates are set, then find the zone it belongs to
 	if !request.Coordinates.IsEmpty() {
 		zone := z.ZoneByPoint(&z.Point{Lat: request.Coordinates.Lat, Lng: request.Coordinates.Lng})
+		fmt.Println("ZONE NOT FOUND", zone)
 		if zone != nil {
 			device.ZoneID = "Sarajevo" + "@" + zone.Title
 			// device.ZoneID = device.City + "@" + zone.Title
@@ -97,6 +98,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 			device.Meta.Coordinates = request.Coordinates
 		} else {
 			device.Meta.Coordinates = request.Coordinates
+			device.City = "Unknown"
 			device.ZoneID = "none"
 		}
 	}
