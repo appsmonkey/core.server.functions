@@ -105,7 +105,10 @@ func GetFrom(from int64, city string) (result vm.DeviceGetData) {
 		}
 
 		// double check indoor for selected devices
-		checkDeviceIndoor(v["token"].(string))
+		indoor := checkDeviceIndoor(v["token"].(string))
+		if indoor {
+			continue
+		}
 
 		fmt.Println(v["token"])
 
