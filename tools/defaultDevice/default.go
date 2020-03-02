@@ -104,6 +104,9 @@ func GetFrom(from int64, city string) (result vm.DeviceGetData) {
 			continue
 		}
 
+		// double check indoor for selected devices
+		checkDeviceIndoor(v["token"].(string))
+
 		fmt.Println(v["token"])
 
 		result.ActiveCount++
@@ -215,4 +218,23 @@ func Get(city string) (result vm.DeviceGetData) {
 	}
 
 	return
+}
+
+func checkDeviceIndoor(token string) bool {
+	res, err := dal.Get("devices", map[string]*dal.AttributeValue{
+		"token": {
+			S: aws.String(token),
+		},
+	})
+	if err != nil {
+		fmt.Println("Error fetching device")
+	}
+
+	model := m.Device{}
+	err = res.Unmarshal(&model)
+	if err != nil {
+		fmt.Println("Error unmarshaling device")
+	}
+
+	return model.Meta.Indoor
 }
