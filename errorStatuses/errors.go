@@ -169,3 +169,6 @@ var ErrProfileMissingEmail = Error{Code: 1051, Message: "profile error [missing 
 
 // ErrCouldNotFindUser [User not found Error]
 var ErrCouldNotFindUser = Error{Code: 1052, Message: "Could not find user with this email"}
+
+// ErrLoginSocialExistsError signin error [cannot singin user. cognito signin error]
+var ErrLoginSocialExistsError = Error{Code: 1053, Message: "This email is already linked with a different social media type."}

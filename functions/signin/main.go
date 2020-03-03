@@ -42,8 +42,8 @@ func Handler(ctx context.Context, req events.APIGatewayProxyRequest) (events.API
 		if request.Social.Type == "G" {
 			data, err := cog.Google(request.Social.ID, request.Social.Token, request.Email, httpClient)
 			if err != nil {
-				errData := es.ErrRegistrationSignInError
-				errData.Data = err.Error() + ". Try another login method"
+				errData := es.ErrLoginSocialExistsError
+				errData.Data = "LoginUsernameExistsException: Sign in failed, username already exists. Try another login method"
 				response.Errors = append(response.Errors, errData)
 
 				return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 403, Headers: response.Headers()}, nil
@@ -54,8 +54,8 @@ func Handler(ctx context.Context, req events.APIGatewayProxyRequest) (events.API
 		} else if request.Social.Type == "FB" {
 			data, err := cog.Facebook(request.Social.ID, request.Social.Token, request.Email)
 			if err != nil {
-				errData := es.ErrRegistrationSignInError
-				errData.Data = err.Error() + ". Try another login method"
+				errData := es.ErrLoginSocialExistsError
+				errData.Data = "LoginUsernameExistsException: Sign in failed, username already exists. Try another login method"
 				response.Errors = append(response.Errors, errData)
 
 				return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 403, Headers: response.Headers()}, nil
