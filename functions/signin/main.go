@@ -43,7 +43,7 @@ func Handler(ctx context.Context, req events.APIGatewayProxyRequest) (events.API
 			data, err := cog.Google(request.Social.ID, request.Social.Token, request.Email, httpClient)
 			if err != nil {
 				errData := es.ErrRegistrationSignInError
-				errData.Data = err.Error()
+				errData.Data = err.Error() + ". Try another login method"
 				response.Errors = append(response.Errors, errData)
 
 				return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 403, Headers: response.Headers()}, nil
@@ -55,7 +55,7 @@ func Handler(ctx context.Context, req events.APIGatewayProxyRequest) (events.API
 			data, err := cog.Facebook(request.Social.ID, request.Social.Token, request.Email)
 			if err != nil {
 				errData := es.ErrRegistrationSignInError
-				errData.Data = err.Error()
+				errData.Data = err.Error() + ". Try another login method"
 				response.Errors = append(response.Errors, errData)
 
 				return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 403, Headers: response.Headers()}, nil
