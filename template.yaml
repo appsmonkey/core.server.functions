@@ -6,7 +6,7 @@ Description: >
 Parameters:
   APIGatewayAllowOrigin:
     Type: String
-    Default: https://dev.cityos.io
+    Default: https://air.cityos.io
 
   CityOSGlobalACMCert:
     Type: String

@@ -91,7 +91,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 			return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 200, Headers: headers}, nil
 		}
 
-		headers["Location"] = "https://dev.cityos.io/" + route + "?username=" + user.Email + "&token=" + user.Token + "&id=" + user.CognitoID + "&status=" + user.Attributes["cognito:user_status"]
+		headers["Location"] = "https://air.cityos.io/" + route + "?username=" + user.Email + "&token=" + user.Token + "&id=" + user.CognitoID + "&status=" + user.Attributes["cognito:user_status"]
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 303, Headers: headers}, nil
 	}
 }
