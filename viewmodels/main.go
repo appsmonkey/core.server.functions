@@ -20,7 +20,7 @@ var regx = struct {
 	Email    *regexp.Regexp
 }{
 	Password: regexp.MustCompile(`^\S{8,20}$`),
-	Email:    regexp.MustCompile(`^[a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$`),
+	Email:    regexp.MustCompile(`^[a-zA-Z0-9._%-+]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$`),
 }
 
 // ValidateEmail will check if email match to regexp
