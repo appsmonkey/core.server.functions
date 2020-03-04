@@ -65,4 +65,11 @@ If you are running app in local environment, you need:
     AWS_SECRET_ACCESS_KEY=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 ```
 
+## Project postman documentation
+[![Go to Postman API Documentation](https://run.pstmn.io/button.svg)](https://documenter.getpostman.com/view/5704418/SzRuYBqS?version=latest)
+
+## Built With
+
+- [go](https://golang.org/) - Go is an open source programming language that makes it easy to build simple, reliable, and efficient software.
+
 ## Install aws cli
