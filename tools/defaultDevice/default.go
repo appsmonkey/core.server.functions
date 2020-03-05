@@ -51,6 +51,7 @@ func GetFrom(from int64, city string) (result vm.DeviceGetData) {
 	result.City = city
 
 	// res, err := dal.ListNoProjection("live", dal.Name("timestamp").GreaterThanEqual(dal.Value(from)), true)
+	fmt.Println("BEFORE DEFAULT QUERY")
 	res, err := dal.GetFromIndex("live", "city-timestamp-index",
 		dal.Condition{
 			"city": {
@@ -70,6 +71,7 @@ func GetFrom(from int64, city string) (result vm.DeviceGetData) {
 				},
 			},
 		})
+	fmt.Println("AFTER DEFAULT QUERY")
 
 	if err != nil {
 		fmt.Println("could not retirieve data")

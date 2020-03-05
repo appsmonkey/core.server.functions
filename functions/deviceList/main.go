@@ -136,9 +136,11 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 
 	rd := make([]*vm.DeviceGetData, 0)
 
+	fmt.Println("BEFORE DEFAULT DEVICE")
 	// Add the default device on the top
 	dd := defaultDevice.Get(City)
 	rd = append(rd, &dd)
+	fmt.Println("AFTER DEFAULT DEVICE")
 
 	for _, d := range dbData {
 		owner := ""
