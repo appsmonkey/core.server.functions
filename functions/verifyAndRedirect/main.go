@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"net/url"
 	"strings"
 
 	"github.com/appsmonkey/core.server.functions/dal"
@@ -31,7 +32,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 
 	if request.Type == "verify" {
 		// create verification URL
-		verificationURL := "https://cityos.auth.us-east-1.amazoncognito.com/confirmUser?client_id=" + request.ClientID + "&user_name=" + request.UserName + "&response_type=code" + "&confirmation_code=" + request.ConfirmationCode
+		verificationURL := "https://cityos.auth.us-east-1.amazoncognito.com/confirmUser?client_id=" + request.ClientID + "&user_name=" + url.QueryEscape(request.UserName) + "&response_type=code" + "&confirmation_code=" + request.ConfirmationCode
 		fmt.Println("Verification URL:", verificationURL)
 
 		_, err := http.Get(verificationURL)
