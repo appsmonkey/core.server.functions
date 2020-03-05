@@ -134,7 +134,9 @@ func GetFrom(from int64, city string) (result vm.DeviceGetData) {
 		for ki, vi := range v {
 			_, ok := toIgnore[ki]
 			if !ok {
-
+				if ki == "AIR_CO2" {
+					fmt.Println("CO2 READING", v["token"])
+				}
 				data[ki] = append(data[ki], vi.(float64))
 			}
 		}
