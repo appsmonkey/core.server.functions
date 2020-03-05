@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"net/url"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
@@ -17,7 +18,7 @@ func Handler(event events.CognitoEventUserPoolsCustomMessage) (events.CognitoEve
 		event.Response.EmailMessage += "<br/>"
 		event.Response.EmailMessage += "<br/>"
 		link := "https://links.cityos.io/auth/validate?client_id=" + event.CallerContext.ClientID
-		link += "&user_name=" + event.UserName
+		link += "&user_name=" + url.QueryEscape(event.UserName)
 		link += "&confirmation_code=" + event.Request.CodeParameter
 		link += "&type=verify&cog_id=" + userSub.(string)
 		event.Response.EmailMessage += fmt.Sprintf(`<a href="%s">Verify email</a>`, link)
@@ -29,7 +30,7 @@ func Handler(event events.CognitoEventUserPoolsCustomMessage) (events.CognitoEve
 		event.Response.EmailMessage += "<br/>"
 		event.Response.EmailMessage += "<br/>"
 		link := "https://links.cityos.io/auth/validate?client_id=" + event.CallerContext.ClientID
-		link += "&user_name=" + event.UserName
+		link += "&user_name=" + url.QueryEscape(event.UserName)
 		link += "&confirmation_code=" + event.Request.CodeParameter
 		link += "&type=pwreset&cog_id=" + userSub.(string)
 		event.Response.EmailMessage += fmt.Sprintf(`<a href="%s">Reset password</a>`, link)

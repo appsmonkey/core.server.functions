@@ -61,7 +61,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 
 	if user.Attributes["cognito:user_status"] != "CONFIRMED" {
 		fmt.Println("User not confirmed, verification failed.")
-		response.AddError(&es.Error{Message: err.Error(), Data: "User not confirmed, verification failed or not attempted."})
+		response.AddError(&es.Error{Message: "User not verified", Data: "User not confirmed, verification failed or not attempted."})
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 403, Headers: response.Headers()}, nil
 	}
 
