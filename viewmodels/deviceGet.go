@@ -58,6 +58,8 @@ type DeviceGetDataMinimal struct {
 	Name          string `json:"name"`
 	Active        bool   `json:"active"`
 	Model         string `json:"model"`
+	Mine          bool   `json:"mine"`
+	Owner         string `json:"owner"`
 	Indoor        bool   `json:"indoor"`
 	DefaultDevice bool   `json:"default_device"`
 }
