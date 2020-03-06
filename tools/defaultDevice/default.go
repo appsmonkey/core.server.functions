@@ -52,7 +52,7 @@ func GetFrom(from int64, city string) (result vm.DeviceGetData) {
 
 	// res, err := dal.ListNoProjection("live", dal.Name("timestamp").GreaterThanEqual(dal.Value(from)), true)
 	fmt.Println("BEFORE DEFAULT QUERY")
-	res, err := dal.GetFromIndex("live", "city-timestamp-index",
+	res, err := dal.GetFromIndexWithLimit("live", "city-timestamp-index",
 		dal.Condition{
 			"city": {
 				ComparisonOperator: aws.String("EQ"),

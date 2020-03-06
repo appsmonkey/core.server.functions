@@ -84,6 +84,7 @@ func ChartHourInput(from interface{}) []ChartHourData {
 		fmt.Println(err.Error())
 		return []ChartHourData{}
 	}
+	fmt.Println("db data count", len(data))
 
 	return data
 }
@@ -120,6 +121,8 @@ func ChartInput(from interface{}, table string) []ChartHourData {
 
 	var data []ChartHourData
 	err = res.Unmarshal(&data)
+	fmt.Println("db data count", len(data))
+
 	if err != nil {
 		fmt.Println(err.Error())
 		return []ChartHourData{}

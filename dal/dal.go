@@ -193,6 +193,26 @@ func GetFromIndex(table, index string, condition Condition) (*QueryResult, error
 	return &QueryResult{items: result}, err
 }
 
+// GetFromIndexWithLimit data from the table (Single Item)
+func GetFromIndexWithLimit(table, index string, condition Condition) (*QueryResult, error) {
+	// Perform the query
+	var queryInput = &dynamodb.QueryInput{
+		TableName:     aws.String(table),
+		IndexName:     aws.String(index),
+		KeyConditions: condition,
+		Limit:         aws.Int64(1000),
+	}
+
+	result, err := svc.Query(queryInput)
+	if err != nil {
+		fmt.Print("GetFromIndex API call failed: ")
+		fmt.Println(err.Error())
+		return nil, err
+	}
+
+	return &QueryResult{items: result}, err
+}
+
 // QueryMultiple data from the table
 func QueryMultiple(table string, condition Condition, projection ProjectionBuilder, ascending bool, fullScan bool) (*QueryResult, error) {
 	expr, err := expression.NewBuilder().WithProjection(projection).Build()
