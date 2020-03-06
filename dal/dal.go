@@ -200,17 +200,47 @@ func GetFromIndexWithLimit(table, index string, condition Condition) (*QueryResu
 		TableName:     aws.String(table),
 		IndexName:     aws.String(index),
 		KeyConditions: condition,
-		Limit:         aws.Int64(1000),
 	}
 
 	result, err := svc.Query(queryInput)
 	if err != nil {
-		fmt.Print("GetFromIndex API call failed: ")
+		fmt.Print("GetFromIndexWithLimit API call failed: ")
 		fmt.Println(err.Error())
 		return nil, err
 	}
 
-	return &QueryResult{items: result}, err
+	scanRes := &QueryResult{items: result}
+
+	lek := result.LastEvaluatedKey
+	if len(lek) > 0 {
+		// use lek to do full scan of the table
+
+		for len(lek) > 0 {
+			// Build the query input parameters
+			queryInput = &dynamodb.QueryInput{
+				TableName:         aws.String(table),
+				KeyConditions:     condition,
+				ExclusiveStartKey: lek,
+			}
+
+			// Make the DynamoDB Query API call
+			result, err := svc.Query(queryInput)
+			if err != nil {
+				fmt.Print("QueryMultiple API call failed: ")
+				fmt.Println(err.Error())
+				return nil, err
+			}
+
+			lek = result.LastEvaluatedKey
+
+			// append scan outputs and return the whole thing
+			for _, v := range result.Items {
+				scanRes.items.Items = append(scanRes.items.Items, v)
+			}
+		}
+	}
+
+	return scanRes, err
 }
 
 // QueryMultiple data from the table
