@@ -85,6 +85,8 @@ func GetFrom(from int64, city string) (result vm.DeviceGetData) {
 		return
 	}
 
+	fmt.Println("RESULT COUNT :::: ", len(dbData))
+
 	// sort data by timestamp
 	dbData = Qsort(dbData)
 
