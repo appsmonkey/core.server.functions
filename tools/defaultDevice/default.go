@@ -109,10 +109,10 @@ func GetFrom(from int64, city string) (result vm.DeviceGetData) {
 		}
 
 		// double check indoor for selected devices
-		// indoor := checkDeviceIndoor(v["token"].(string))
-		// if indoor {
-		// 	continue
-		// }
+		indoor := checkDeviceIndoor(v["token"].(string))
+		if indoor {
+			continue
+		}
 
 		result.ActiveCount++
 
@@ -203,7 +203,7 @@ func Qsort(a []map[string]interface{}) []map[string]interface{} {
 
 // Get default device data
 func Get(city string) (result vm.DeviceGetData) {
-	result = GetFrom(time.Now().Add(-time.Hour*1).Unix(), city)
+	result = GetFrom(time.Now().Add(-time.Hour*2).Unix(), city)
 
 	if len(result.Latest) == 0 {
 		result = GetFrom(time.Now().Add(-time.Hour*4).Unix(), city)
