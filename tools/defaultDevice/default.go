@@ -109,8 +109,8 @@ func GetFrom(from int64, city string) (result vm.DeviceGetData) {
 		}
 
 		// double check indoor for selected devices
-		indoor := checkDeviceIndoor(v["token"].(string))
-		if indoor {
+		valid := validateDevice(v["token"].(string), city)
+		if !valid {
 			continue
 		}
 
@@ -227,7 +227,7 @@ func Get(city string) (result vm.DeviceGetData) {
 	return
 }
 
-func checkDeviceIndoor(token string) bool {
+func validateDevice(token string, city string) bool {
 	res, err := dal.Get("devices", map[string]*dal.AttributeValue{
 		"token": {
 			S: aws.String(token),
@@ -243,5 +243,9 @@ func checkDeviceIndoor(token string) bool {
 		fmt.Println("Error unmarshaling device")
 	}
 
-	return model.Meta.Indoor
+	if model.Meta.Indoor || model.City != city {
+		return false
+	}
+
+	return true
 }
