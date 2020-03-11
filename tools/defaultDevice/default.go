@@ -122,6 +122,8 @@ func GetFrom(from int64, city string) (result vm.DeviceGetData) {
 		}
 	}
 
+	fmt.Println("MEASUREMENTS DATA", measurementsData)
+
 	var dbData []map[string]interface{}
 	err = res.Unmarshal(&dbData)
 	if err != nil {
