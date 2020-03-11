@@ -51,7 +51,6 @@ func GetFrom(from int64, city string) (result vm.DeviceGetData) {
 	result.City = city
 
 	// res, err := dal.ListNoProjection("live", dal.Name("timestamp").GreaterThanEqual(dal.Value(from)), true)
-	fmt.Println("BEFORE DEFAULT QUERY")
 	res, err := dal.GetFromIndexWithLimit("live", "city-timestamp-index",
 		dal.Condition{
 			"city": {
@@ -71,11 +70,56 @@ func GetFrom(from int64, city string) (result vm.DeviceGetData) {
 				},
 			},
 		})
-	fmt.Println("AFTER DEFAULT QUERY")
 
 	if err != nil {
 		fmt.Println("could not retirieve data")
 		return
+	}
+
+	dbDevicesData := make([]m.Device, 0)
+	dRes, err := dal.ListNoProjection("devices", dal.Name("active").Equal(dal.Value(true)), true)
+
+	if err != nil {
+		fmt.Println("could not retirieve devices data")
+	}
+
+	err = dRes.Unmarshal(&dbDevicesData)
+	if err != nil {
+		fmt.Println("Could not unmarshal devices from db", err)
+	}
+
+	measurementsData := make(map[string][]float64, 0)
+	for _, v := range dbDevicesData {
+		// if indoor or diff. city skip
+		if v.Meta.Indoor || v.City != city {
+			continue
+		}
+
+		toIgnore := map[string]bool{
+			"timestamp":          true,
+			"WATER_LEVEL_SWITCH": true,
+			"SOIL_MOISTURE":      true,
+			"LIGHT_INTENSITY":    true,
+			"token":              true,
+			"BATTERY_VOLTAGE":    true,
+			"BATTERY_PERCENTAGE": true,
+			"MOTION":             true,
+			"DEVICE_TEMPERATURE": true,
+			"timestamp_sort":     true,
+			"ttl":                true,
+			"city":               true,
+			"cognito_id":         true,
+			"indoor":             true,
+			"zone_id":            true,
+			"SOIL_TEMPERATURE":   true,
+		}
+
+		for ki, vi := range v.Measurements {
+			_, ok := toIgnore[ki]
+			if !ok {
+				measurementsData[ki] = append(measurementsData[ki], vi.(float64))
+			}
+		}
 	}
 
 	var dbData []map[string]interface{}
