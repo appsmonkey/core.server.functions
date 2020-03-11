@@ -51,30 +51,30 @@ func GetFrom(from int64, city string) (result vm.DeviceGetData) {
 	result.City = city
 
 	// res, err := dal.ListNoProjection("live", dal.Name("timestamp").GreaterThanEqual(dal.Value(from)), true)
-	res, err := dal.GetFromIndexWithLimit("live", "city-timestamp-index",
-		dal.Condition{
-			"city": {
-				ComparisonOperator: aws.String("EQ"),
-				AttributeValueList: []*dal.AttributeValue{
-					{
-						S: aws.String(city),
-					},
-				},
-			},
-			"timestamp": {
-				ComparisonOperator: aws.String("GT"),
-				AttributeValueList: []*dal.AttributeValue{
-					{
-						N: aws.String(fmt.Sprintf("%v", from)),
-					},
-				},
-			},
-		})
+	// res, err := dal.GetFromIndexWithLimit("live", "city-timestamp-index",
+	// 	dal.Condition{
+	// 		"city": {
+	// 			ComparisonOperator: aws.String("EQ"),
+	// 			AttributeValueList: []*dal.AttributeValue{
+	// 				{
+	// 					S: aws.String(city),
+	// 				},
+	// 			},
+	// 		},
+	// 		"timestamp": {
+	// 			ComparisonOperator: aws.String("GT"),
+	// 			AttributeValueList: []*dal.AttributeValue{
+	// 				{
+	// 					N: aws.String(fmt.Sprintf("%v", from)),
+	// 				},
+	// 			},
+	// 		},
+	// 	})
 
-	if err != nil {
-		fmt.Println("could not retirieve data")
-		return
-	}
+	// if err != nil {
+	// 	fmt.Println("could not retirieve data")
+	// 	return
+	// }
 
 	dbDevicesData := make([]m.Device, 0)
 	dRes, err := dal.ListNoProjection("devices", dal.Name("active").Equal(dal.Value(true)), true)
@@ -95,6 +95,10 @@ func GetFrom(from int64, city string) (result vm.DeviceGetData) {
 			continue
 		}
 
+		// count of devices included in the city avg.
+		result.ActiveCount++
+
+		// sensors to be ignored for city avg.
 		toIgnore := map[string]bool{
 			"timestamp":          true,
 			"WATER_LEVEL_SWITCH": true,
@@ -122,77 +126,77 @@ func GetFrom(from int64, city string) (result vm.DeviceGetData) {
 		}
 	}
 
-	fmt.Println("MEASUREMENTS DATA", measurementsData)
+	// fmt.Println("MEASUREMENTS DATA", measurementsData)
 
-	var dbData []map[string]interface{}
-	err = res.Unmarshal(&dbData)
-	if err != nil {
-		fmt.Println("could not unmarshal data from the DB")
-		return
-	}
+	// var dbData []map[string]interface{}
+	// err = res.Unmarshal(&dbData)
+	// if err != nil {
+	// 	fmt.Println("could not unmarshal data from the DB")
+	// 	return
+	// }
 
-	fmt.Println("RESULT COUNT :::: ", len(dbData))
+	// fmt.Println("RESULT COUNT :::: ", len(dbData))
 
-	// sort data by timestamp
-	dbData = Qsort(dbData)
+	// // sort data by timestamp
+	// dbData = Qsort(dbData)
 
-	// make data distinc
-	var distinctData []map[string]interface{}
-	var keyList = make(map[string]bool)
-	for _, v := range dbData {
-		if _, ok := keyList[v["token"].(string)]; ok {
-			continue
-		} else {
-			keyList[v["token"].(string)] = true
-			distinctData = append(distinctData, v)
-		}
-	}
+	// // make data distinc
+	// var distinctData []map[string]interface{}
+	// var keyList = make(map[string]bool)
+	// for _, v := range dbData {
+	// 	if _, ok := keyList[v["token"].(string)]; ok {
+	// 		continue
+	// 	} else {
+	// 		keyList[v["token"].(string)] = true
+	// 		distinctData = append(distinctData, v)
+	// 	}
+	// }
 
-	data := make(map[string][]float64, 0)
-	for _, v := range distinctData {
-		if v["indoor"] == true || v["indoor"] == "true" || v["city"] != city {
-			continue
-		}
+	// data := make(map[string][]float64, 0)
+	// for _, v := range distinctData {
+	// 	if v["indoor"] == true || v["indoor"] == "true" || v["city"] != city {
+	// 		continue
+	// 	}
 
-		// double check indoor for selected devices
-		valid := validateDevice(v["token"].(string), city)
-		if !valid {
-			continue
-		}
+	// 	// double check indoor for selected devices
+	// 	valid := validateDevice(v["token"].(string), city)
+	// 	if !valid {
+	// 		continue
+	// 	}
 
-		result.ActiveCount++
+	// 	result.ActiveCount++
 
-		toIgnore := map[string]bool{
-			"timestamp":          true,
-			"WATER_LEVEL_SWITCH": true,
-			"SOIL_MOISTURE":      true,
-			"LIGHT_INTENSITY":    true,
-			"token":              true,
-			"BATTERY_VOLTAGE":    true,
-			"BATTERY_PERCENTAGE": true,
-			"MOTION":             true,
-			"DEVICE_TEMPERATURE": true,
-			"timestamp_sort":     true,
-			"ttl":                true,
-			"city":               true,
-			"cognito_id":         true,
-			"indoor":             true,
-			"zone_id":            true,
-			"SOIL_TEMPERATURE":   true,
-		}
+	// 	toIgnore := map[string]bool{
+	// 		"timestamp":          true,
+	// 		"WATER_LEVEL_SWITCH": true,
+	// 		"SOIL_MOISTURE":      true,
+	// 		"LIGHT_INTENSITY":    true,
+	// 		"token":              true,
+	// 		"BATTERY_VOLTAGE":    true,
+	// 		"BATTERY_PERCENTAGE": true,
+	// 		"MOTION":             true,
+	// 		"DEVICE_TEMPERATURE": true,
+	// 		"timestamp_sort":     true,
+	// 		"ttl":                true,
+	// 		"city":               true,
+	// 		"cognito_id":         true,
+	// 		"indoor":             true,
+	// 		"zone_id":            true,
+	// 		"SOIL_TEMPERATURE":   true,
+	// 	}
 
-		for ki, vi := range v {
-			_, ok := toIgnore[ki]
-			if !ok {
-				if ki == "AIR_CO2" {
-					fmt.Println("CO2 READING", v["token"])
-				}
-				data[ki] = append(data[ki], vi.(float64))
-			}
-		}
-	}
+	// 	for ki, vi := range v {
+	// 		_, ok := toIgnore[ki]
+	// 		if !ok {
+	// 			if ki == "AIR_CO2" {
+	// 				fmt.Println("CO2 READING", v["token"])
+	// 			}
+	// 			data[ki] = append(data[ki], vi.(float64))
+	// 		}
+	// 	}
+	// }
 
-	for k, v := range data {
+	for k, v := range measurementsData {
 		if len(v) > 0 {
 			var av float64
 			for _, sv := range v {
