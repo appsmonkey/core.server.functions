@@ -69,6 +69,8 @@ func main() {
 }
 
 func smaller(a *sensor, b *sensor) *sensor {
+	fmt.Println("PM2P5 LEVEL ::: ", s.LevelOrder(a.level))
+	fmt.Println("PM10 LEVEL :::", s.LevelOrder(b.level))
 	if s.LevelOrder(a.level) <= s.LevelOrder(b.level) {
 		return a
 	}

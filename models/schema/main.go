@@ -2,6 +2,7 @@ package schema
 
 import (
 	"encoding/json"
+	"fmt"
 	"math"
 )
 
@@ -131,6 +132,7 @@ func (s *CalcStep) IsMe(v float64) bool {
 
 // LevelOrder will return the weight of the level
 func LevelOrder(level string) int {
+	fmt.Println("LEVEL ORDER", levels)
 	lvl, ok := levels[level]
 	if !ok {
 		return -1
