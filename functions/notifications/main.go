@@ -47,19 +47,24 @@ func Handler() error {
 
 	pm25, pm25Sensor := schemaDefault.ExtractData("AIR_PM2P5")
 	pm10, pm10Sensor := schemaDefault.ExtractData("AIR_PM10")
+	AQIRange, AQIRngSensor := schemaDefault.ExtractData("AQI_RANGE")
 
-	fmt.Println(pm10, pm25)
+	fmt.Println("PM10 and PM2P5", pm10, pm25)
 
 	sens25 := sensor{name: pm25Sensor, display: "PM 2.5", value: data.Latest[pm25Sensor].(float64)}
 	sens10 := sensor{name: pm10Sensor, display: "PM 10", value: data.Latest[pm10Sensor].(float64)}
+	sensAqi := sensor{name: AQIRngSensor, display: "Air Quality Index", value: data.Latest[AQIRngSensor].(float64)}
 
 	sens25.level = pm25.Result(sens25.value)
 	sens10.level = pm10.Result(sens10.value)
 
-	small := smaller(&sens25, &sens10)
+	// small := smaller(&sens25, &sens10)
+	// fmt.Println("CHECK PRINT: ", small, small.Value())
+	// ua.New().Send(small.Value(), small.Channel())
 
-	fmt.Println("CHECK PRINT: ", small, small.Value())
-	ua.New().Send(small.Value(), small.Channel())
+	large := larger(&sens25, &sens10)
+	fmt.Println("CHECK PRINT: ", large, large.Value())
+	ua.New().Send(large.Value(), large.Channel())
 
 	return nil
 }
@@ -76,4 +81,14 @@ func smaller(a *sensor, b *sensor) *sensor {
 	}
 
 	return b
+}
+
+func larger(a *sensor, b *sensor) *sensor {
+	fmt.Println("PM2P5 LEVEL ::: ", s.LevelOrder(a.level))
+	fmt.Println("PM10 LEVEL :::", s.LevelOrder(b.level))
+	if s.LevelOrder(a.level) <= s.LevelOrder(b.level) {
+		return b
+	}
+
+	return a
 }
