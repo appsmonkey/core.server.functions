@@ -49,12 +49,13 @@ func Handler() error {
 	pm10, pm10Sensor := schemaDefault.ExtractData("AIR_PM10")
 	AQIRange, AQIRngSensor := schemaDefault.ExtractData("AQI_RANGE")
 
-	fmt.Println("PM10 and PM2P5", pm10, pm25)
+	fmt.Println("PM10 and PM2P5 and AQIRange", pm10, pm25, AQIRange)
 
 	sens25 := sensor{name: pm25Sensor, display: "PM 2.5", value: data.Latest[pm25Sensor].(float64)}
 	sens10 := sensor{name: pm10Sensor, display: "PM 10", value: data.Latest[pm10Sensor].(float64)}
 	sensAqi := sensor{name: AQIRngSensor, display: "Air Quality Index", value: data.Latest[AQIRngSensor].(float64)}
 
+	fmt.Println(sensAqi)
 	sens25.level = pm25.Result(sens25.value)
 	sens10.level = pm10.Result(sens10.value)
 
