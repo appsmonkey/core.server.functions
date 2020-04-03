@@ -54,8 +54,8 @@ func New() (as *Airship) {
 }
 
 // Send the message
-func (as *Airship) Send(value string, lvl ChanelType) {
-	msgs := newMessage(value, lvl)
+func (as *Airship) Send(value string, lvl ChanelType, sensorValue string) {
+	msgs := newMessage(value, lvl, sensorValue)
 
 	for _, msg := range msgs {
 		fmt.Println("AIRSHIP_MESSAGE", msg)

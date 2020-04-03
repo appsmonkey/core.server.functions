@@ -11,7 +11,7 @@ type Message struct {
 }
 
 // NewMessage to push to the clients
-func newMessage(value string, lvl ChanelType) []*Message {
+func newMessage(value string, lvl ChanelType, sensorValue string) []*Message {
 	res := make([]*Message, 0)
 
 	switch lvl {
@@ -20,7 +20,7 @@ func newMessage(value string, lvl ChanelType) []*Message {
 		msg.data = map[string]interface{}{}
 		msg.data["device_types"] = []string{"android", "ios"}
 		msg.data["notification"] = map[string]interface{}{
-			"alert": "Air quality is better now. " + value,
+			"alert": "Air quality is better now. " + sensorValue,
 			"android": map[string]interface{}{
 				"extra": map[string]string{
 					"remove": "last_Good|last_Sensitive|last_Unhealthy|last_VeryUnhealthy|last_Hazardous",
@@ -51,7 +51,7 @@ func newMessage(value string, lvl ChanelType) []*Message {
 		msg.data = map[string]interface{}{}
 		msg.data["device_types"] = []string{"android", "ios"}
 		msg.data["notification"] = map[string]interface{}{
-			"alert": "Air quality is currently unhealthy for sensitive, stay indoors. " + value,
+			"alert": "Air quality is currently unhealthy for sensitive, stay indoors. " + sensorValue,
 			"android": map[string]interface{}{
 				"extra": map[string]string{
 					"remove": "last_Good|last_Sensitive|last_Unhealthy|last_VeryUnhealthy|last_Hazardous",
@@ -79,7 +79,7 @@ func newMessage(value string, lvl ChanelType) []*Message {
 		msg.data = map[string]interface{}{}
 		msg.data["device_types"] = []string{"android", "ios"}
 		msg.data["notification"] = map[string]interface{}{
-			"alert": "Air quality is better now. " + value,
+			"alert": "Air quality is better now. " + sensorValue,
 			"android": map[string]interface{}{
 				"extra": map[string]string{
 					"remove": "last_Good|last_Sensitive|last_Unhealthy|last_VeryUnhealthy|last_Hazardous",
@@ -120,7 +120,7 @@ func newMessage(value string, lvl ChanelType) []*Message {
 		msg.data = map[string]interface{}{}
 		msg.data["device_types"] = []string{"android", "ios"}
 		msg.data["notification"] = map[string]interface{}{
-			"alert": "Air quality is currently unhealthy, stay indoors. " + value,
+			"alert": "Air quality is currently unhealthy, stay indoors. " + sensorValue,
 			"android": map[string]interface{}{
 				"extra": map[string]string{
 					"remove": "last_Good|last_Sensitive|last_Unhealthy|last_VeryUnhealthy|last_Hazardous",
@@ -158,7 +158,7 @@ func newMessage(value string, lvl ChanelType) []*Message {
 		msg.data = map[string]interface{}{}
 		msg.data["device_types"] = []string{"android", "ios"}
 		msg.data["notification"] = map[string]interface{}{
-			"alert": "Air quality is better now. " + value,
+			"alert": "Air quality is better now. " + sensorValue,
 			"android": map[string]interface{}{
 				"extra": map[string]string{
 					"remove": "last_Good|last_Sensitive|last_Unhealthy|last_VeryUnhealthy|last_Hazardous",
@@ -197,7 +197,7 @@ func newMessage(value string, lvl ChanelType) []*Message {
 		msg.data = map[string]interface{}{}
 		msg.data["device_types"] = []string{"android", "ios"}
 		msg.data["notification"] = map[string]interface{}{
-			"alert": "Air quality is currently very unhealthy, stay indoors. " + value,
+			"alert": "Air quality is currently very unhealthy, stay indoors. " + sensorValue,
 			"android": map[string]interface{}{
 				"extra": map[string]string{
 					"remove": "last_Good|last_Sensitive|last_Unhealthy|last_VeryUnhealthy|last_Hazardous",
@@ -237,7 +237,7 @@ func newMessage(value string, lvl ChanelType) []*Message {
 		msg.data = map[string]interface{}{}
 		msg.data["device_types"] = []string{"android", "ios"}
 		msg.data["notification"] = map[string]interface{}{
-			"alert": "Air quality is better now. " + value,
+			"alert": "Air quality is better now. " + sensorValue,
 			"android": map[string]interface{}{
 				"extra": map[string]string{
 					"remove": "last_Good|last_Sensitive|last_Unhealthy|last_VeryUnhealthy|last_Hazardous",
@@ -270,7 +270,7 @@ func newMessage(value string, lvl ChanelType) []*Message {
 		msg.data = map[string]interface{}{}
 		msg.data["device_types"] = []string{"android", "ios"}
 		msg.data["notification"] = map[string]interface{}{
-			"alert": "Air quality is currently hazardous, stay indoors. " + value,
+			"alert": "Air quality is currently hazardous, stay indoors. " + sensorValue,
 			"android": map[string]interface{}{
 				"extra": map[string]string{
 					"remove": "last_Good|last_Sensitive|last_Unhealthy|last_VeryUnhealthy|last_Hazardous",
