@@ -40,6 +40,8 @@ func newMessage(value string, lvl ChanelType, sensorValue string) []*Message {
 				{"tag": "last_Unhealthy"},
 				{"tag": "last_VeryUnhealthy"},
 				{"tag": "last_Hazardous"},
+				{"tag": "none"},
+				{"tag": ""},
 			},
 		}
 
@@ -100,6 +102,8 @@ func newMessage(value string, lvl ChanelType, sensorValue string) []*Message {
 						{"tag": "setting_Unhealthy"},
 						{"tag": "setting_VeryUnhealthy"},
 						{"tag": "setting_Hazardous"},
+						{"tag": "none"},
+						{"tag": ""},
 					},
 				},
 				{
@@ -107,6 +111,8 @@ func newMessage(value string, lvl ChanelType, sensorValue string) []*Message {
 						{"tag": "last_Unhealthy"},
 						{"tag": "last_VeryUnhealthy"},
 						{"tag": "last_Hazardous"},
+						{"tag": "none"},
+						{"tag": ""},
 					},
 				},
 			},
@@ -140,12 +146,16 @@ func newMessage(value string, lvl ChanelType, sensorValue string) []*Message {
 					"OR": []map[string]string{
 						{"tag": "setting_Sensitive"},
 						{"tag": "setting_Unhealthy"},
+						{"tag": "none"},
+						{"tag": ""},
 					},
 				},
 				{
 					"OR": []map[string]string{
 						{"tag": "last_Good"},
 						{"tag": "last_Sensitive"},
+						{"tag": "none"},
+						{"tag": ""},
 					},
 				},
 			},
@@ -178,12 +188,16 @@ func newMessage(value string, lvl ChanelType, sensorValue string) []*Message {
 					"OR": []map[string]string{
 						{"tag": "setting_VeryUnhealthy"},
 						{"tag": "setting_Hazardous"},
+						{"tag": "none"},
+						{"tag": ""},
 					},
 				},
 				{
 					"OR": []map[string]string{
 						{"tag": "last_VeryUnhealthy"},
 						{"tag": "last_Hazardous"},
+						{"tag": "none"},
+						{"tag": ""},
 					},
 				},
 			},
@@ -218,6 +232,8 @@ func newMessage(value string, lvl ChanelType, sensorValue string) []*Message {
 						{"tag": "setting_Sensitive"},
 						{"tag": "setting_Unhealthy"},
 						{"tag": "setting_VeryUnhealthy"},
+						{"tag": "none"},
+						{"tag": ""},
 					},
 				},
 				{
@@ -225,6 +241,8 @@ func newMessage(value string, lvl ChanelType, sensorValue string) []*Message {
 						{"tag": "last_Good"},
 						{"tag": "last_Sensitive"},
 						{"tag": "last_Unhealthy"},
+						{"tag": "none"},
+						{"tag": ""},
 					},
 				},
 			},
