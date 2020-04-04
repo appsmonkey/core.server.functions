@@ -51,7 +51,7 @@ func newMessage(value string, lvl ChanelType, sensorValue string) []*Message {
 		msg.data = map[string]interface{}{}
 		msg.data["device_types"] = []string{"android", "ios"}
 		msg.data["notification"] = map[string]interface{}{
-			"alert": "Air quality is currently unhealthy for sensitive, stay indoors. " + sensorValue,
+			"alert": "Air quality is currently unhealthy for sensitive people, stay indoors. " + sensorValue,
 			"android": map[string]interface{}{
 				"extra": map[string]string{
 					"remove": "last_Good|last_Sensitive|last_Unhealthy|last_VeryUnhealthy|last_Hazardous",

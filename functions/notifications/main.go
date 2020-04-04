@@ -60,13 +60,13 @@ func Handler() error {
 	sens10.level = pm10.Result(sens10.value)
 	sensAqi.level = AQIRange.Result(sensAqi.value)
 
-	// small := smaller(&sens25, &sens10)
-	// fmt.Println("CHECK PRINT: ", small, small.Value())
-	// ua.New().Send(small.Value(), small.Channel())
+	small := smaller(&sens25, &sens10)
+	fmt.Println("CHECK PRINT: ", small, small.Value())
+	ua.New().Send(small.Value(), small.Channel())
 
-	large := larger(&sens25, &sens10)
-	fmt.Println("CHECK PRINT: ", large, large.Value())
-	ua.New().Send(sensAqi.Value(), sensAqi.Channel(), large.Value())
+	// large := larger(&sens25, &sens10)
+	// fmt.Println("CHECK PRINT: ", large, large.Value())
+	ua.New().Send(sensAqi.Value(), sensAqi.Channel(), small.Value())
 
 	return nil
 }
