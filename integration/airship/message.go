@@ -12,6 +12,7 @@ type Message struct {
 
 // NewMessage to push to the clients
 func newMessage(value string, lvl ChanelType, sensorValue string) []*Message {
+	fmt.Println("LOG VALUE AND LEVEL", value, lvl)
 	res := make([]*Message, 0)
 
 	switch lvl {
