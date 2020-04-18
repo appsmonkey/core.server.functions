@@ -134,7 +134,9 @@ func GetFrom(from int64, city string) (result vm.DeviceGetData) {
 			result.Latest["AIR_AQI_RANGE"] = float64(s.LevelOrder(pm10lvl))
 		}
 
-		fmt.Println(result.Latest["AIR_AQI_RANGE"])
+		fmt.Println("AQI", result.Latest["AIR_AQI_RANGE"])
+		fmt.Println("PM25LVL", float64(s.LevelOrder(pm25lvl)))
+		fmt.Println("PM10LVL", float64(s.LevelOrder(pm10lvl)))
 	}
 
 	for k, v := range result.Latest {
