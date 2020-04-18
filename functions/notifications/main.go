@@ -65,7 +65,7 @@ func Handler() error {
 
 	large := larger(&sens25, &sens10)
 	fmt.Println("CHECK PRINT: ", large, large.Value())
-	ua.New().Send(large.Value(), large.Channel(), sens25.Value())
+	ua.New().Send(large.Value(), 4, sens25.Value())
 
 	return nil
 }
