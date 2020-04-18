@@ -129,9 +129,9 @@ func GetFrom(from int64, city string) (result vm.DeviceGetData) {
 		pm10lvl := pm10.Result(pm10Val.(float64))
 
 		if s.LevelOrder(pm10lvl) <= s.LevelOrder(pm25lvl) {
-			result.Latest["AIR_AQI_RANGE"] = s.LevelOrder(pm25lvl)
+			result.Latest["AIR_AQI_RANGE"] = float64(s.LevelOrder(pm25lvl))
 		} else {
-			result.Latest["AIR_AQI_RANGE"] = s.LevelOrder(pm10lvl)
+			result.Latest["AIR_AQI_RANGE"] = float64(s.LevelOrder(pm10lvl))
 		}
 
 		fmt.Println(result.Latest["AIR_AQI_RANGE"])
