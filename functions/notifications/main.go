@@ -63,9 +63,9 @@ func Handler() error {
 	// small := smaller(&sens25, &sens10)
 	// fmt.Println("CHECK PRINT: ", small, small.Value())
 
-	// large := larger(&sens25, &sens10)
-	// fmt.Println("CHECK PRINT: ", large, large.Value())
-	ua.New().Send(sensAqi.Value(), sensAqi.Channel(), sens25.Value())
+	large := larger(&sens25, &sens10)
+	fmt.Println("CHECK PRINT: ", large, large.Value())
+	ua.New().Send(large.Value(), large.Channel(), sens25.Value())
 
 	return nil
 }
@@ -75,8 +75,6 @@ func main() {
 }
 
 func smaller(a *sensor, b *sensor) *sensor {
-	fmt.Println("PM2P5 LEVEL ::: ", s.LevelOrder(a.level))
-	fmt.Println("PM10 LEVEL :::", s.LevelOrder(b.level))
 	if s.LevelOrder(a.level) <= s.LevelOrder(b.level) {
 		return a
 	}
@@ -85,8 +83,6 @@ func smaller(a *sensor, b *sensor) *sensor {
 }
 
 func larger(a *sensor, b *sensor) *sensor {
-	fmt.Println("PM2P5 LEVEL ::: ", s.LevelOrder(a.level))
-	fmt.Println("PM10 LEVEL :::", s.LevelOrder(b.level))
 	if s.LevelOrder(a.level) <= s.LevelOrder(b.level) {
 		return b
 	}

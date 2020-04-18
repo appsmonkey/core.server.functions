@@ -8,6 +8,7 @@ import (
 
 	"github.com/appsmonkey/core.server.functions/dal"
 	m "github.com/appsmonkey/core.server.functions/models"
+	s "github.com/appsmonkey/core.server.functions/models/schema"
 	vm "github.com/appsmonkey/core.server.functions/viewmodels"
 	"github.com/aws/aws-sdk-go/aws"
 )
@@ -113,6 +114,27 @@ func GetFrom(from int64, city string) (result vm.DeviceGetData) {
 				result.Latest[k] = av / float64(len(v))
 			}
 		}
+	}
+
+	_, ok := result.Latest["AIR_AQI_RANGE"]
+	if ok {
+		pm10Val := result.Latest["AIR_PM10"]
+		pm25Val := result.Latest["AIR_PM2P5"]
+
+		schemaDefault := s.ExtractVersion("")
+		pm25, _ := schemaDefault.ExtractData("AIR_PM2P5")
+		pm10, _ := schemaDefault.ExtractData("AIR_PM10")
+
+		pm25lvl := pm25.Result(pm25Val.(float64))
+		pm10lvl := pm10.Result(pm10Val.(float64))
+
+		if s.LevelOrder(pm10lvl) <= s.LevelOrder(pm25lvl) {
+			result.Latest["AIR_AQI_RANGE"] = s.LevelOrder(pm25lvl)
+		} else {
+			result.Latest["AIR_AQI_RANGE"] = s.LevelOrder(pm10lvl)
+		}
+
+		fmt.Println(result.Latest["AIR_AQI_RANGE"])
 	}
 
 	for k, v := range result.Latest {
