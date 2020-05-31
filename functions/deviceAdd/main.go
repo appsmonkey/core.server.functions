@@ -9,7 +9,6 @@ import (
 	es "github.com/appsmonkey/core.server.functions/errorStatuses"
 	m "github.com/appsmonkey/core.server.functions/models"
 	bg "github.com/appsmonkey/core.server.functions/tools/guid"
-	h "github.com/appsmonkey/core.server.functions/tools/helper"
 	vm "github.com/appsmonkey/core.server.functions/viewmodels"
 	"github.com/aws/aws-sdk-go/aws"
 
@@ -64,11 +63,11 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	device.ZoneID = "none"
 
 	// We can add manually or we can check with lat lon
-	if len(request.City) > 0 {
-		device.City = h.MapCity(h.TransformCityString(request.City))
-	} else {
-		device.City = "Sarajevo" // default value is Sarajevo
-	}
+	// if len(request.City) > 0 {
+	// 	device.City = h.MapCity(h.TransformCityString(request.City))
+	// } else {
+	// 	device.City = "Sarajevo" // default value is Sarajevo
+	// }
 
 	// If coordinates are set, then find the zone it belongs to
 	if !device.Meta.Coordinates.IsEmpty() {
