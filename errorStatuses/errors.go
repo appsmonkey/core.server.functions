@@ -172,3 +172,6 @@ var ErrCouldNotFindUser = Error{Code: 1052, Message: "Could not find user with t
 
 // ErrLoginSocialExistsError signin error [cannot singin user. cognito signin error]
 var ErrLoginSocialExistsError = Error{Code: 1053, Message: "This email is already linked with a different social media type."}
+
+// ErrThingTokenInvalid [cannot add device. Token validaiton failed]
+var ErrThingTokenInvalid = Error{Code: 1054, Message: "cannot add device. Device token invalid"}

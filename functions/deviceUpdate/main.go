@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/appsmonkey/core.server.functions/dal"
 	m "github.com/appsmonkey/core.server.functions/models"
@@ -56,6 +57,11 @@ func Handler(ctx context.Context, req interface{}) error {
 		DeviceID:     input["token"].(string),
 		DeviceType:   "BOXY",
 		Measurements: state["reported"].(map[string]interface{}),
+	}
+
+	if !strings.HasPrefix(deviceData.DeviceID, "Boxy-") {
+		fmt.Println("Invalid device name")
+		return errors.New("invalid device name. possible malicious device, aborting")
 	}
 
 	dbRes, err := dal.Get("devices", map[string]*dal.AttributeValue{

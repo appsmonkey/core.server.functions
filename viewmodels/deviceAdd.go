@@ -3,6 +3,7 @@ package viewmodels
 import (
 	"encoding/json"
 	"strconv"
+	"strings"
 	"time"
 
 	es "github.com/appsmonkey/core.server.functions/errorStatuses"
@@ -44,6 +45,11 @@ func (r *DeviceAddRequest) Validate(body string) *DeviceAddResponse {
 
 	if len(r.Name) == 0 {
 		response.Errors = append(response.Errors, es.ErrMissingThingName)
+		response.Code = es.StatusAddDeviceError
+	}
+
+	if !strings.HasPrefix(r.Token, "Boxy-") {
+		response.Errors = append(response.Errors, es.ErrThingTokenInvalid)
 		response.Code = es.StatusAddDeviceError
 	}
 
