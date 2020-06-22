@@ -37,6 +37,11 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	})
 	if err != nil {
 		fmt.Println("Existing device not found ::: ", request.Token)
+
+		// keep this commented until polling is done on mobile apps
+		// if device doesn't exist deviceAdd procedure should be aborted
+		// response.AddError(&es.Error{Message: err.Error(), Data: "to finish deviceAdd procedure the thing needs to be already created, check device connection"})
+		// return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
 	} else {
 		err = res.Unmarshal(&existingDevice)
 		if err != nil {
