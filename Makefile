@@ -32,7 +32,8 @@ all : register signup signup signin refresh profile general deviceList deviceLis
 	chartCacheSix chartSix chartSixDevice chartSixAll chartLiveAll forgotPasswordStart forgotPasswordEnd notifications \
 	cityList cityDel cityAdd cityGet verifyAndRedirect customizeMessage zoneDel zoneImport zoneGet registerFillUserData \
 	checkDeviceOnline chartCacheMonth chartMonth chartMonthDevice chartMonthAll langBundle chartCacheMinute \
-	chartLiveDeviceCompare chartHourDeviceCompare chartDayDeviceCompare chartSixDeviceCompare chartMonthDeviceCompare
+	chartLiveDeviceCompare chartHourDeviceCompare chartDayDeviceCompare chartSixDeviceCompare chartMonthDeviceCompare \
+	cityOSMigrateUser
 
 vendor: Gopkg.toml
 		dep ensure -v
@@ -415,6 +416,12 @@ chartLiveDeviceCompare:
 	mkdir -p bin
 	$(package_lambda) bin/chartLiveDeviceCompare.zip chartLiveDeviceCompare
 	rm chartLiveDeviceCompare
+
+cityOSMigrateUser:
+	env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o cityOSMigrateUser functions/cityOSMigrateUser/main.go
+	mkdir -p bin
+	$(package_lambda) bin/cityOSMigrateUser.zip cityOSMigrateUser
+	rm cityOSMigrateUser
 
 .PHONY: deploy_swagger
 deploy_swagger:
