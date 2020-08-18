@@ -75,6 +75,8 @@ func sendMessage(msg *Message, as *Airship) error {
 	req.Header.Set("Accept", as.accept)
 	req.Header.Set("Content-Type", "application/json")
 
+	fmt.Println("Request body ::: ", req.Body)
+
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
