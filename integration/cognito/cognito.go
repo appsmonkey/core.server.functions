@@ -285,7 +285,12 @@ func (c *Cognito) ListGroupsForUser(username string) (*cognitoidentityprovider.A
 
 // ListGroupsForUserFromID returns user's affiliated groups based on username
 func (c *Cognito) ListGroupsForUserFromID(cognitoID string) (*cognitoidentityprovider.AdminListGroupsForUserOutput, error) {
-	res, err := dal.GetFromIndex("users", "CognitoID-index", dal.Condition{
+	var usersTable = "users"
+	if value, ok := os.LookupEnv("dynamodb_table_users"); ok {
+		usersTable = value
+	}
+
+	res, err := dal.GetFromIndex(usersTable, "CognitoID-index", dal.Condition{
 		"cognito_id": {
 			ComparisonOperator: aws.String("EQ"),
 			AttributeValueList: []*dal.AttributeValue{

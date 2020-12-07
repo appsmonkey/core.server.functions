@@ -1,6 +1,8 @@
 package main
 
 import (
+	"os"
+
 	"github.com/aws/aws-lambda-go/events"
 
 	"github.com/appsmonkey/core.server.functions/dal"
@@ -22,7 +24,12 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		version = avHdr
 	}
 
-	res, err := dal.Get("schema", map[string]*dal.AttributeValue{
+	var schemaTable = "schema"
+	if value, ok := os.LookupEnv("dynamodb_table_schema"); ok {
+		schemaTable = value
+	}
+
+	res, err := dal.Get(schemaTable, map[string]*dal.AttributeValue{
 		"version": {
 			S: aws.String(version),
 		},

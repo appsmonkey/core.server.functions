@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/appsmonkey/core.server.functions/dal"
 	es "github.com/appsmonkey/core.server.functions/errorStatuses"
@@ -31,7 +32,12 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
 	}
 
-	err = dal.Update("users", "set profile = :p",
+	var usersTable = "users"
+	if value, ok := os.LookupEnv("dynamodb_table_users"); ok {
+		usersTable = value
+	}
+
+	err = dal.Update(usersTable, "set profile = :p",
 		map[string]*dal.AttributeValue{
 			"cognito_id": {
 				S: aws.String(cognitoID),

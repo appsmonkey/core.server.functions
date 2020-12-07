@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/appsmonkey/core.server.functions/dal"
@@ -79,10 +80,15 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		}
 	}
 
+	var devicesTable = "devices"
+	if value, ok := os.LookupEnv("dynamodb_table_devices"); ok {
+		devicesTable = value
+	}
+
 	dbData := make([]m.Device, 0)
 
 	if isAdmin && adminShowAll {
-		res, err := dal.ListNoFilter("devices", dal.Projection(
+		res, err := dal.ListNoFilter(devicesTable, dal.Projection(
 			dal.Name("token"),
 			dal.Name("meta"),
 			dal.Name("cognito_id"),
@@ -110,7 +116,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		}
 
 	} else {
-		res, err := dal.GetFromIndex("devices", "CognitoID-index", dal.Condition{
+		res, err := dal.GetFromIndex(devicesTable, "CognitoID-index", dal.Condition{
 			"cognito_id": {
 				ComparisonOperator: aws.String("EQ"),
 				AttributeValueList: []*dal.AttributeValue{
@@ -136,16 +142,19 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 
 	rd := make([]*vm.DeviceGetData, 0)
 
-	fmt.Println("BEFORE DEFAULT DEVICE")
 	// Add the default device on the top
 	dd := defaultDevice.Get(City)
 	rd = append(rd, &dd)
-	fmt.Println("AFTER DEFAULT DEVICE")
+
+	var usersTable = "users"
+	if value, ok := os.LookupEnv("dynamodb_table_users"); ok {
+		usersTable = value
+	}
 
 	for _, d := range dbData {
 		owner := ""
 		if isAdmin {
-			res, err := dal.GetFromIndex("users", "CognitoID-index", dal.Condition{
+			res, err := dal.GetFromIndex(usersTable, "CognitoID-index", dal.Condition{
 				"cognito_id": {
 					ComparisonOperator: aws.String("EQ"),
 					AttributeValueList: []*dal.AttributeValue{

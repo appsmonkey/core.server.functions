@@ -29,8 +29,13 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 
 	request.Date = time.Now().Unix()
 
+	var mainTable = "main"
+	if value, ok := os.LookupEnv("dynamodb_table_main"); ok {
+		mainTable = value
+	}
+
 	// insert data into the DB
-	dal.Insert("main", request)
+	dal.Insert(mainTable, request)
 
 	// Log and return result
 	fmt.Println("Wrote item:  ", request)

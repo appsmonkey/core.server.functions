@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"os"
 
 	"github.com/appsmonkey/core.server.functions/dal"
 	m "github.com/appsmonkey/core.server.functions/models"
@@ -30,7 +31,12 @@ func Handler(ctx context.Context, req interface{}) error {
 		city = "Sarajevo"
 	}
 
-	res, err := dal.GetFromIndex("devices", "ZoneID-index", dal.Condition{
+	var devicesTable = "devices"
+	if value, ok := os.LookupEnv("dynamodb_table_devices"); ok {
+		devicesTable = value
+	}
+
+	res, err := dal.GetFromIndex(devicesTable, "ZoneID-index", dal.Condition{
 		"zone_id": {
 			ComparisonOperator: aws.String("EQ"),
 			AttributeValueList: []*dal.AttributeValue{
@@ -87,7 +93,12 @@ func Handler(ctx context.Context, req interface{}) error {
 				fmt.Println("ZONE DATA MARSHAL ERROR")
 			}
 
-			err = dal.UpdateWithAttrNames("zones", "set #da = :d",
+			var zonesTable = "zones"
+			if value, ok := os.LookupEnv("dynamodb_table_zones"); ok {
+				zonesTable = value
+			}
+
+			err = dal.UpdateWithAttrNames(zonesTable, "set #da = :d",
 				map[string]*dal.AttributeValue{
 					"zone_id": {
 						S: aws.String(zoneID),
@@ -156,7 +167,12 @@ func Handler(ctx context.Context, req interface{}) error {
 			fmt.Println("ZONE DATA MARSHAL ERROR")
 		}
 
-		err = dal.UpdateWithAttrNames("zones", "set #da = :d",
+		var zonesTable = "zones"
+		if value, ok := os.LookupEnv("dynamodb_table_zones"); ok {
+			zonesTable = value
+		}
+
+		err = dal.UpdateWithAttrNames(zonesTable, "set #da = :d",
 			map[string]*dal.AttributeValue{
 				"zone_id": {
 					S: aws.String(zoneID),

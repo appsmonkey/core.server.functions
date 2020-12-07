@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/aws/aws-lambda-go/events"
 
@@ -29,8 +30,13 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
 	}
 
+	var devicesTable = "devices"
+	if value, ok := os.LookupEnv("dynamodb_table_devices"); ok {
+		devicesTable = value
+	}
+
 	existingDevice := m.Device{}
-	res, err := dal.Get("devices", map[string]*dal.AttributeValue{
+	res, err := dal.Get(devicesTable, map[string]*dal.AttributeValue{
 		"token": {
 			S: aws.String(request.Token),
 		},
@@ -89,7 +95,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	response.Data = vm.DeviceAddData{Token: device.Token}
 
 	// insert data into the DB
-	dal.Insert("devices", device)
+	dal.Insert(devicesTable, device)
 
 	// Log and return result
 	fmt.Println("Wrote item:  ", device)

@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/appsmonkey/core.server.functions/dal"
 	es "github.com/appsmonkey/core.server.functions/errorStatuses"
@@ -24,7 +25,12 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 400, Headers: response.Headers()}, nil
 	}
 
-	res, err := dal.Get("cities", map[string]*dal.AttributeValue{
+	var citiesTable = "cities"
+	if value, ok := os.LookupEnv("dynamodb_table_cities"); ok {
+		citiesTable = value
+	}
+
+	res, err := dal.Get(citiesTable, map[string]*dal.AttributeValue{
 		"city_id": {
 			S: aws.String(request.CityID),
 		},

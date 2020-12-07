@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math"
 	"math/rand"
+	"os"
 	"strings"
 	"time"
 
@@ -36,9 +37,14 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 400, Headers: response.Headers()}, nil
 	}
 
+	var chartDeviceMonthTable = "chart_device_month"
+	if value, ok := os.LookupEnv("dynamodb_table_chart_device_month"); ok {
+		chartDeviceMonthTable = value
+	}
+
 	var dbData []map[string]interface{}
 	for _, s := range request.SensorAll {
-		res, err := dal.QueryMultiple("chart_device_month",
+		res, err := dal.QueryMultiple(chartDeviceMonthTable,
 			dal.Condition{
 				"hash": {
 					ComparisonOperator: aws.String("EQ"),
@@ -83,7 +89,12 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		Heartbeat int      `json:"heartbeat"`
 	}
 
-	schemaRes, err := dal.Get("schema", map[string]*dal.AttributeValue{
+	var schemaTable = "schema"
+	if value, ok := os.LookupEnv("dynamodb_table_schema"); ok {
+		schemaTable = value
+	}
+
+	schemaRes, err := dal.Get(schemaTable, map[string]*dal.AttributeValue{
 		"version": {
 			S: aws.String("1"),
 		},
@@ -128,8 +139,13 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	minValues := make(map[string]float64, 0)
 	d := make(map[float64]map[string][]float64, 0)
 
+	var devicesTable = "devices"
+	if value, ok := os.LookupEnv("dynamodb_table_devices"); ok {
+		devicesTable = value
+	}
+
 	// fetch device for which we need to include city avg
-	res, err := dal.Get("devices", map[string]*dal.AttributeValue{
+	res, err := dal.Get(devicesTable, map[string]*dal.AttributeValue{
 		"token": {
 			S: aws.String(request.Token),
 		},
@@ -155,7 +171,12 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 			continue
 		}
 
-		res, err := dal.QueryMultiple("chart_month",
+		var chartMonthTable = "chart_month"
+		if value, ok := os.LookupEnv("dynamodb_table_chart_month"); ok {
+			chartMonthTable = value
+		}
+
+		res, err := dal.QueryMultiple(chartMonthTable,
 			dal.Condition{
 				"sensor": {
 					ComparisonOperator: aws.String("EQ"),

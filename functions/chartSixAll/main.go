@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math"
 	"math/rand"
+	"os"
 	"sort"
 
 	"github.com/appsmonkey/core.server.functions/dal"
@@ -35,9 +36,14 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 400, Headers: response.Headers()}, nil
 	}
 
+	var chartSixTable = "chart_six"
+	if value, ok := os.LookupEnv("dynamodb_table_chart_six"); ok {
+		chartSixTable = value
+	}
+
 	dbRawData := make(map[string][]map[string]float64, 0)
 	for _, sid := range request.SensorAll {
-		res, err := dal.QueryMultiple("chart_six",
+		res, err := dal.QueryMultiple(chartSixTable,
 			dal.Condition{
 				"sensor": {
 					ComparisonOperator: aws.String("EQ"),

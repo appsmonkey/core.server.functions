@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math"
 	"math/rand"
+	"os"
 	"strings"
 	"time"
 
@@ -36,9 +37,14 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 400, Headers: response.Headers()}, nil
 	}
 
+	var chartDeviceDayTable = "chart_device_day"
+	if value, ok := os.LookupEnv("dynamodb_table_chart_device_day"); ok {
+		chartDeviceDayTable = value
+	}
+
 	var dbData []map[string]interface{}
 	for _, s := range request.SensorAll {
-		res, err := dal.QueryMultiple("chart_device_day",
+		res, err := dal.QueryMultiple(chartDeviceDayTable,
 			dal.Condition{
 				"hash": {
 					ComparisonOperator: aws.String("EQ"),
@@ -83,7 +89,12 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		Heartbeat int      `json:"heartbeat"`
 	}
 
-	schemaRes, err := dal.Get("schema", map[string]*dal.AttributeValue{
+	var schemaTable = "schema"
+	if value, ok := os.LookupEnv("dynamodb_table_schema"); ok {
+		schemaTable = value
+	}
+
+	schemaRes, err := dal.Get(schemaTable, map[string]*dal.AttributeValue{
 		"version": {
 			S: aws.String("1"),
 		},

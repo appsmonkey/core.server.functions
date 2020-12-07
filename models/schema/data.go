@@ -2,6 +2,7 @@ package schema
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/appsmonkey/core.server.functions/dal"
 	"github.com/aws/aws-sdk-go/aws"
@@ -14,7 +15,12 @@ func init() {
 		Version string
 	}
 
-	schemaRes, err := dal.Get("schema", map[string]*dal.AttributeValue{
+	var schemaTable = "schema"
+	if value, ok := os.LookupEnv("dynamodb_table_schema"); ok {
+		schemaTable = value
+	}
+
+	schemaRes, err := dal.Get(schemaTable, map[string]*dal.AttributeValue{
 		"version": {
 			S: aws.String("1"),
 		},

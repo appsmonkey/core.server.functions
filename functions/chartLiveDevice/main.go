@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math"
 	"math/rand"
+	"os"
 	"time"
 
 	"github.com/appsmonkey/core.server.functions/dal"
@@ -41,8 +42,13 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		names = append(names, dal.Name(s))
 	}
 
+	var liveTable = "live"
+	if value, ok := os.LookupEnv("dynamodb_table_live"); ok {
+		liveTable = value
+	}
+
 	projBuilder := dal.Projection(dal.Name("timestamp"), names...)
-	res, err := dal.QueryMultiple("live",
+	res, err := dal.QueryMultiple(liveTable,
 		dal.Condition{
 			"token": {
 				ComparisonOperator: aws.String("EQ"),
@@ -84,11 +90,17 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		Heartbeat int      `json:"heartbeat"`
 	}
 
-	schemaRes, err := dal.Get("schema", map[string]*dal.AttributeValue{
+	var schemaTable = "schema"
+	if value, ok := os.LookupEnv("dynamodb_table_schema"); ok {
+		schemaTable = value
+	}
+
+	schemaRes, err := dal.Get(schemaTable, map[string]*dal.AttributeValue{
 		"version": {
 			S: aws.String("1"),
 		},
 	})
+
 	if err != nil {
 		fmt.Println("Error fetching schema from db", err)
 		response.AddError(&es.Error{Message: err.Error(), Data: "could not fetch schema data from the DB"})

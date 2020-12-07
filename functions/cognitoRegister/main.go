@@ -26,12 +26,17 @@ func Handler(req events.CognitoEventUserPoolsPostConfirmation) (events.CognitoEv
 		return req, nil
 	}
 
+	var usersTable = "users"
+	if value, ok := os.LookupEnv("dynamodb_table_users"); ok {
+		usersTable = value
+	}
+
 	sid, st, _, err := dala.GetTempUser(request.Email)
 	if err != nil {
 		fmt.Println("email register", request)
 		// We do not have a temp user
 		// insert data into the DB as is
-		dal.Insert("users", request)
+		dal.Insert(usersTable, request)
 
 		return req, nil
 	}
@@ -40,7 +45,7 @@ func Handler(req events.CognitoEventUserPoolsPostConfirmation) (events.CognitoEv
 	request.SocialType = st
 
 	fmt.Println("social register", request)
-	dal.Insert("users", request)
+	dal.Insert(usersTable, request)
 
 	return req, nil
 }

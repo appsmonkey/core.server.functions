@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"math"
+	"os"
 	"strconv"
 	"time"
 
@@ -34,7 +35,12 @@ func Handler(ctx context.Context, req interface{}) error {
 	timestampStr := fmt.Sprintf("%f", timestamp)
 	measurements := input["reported"].(map[string]interface{})
 
-	res, err := dal.Get("devices", map[string]*dal.AttributeValue{
+	var devicesTable = "devices"
+	if value, ok := os.LookupEnv("dynamodb_table_devices"); ok {
+		devicesTable = value
+	}
+
+	res, err := dal.Get(devicesTable, map[string]*dal.AttributeValue{
 		"token": {
 			S: aws.String(token),
 		},
@@ -74,8 +80,13 @@ func main() {
 }
 
 func incrementData(hash, timestamp, key1, value1, key2, value2 string, city string) *access.IncrementInput {
+	var chartStateTable = "chart_state"
+	if value, ok := os.LookupEnv("dynamodb_table_chart_state"); ok {
+		chartStateTable = value
+	}
+
 	return &access.IncrementInput{
-		Table:     "chart_hour_input",
+		Table:     chartStateTable,
 		KeyName:   "hash",
 		KeyValue:  hash,
 		City:      city,

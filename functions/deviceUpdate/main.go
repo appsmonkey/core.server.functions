@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"os"
 	"strconv"
 	"strings"
 
@@ -64,7 +65,12 @@ func Handler(ctx context.Context, req interface{}) error {
 		return errors.New("invalid device name. possible malicious device, aborting")
 	}
 
-	dbRes, err := dal.Get("devices", map[string]*dal.AttributeValue{
+	var devicesTable = "devices"
+	if value, ok := os.LookupEnv("dynamodb_table_devices"); ok {
+		devicesTable = value
+	}
+
+	dbRes, err := dal.Get(devicesTable, map[string]*dal.AttributeValue{
 		"token": {
 			S: aws.String(deviceData.Token),
 		},
@@ -103,8 +109,13 @@ func Handler(ctx context.Context, req interface{}) error {
 		device.Measurements = make(map[string]interface{}, 0)
 	}
 
+	var schemaTable = "schema"
+	if value, ok := os.LookupEnv("dynamodb_table_schema"); ok {
+		schemaTable = value
+	}
+
 	// TODO: we should use schema to refer to measurement units
-	schemaRes, err := dal.Get("schema", map[string]*dal.AttributeValue{
+	schemaRes, err := dal.Get(schemaTable, map[string]*dal.AttributeValue{
 		"version": {
 			S: aws.String("1"),
 		},
@@ -160,7 +171,7 @@ func Handler(ctx context.Context, req interface{}) error {
 		device.CognitoID = h.CognitoIDZeroValue
 	}
 
-	err = dal.Insert("devices", device)
+	err = dal.Insert(devicesTable, device)
 	if err == nil && len(device.ZoneID) > 0 && device.ZoneID != "none" {
 		payload := fmt.Sprintf(`{ "zone_id": "%v", "city_id": "%v" }`, device.ZoneID, device.City)
 
@@ -181,7 +192,12 @@ func Handler(ctx context.Context, req interface{}) error {
 	// 	}
 	// }
 
-	dal.Insert("live", device.ToLiveData())
+	var liveTable = "live"
+	if value, ok := os.LookupEnv("dynamodb_table_live"); ok {
+		liveTable = value
+	}
+
+	dal.Insert(liveTable, device.ToLiveData())
 
 	return nil
 }

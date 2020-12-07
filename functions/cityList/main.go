@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/appsmonkey/core.server.functions/dal"
 	es "github.com/appsmonkey/core.server.functions/errorStatuses"
@@ -22,8 +23,13 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	response := new(vm.CityListResponse)
 	response.Init()
 
+	var citiesTable = "cities"
+	if value, ok := os.LookupEnv("dynamodb_table_cities"); ok {
+		citiesTable = value
+	}
+
 	// fetch all cities with minimal data
-	dbRes, err := dal.ListNoFilter("cities", dal.Projection(dal.Name("city_id"), dal.Name("name"), dal.Name("country"), dal.Name("timestamp")))
+	dbRes, err := dal.ListNoFilter(citiesTable, dal.Projection(dal.Name("city_id"), dal.Name("name"), dal.Name("country"), dal.Name("timestamp")))
 	if err != nil {
 		fmt.Println(err)
 		response.AddError(&es.Error{Code: 0, Message: err.Error(), Data: ""})

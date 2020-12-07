@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/appsmonkey/core.server.functions/dal"
@@ -18,9 +19,14 @@ var lambdaClient *sl.Lambda
 // Handler will handle our request comming from the API gateway
 func Handler(ctx context.Context, req interface{}) {
 
+	var devicesTable = "devices"
+	if value, ok := os.LookupEnv("dynamodb_table_devices"); ok {
+		devicesTable = value
+	}
+
 	// Fetch active devices
 	projBuilder := dal.Projection(dal.Name("token"), dal.Name("active"), dal.Name("timestamp"))
-	res, err := dal.List("devices", dal.Name("active").Equal(dal.Value(true)), projBuilder, true)
+	res, err := dal.List(devicesTable, dal.Name("active").Equal(dal.Value(true)), projBuilder, true)
 
 	if err != nil {
 		fmt.Println("Fetching devices from device table failed", err)
@@ -47,7 +53,12 @@ func Handler(ctx context.Context, req interface{}) {
 		Heartbeat int      `json:"heartbeat"`
 	}
 
-	schemaRes, err := dal.Get("schema", map[string]*dal.AttributeValue{
+	var schemaTable = "schema"
+	if value, ok := os.LookupEnv("dynamodb_table_schema"); ok {
+		schemaTable = value
+	}
+
+	schemaRes, err := dal.Get(schemaTable, map[string]*dal.AttributeValue{
 		"version": {
 			S: aws.String("1"),
 		},
@@ -78,7 +89,7 @@ func Handler(ctx context.Context, req interface{}) {
 			fmt.Println("Changing state of: ", d.Token, " - to offline")
 			d.Active = false
 
-			err = dal.Update("devices", "set active = :a",
+			err = dal.Update(devicesTable, "set active = :a",
 				map[string]*dal.AttributeValue{
 					"token": {
 						S: aws.String(d.Token),

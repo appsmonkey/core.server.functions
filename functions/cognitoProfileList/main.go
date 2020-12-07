@@ -26,7 +26,12 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	response := new(vm.CognitoProfileListResponse)
 	response.Init()
 
-	res, err := dal.Get("users", map[string]*dal.AttributeValue{
+	var usersTable = "users"
+	if value, ok := os.LookupEnv("dynamodb_table_users"); ok {
+		usersTable = value
+	}
+
+	res, err := dal.Get(usersTable, map[string]*dal.AttributeValue{
 		"cognito_id": {
 			S: aws.String(cognitoID),
 		},

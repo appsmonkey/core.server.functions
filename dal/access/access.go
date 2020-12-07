@@ -3,6 +3,7 @@ package access
 import (
 	"errors"
 	"fmt"
+	"os"
 
 	"github.com/appsmonkey/core.server.functions/dal"
 	m "github.com/appsmonkey/core.server.functions/models"
@@ -19,7 +20,12 @@ func Increment(in *IncrementInput) error {
 
 // State returns the chart state
 func State(state, key string) interface{} {
-	gr, err := dal.Get("chart_state", map[string]*dal.AttributeValue{
+	var chartStateTable = "chart_state"
+	if value, ok := os.LookupEnv("dynamodb_table_chart_state"); ok {
+		chartStateTable = value
+	}
+
+	gr, err := dal.Get(chartStateTable, map[string]*dal.AttributeValue{
 		"name": {S: aws.String(state)},
 	})
 	if err != nil {
@@ -45,15 +51,24 @@ func State(state, key string) interface{} {
 // SaveState will update the provided state
 func SaveState(state, key string, value interface{}) error {
 	data := map[string]interface{}{"name": state, key: value}
+	var chartStateTable = "chart_state"
+	if value, ok := os.LookupEnv("dynamodb_table_chart_state"); ok {
+		chartStateTable = value
+	}
 
-	return dal.Insert("chart_state", data)
+	return dal.Insert(chartStateTable, data)
 }
 
 // ChartHourInput will retrieve the hourly chart data from a specific point in time.
 // `from` should be a timestamp in the past
 func ChartHourInput(from interface{}) []ChartHourData {
 	// res, err := dal.List("chart_hour_input", dal.Name("time_stamp").GreaterThan(dal.Value(from)), dal.Projection(dal.Name("hash"), dal.Name("data_count"), dal.Name("data_value"), dal.Name("city"), dal.Name("time_stamp")), true)
-	res, err := dal.GetFromIndex("chart_hour_input", "take-timestamp-index",
+	var chartHourInputTable = "chart_hour_input"
+	if value, ok := os.LookupEnv("dynamodb_table_chart_hour_input"); ok {
+		chartHourInputTable = value
+	}
+
+	res, err := dal.GetFromIndex(chartHourInputTable, "take-timestamp-index",
 		dal.Condition{
 			"take": {
 				ComparisonOperator: aws.String("EQ"),
@@ -138,7 +153,12 @@ func SaveHourChart(table string, data interface{}) error {
 
 // CheckSocial will return data from the DB for the selected social data
 func CheckSocial(id string) (sub, email, sid, st string, success bool, err error) {
-	gr, err := dal.GetFromIndex("users", "UsersSocialID", dal.Condition{
+	var usersTable = "users"
+	if value, ok := os.LookupEnv("dynamodb_table_users"); ok {
+		usersTable = value
+	}
+
+	gr, err := dal.GetFromIndex(usersTable, "UsersSocialID", dal.Condition{
 		"social_id": {
 			ComparisonOperator: aws.String("EQ"),
 			AttributeValueList: []*dal.AttributeValue{
@@ -184,17 +204,33 @@ func AddTempUser(email, socialID, socialType string) error {
 	data["social_id"] = socialID
 	data["social_type"] = socialType
 
-	return dal.Insert("users", data)
+	var usersTable = "users"
+	if value, ok := os.LookupEnv("dynamodb_table_users"); ok {
+		usersTable = value
+	}
+
+	return dal.Insert(usersTable, data)
 }
 
 // AddUser will save a user to the DB
 func AddUser(data interface{}) error {
-	return dal.Insert("users", data)
+	var usersTable = "users"
+	if value, ok := os.LookupEnv("dynamodb_table_users"); ok {
+		usersTable = value
+	}
+
+	return dal.Insert(usersTable, data)
 }
 
 // GetTempUser will retrieve the temp user data, if any
 func GetTempUser(email string) (socialID, socialType string, success bool, err error) {
-	gr, err := dal.Get("users", map[string]*dal.AttributeValue{
+
+	var usersTable = "users"
+	if value, ok := os.LookupEnv("dynamodb_table_users"); ok {
+		usersTable = value
+	}
+
+	gr, err := dal.Get(usersTable, map[string]*dal.AttributeValue{
 		"cognito_id": {S: aws.String("TEMP")},
 		"email":      {S: aws.String(email)},
 	})

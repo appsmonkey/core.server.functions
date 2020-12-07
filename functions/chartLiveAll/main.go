@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math"
 	"math/rand"
+	"os"
 	"time"
 
 	"github.com/appsmonkey/core.server.functions/dal"
@@ -50,7 +51,13 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 
 	projBuilder := dal.Projection(dal.Name("timestamp"), names...)
 	// res, err := dal.List("chart_all_minute", dal.Name("timestamp").GreaterThanEqual(dal.Value(request.From)), projBuilder, true)
-	res, err := dal.QueryMultiple("chart_all_minute",
+
+	var chartAllMinuteTable = "chart_all_minute"
+	if value, ok := os.LookupEnv("dynamodb_table_chart_all_minute"); ok {
+		chartAllMinuteTable = value
+	}
+
+	res, err := dal.QueryMultiple(chartAllMinuteTable,
 		dal.Condition{
 			"token": {
 				ComparisonOperator: aws.String("EQ"),

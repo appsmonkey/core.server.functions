@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-sdk-go/aws"
@@ -48,8 +49,13 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	if len(city.CityID) > 0 {
 		city.CityID = request.CityID
 
+		var citiesTable = "cities"
+		if value, ok := os.LookupEnv("dynamodb_table_cities"); ok {
+			citiesTable = value
+		}
+
 		// check if city exists
-		dbRes, err := dal.Get("cities", map[string]*dal.AttributeValue{
+		dbRes, err := dal.Get(citiesTable, map[string]*dal.AttributeValue{
 			"city_id": {
 				S: aws.String(request.CityID),
 			},
@@ -69,8 +75,13 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	city.Country = request.Country
 	response.Data = vm.CityAddData{CityID: city.CityID}
 
+	var citiesTable = "cities"
+	if value, ok := os.LookupEnv("dynamodb_table_cities"); ok {
+		citiesTable = value
+	}
+
 	// insert data into the DB
-	dal.Insert("cities", city)
+	dal.Insert(citiesTable, city)
 
 	// Log and return result
 	fmt.Println("Wrote item:  ", city)

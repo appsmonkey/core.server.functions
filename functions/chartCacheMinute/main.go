@@ -4,6 +4,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/appsmonkey/core.server.functions/dal"
@@ -20,8 +21,13 @@ type empty struct{}
 // Handler will handle our request comming from the API gateway
 func Handler(ctx context.Context, req interface{}) error {
 
+	var citiesTable = "cities"
+	if value, ok := os.LookupEnv("dynamodb_table_cities"); ok {
+		citiesTable = value
+	}
+
 	// fetch all cities with minimal data
-	dbRes, err := dal.ListNoFilter("cities", dal.Projection(dal.Name("city_id"), dal.Name("name"), dal.Name("country"), dal.Name("timestamp")))
+	dbRes, err := dal.ListNoFilter(citiesTable, dal.Projection(dal.Name("city_id"), dal.Name("name"), dal.Name("country"), dal.Name("timestamp")))
 	if err != nil {
 		fmt.Println("Error fetching cities")
 	}
@@ -53,7 +59,12 @@ func Handler(ctx context.Context, req interface{}) error {
 				data[k] = v
 			}
 
-			err = dal.Insert("chart_all_minute", data)
+			var chartAllMinuteTable = "chart_all_minute"
+			if value, ok := os.LookupEnv("dynamodb_table_chart_all_minute"); ok {
+				chartAllMinuteTable = value
+			}
+
+			err = dal.Insert(chartAllMinuteTable, data)
 			if err != nil {
 				fmt.Println("Couldn't insert data into table")
 			}

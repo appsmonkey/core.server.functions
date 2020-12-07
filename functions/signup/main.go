@@ -54,9 +54,14 @@ func Handler(ctx context.Context, req events.APIGatewayProxyRequest) (events.API
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500, Headers: response.Headers()}, nil
 	}
 
+	var usersTable = "users"
+	if value, ok := os.LookupEnv("dynamodb_table_users"); ok {
+		usersTable = value
+	}
+
 	// insert data into the DB
 	if os.Getenv("ENV") != "local" {
-		dal.Insert("users", cogReq)
+		dal.Insert(usersTable, cogReq)
 	}
 
 	response.Data = signupData

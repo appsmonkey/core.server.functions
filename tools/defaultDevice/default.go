@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math"
 	"math/rand"
+	"os"
 	"time"
 
 	"github.com/appsmonkey/core.server.functions/dal"
@@ -51,8 +52,13 @@ func GetFrom(from int64, city string) (result vm.DeviceGetData) {
 	result.ActiveCount = 0
 	result.City = city
 
+	var devicesTable = "devices"
+	if value, ok := os.LookupEnv("dynamodb_table_devices"); ok {
+		devicesTable = value
+	}
+
 	dbDevicesData := make([]m.Device, 0)
-	dRes, err := dal.ListNoProjection("devices", dal.Name("active").Equal(dal.Value(true)), true)
+	dRes, err := dal.ListNoProjection(devicesTable, dal.Name("active").Equal(dal.Value(true)), true)
 
 	if err != nil {
 		fmt.Println("could not retirieve devices data")
@@ -206,7 +212,13 @@ func Get(city string) (result vm.DeviceGetData) {
 }
 
 func validateDevice(token string, city string) bool {
-	res, err := dal.Get("devices", map[string]*dal.AttributeValue{
+
+	var devicesTable = "devices"
+	if value, ok := os.LookupEnv("dynamodb_table_devices"); ok {
+		devicesTable = value
+	}
+
+	res, err := dal.Get(devicesTable, map[string]*dal.AttributeValue{
 		"token": {
 			S: aws.String(token),
 		},

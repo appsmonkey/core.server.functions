@@ -26,8 +26,13 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 500}, nil
 	}
 
+	var usersTable = "users"
+	if value, ok := os.LookupEnv("dynamodb_table_users"); ok {
+		usersTable = value
+	}
+
 	// insert data into the DB
-	dal.Insert("users", request)
+	dal.Insert(usersTable, request)
 
 	// Log and return result
 	fmt.Println("Wrote item:  ", request)

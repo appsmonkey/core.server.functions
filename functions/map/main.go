@@ -71,10 +71,14 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 
 	zoneMap := make(map[string]zoneResult, 0)
 	zoneData := make([]zoneResult, 0)
+	var zonesTable = "zones"
+	if value, ok := os.LookupEnv("dynamodb_table_zones"); ok {
+		zonesTable = value
+	}
 	for _, z := range request.Zone {
 		fmt.Println("Fetching zone data for sensor: " + z)
 
-		zoneRes, err := dal.GetFromIndex("zones", "sensor_id-index", dal.Condition{
+		zoneRes, err := dal.GetFromIndex(zonesTable, "sensor_id-index", dal.Condition{
 			"sensor_id": {
 				ComparisonOperator: aws.String("EQ"),
 				AttributeValueList: []*dal.AttributeValue{
@@ -106,7 +110,12 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		}
 	}
 
-	dbRes, err := dal.ListNoFilter("devices", dal.Projection(dal.Name("token"), dal.Name("device_id"), dal.Name("meta"), dal.Name("map_meta"), dal.Name("active"), dal.Name("city"), dal.Name("measurements"), dal.Name("cognito_id"), dal.Name("timestamp"), dal.Name("zone_id")))
+	var devicesTable = "devices"
+	if value, ok := os.LookupEnv("dynamodb_table_devices"); ok {
+		devicesTable = value
+	}
+
+	dbRes, err := dal.ListNoFilter(devicesTable, dal.Projection(dal.Name("token"), dal.Name("device_id"), dal.Name("meta"), dal.Name("map_meta"), dal.Name("active"), dal.Name("city"), dal.Name("measurements"), dal.Name("cognito_id"), dal.Name("timestamp"), dal.Name("zone_id")))
 
 	dbData := make([]m.Device, 0)
 	err = dbRes.Unmarshal(&dbData)

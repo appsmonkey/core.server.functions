@@ -32,8 +32,13 @@ func Handler(ctx context.Context, req events.APIGatewayProxyRequest) (events.API
 		return events.APIGatewayProxyResponse{Body: response.Marshal(), StatusCode: 400, Headers: response.Headers()}, nil
 	}
 
+	var usersTable = "users"
+	if value, ok := os.LookupEnv("dynamodb_table_users"); ok {
+		usersTable = value
+	}
+
 	// Initiate the forgot password flow
-	res, err := dal.GetFromIndex("users", "Email-index", dal.Condition{
+	res, err := dal.GetFromIndex(usersTable, "Email-index", dal.Condition{
 		"email": {
 			ComparisonOperator: aws.String("EQ"),
 			AttributeValueList: []*dal.AttributeValue{

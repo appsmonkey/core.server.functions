@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math"
 	"math/rand"
+	"os"
 	"time"
 
 	"github.com/appsmonkey/core.server.functions/dal"
@@ -41,8 +42,13 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		names = append(names, dal.Name(s))
 	}
 
+	var liveTable = "live"
+	if value, ok := os.LookupEnv("dynamodb_table_live"); ok {
+		liveTable = value
+	}
+
 	projBuilder := dal.Projection(dal.Name("timestamp"), names...)
-	res, err := dal.QueryMultiple("live",
+	res, err := dal.QueryMultiple(liveTable,
 		dal.Condition{
 			"token": {
 				ComparisonOperator: aws.String("EQ"),
@@ -84,7 +90,12 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 		Heartbeat int      `json:"heartbeat"`
 	}
 
-	schemaRes, err := dal.Get("schema", map[string]*dal.AttributeValue{
+	var schemaTable = "schema"
+	if value, ok := os.LookupEnv("dynamodb_table_schema"); ok {
+		schemaTable = value
+	}
+
+	schemaRes, err := dal.Get(schemaTable, map[string]*dal.AttributeValue{
 		"version": {
 			S: aws.String("1"),
 		},
@@ -133,8 +144,13 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	maxValues := make(map[string]float64, 0)
 	minValues := make(map[string]float64, 0)
 
+	var devicesTable = "devices"
+	if value, ok := os.LookupEnv("dynamodb_table_devices"); ok {
+		devicesTable = value
+	}
+
 	// fetch device for which we need to include city avg
-	deviceRes, err := dal.Get("devices", map[string]*dal.AttributeValue{
+	deviceRes, err := dal.Get(devicesTable, map[string]*dal.AttributeValue{
 		"token": {
 			S: aws.String(request.Token),
 		},
@@ -163,7 +179,13 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 
 	projBuilder = dal.Projection(dal.Name("timestamp"), names...)
 	// res, err := dal.List("chart_all_minute", dal.Name("timestamp").GreaterThanEqual(dal.Value(request.From)), projBuilder, true)
-	resCity, err := dal.QueryMultiple("chart_all_minute",
+
+	var chartAllMinuteTable = "chart_all_minute"
+	if value, ok := os.LookupEnv("dynamodb_table_chart_all_minute"); ok {
+		chartAllMinuteTable = value
+	}
+
+	resCity, err := dal.QueryMultiple(chartAllMinuteTable,
 		dal.Condition{
 			"token": {
 				ComparisonOperator: aws.String("EQ"),

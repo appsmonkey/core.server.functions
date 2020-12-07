@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"strconv"
 	"strings"
 
@@ -20,10 +21,19 @@ type Hour struct {
 
 // Save the data into the DB
 func (h *Hour) Save(last *int64) {
-	table := "chart_device_day"
+	var chartDay = "chart_day"
+	if value, ok := os.LookupEnv("dynamodb_table_chart_day"); ok {
+		chartDay = value
+	}
+
+	var chartDeviceDay = "chart_device_day"
+	if value, ok := os.LookupEnv("dynamodb_table_chart_device_day"); ok {
+		chartDeviceDay = value
+	}
+	table := chartDeviceDay
 	data := make(map[string]interface{}, 0)
 	if len(h.Token) == 0 {
-		table = "chart_day"
+		table = chartDay
 		data["sensor"] = h.Sensor
 		data["date"] = h.Date
 		data["value"] = h.Value
@@ -33,7 +43,6 @@ func (h *Hour) Save(last *int64) {
 		data["date"] = h.Date
 		data["value"] = h.Value
 	}
-
 
 	err := access.SaveHourChart(table, &data)
 	errString := ""
@@ -56,7 +65,12 @@ func Handler() error {
 		from = float64(0)
 	}
 
-	data := access.ChartInput(from, "chart_day_input")
+	var chartDayInput = "chart_day_input"
+	if value, ok := os.LookupEnv("dynamodb_table_chart_day_input"); ok {
+		chartDayInput = value
+	}
+
+	data := access.ChartInput(from, chartDayInput)
 	n := len(data)
 	sem := make(chan empty, n) // Using semaphore for efficiency
 
